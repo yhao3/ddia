@@ -65,7 +65,7 @@ breadcrumbs: false
 
 [^i]: 一個從電子學借用的術語。每個電路的輸入和輸出都有一定的阻抗（交流電阻）。當你將一個電路的輸出連線到另一個電路的輸入時，如果兩個電路的輸出和輸入阻抗匹配，則連線上的功率傳輸將被最大化。阻抗不匹配會導致訊號反射及其他問題。
 
-像 ActiveRecord 和 Hibernate 這樣的 **物件關係對映（ORM object-relational mapping）** 框架可以減少這個轉換層所需的樣板程式碼的數量，但是它們不能完全隱藏這兩個模型之間的差異。
+像 ActiveRecord 和 [Hibernate](https://hibernate.org/) 這樣的 **物件關係對映（ORM object-relational mapping）** 框架可以減少這個轉換層所需的樣板程式碼（Boilerplate code）的數量，但是它們不能完全隱藏這兩個模型之間的差異。
 
 ![](./v1/ddia_0201.png)
 
