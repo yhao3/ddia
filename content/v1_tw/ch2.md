@@ -34,7 +34,7 @@ breadcrumbs: false
 
 ## 關係模型與文件模型
 
-現在最著名的資料模型可能是 SQL。它基於 Edgar Codd 在 1970 年提出的關係模型【1】：資料被組織成 **關係**（SQL 中稱作 **表**），其中每個關係是 **元組**（SQL 中稱作 **行**) 的無序集合。
+現在最著名的資料模型可能是 SQL。它基於 Edgar Codd 在 1970 年提出的關係模型[^ref_1]：資料被組織成 **關係**（SQL 中稱作 **表**），其中每個關係是 **元組**（SQL 中稱作 **行**) 的無序集合。
 
 關係模型曾是一個理論性的提議，當時很多人都懷疑是否能夠有效實現它。然而到了 20 世紀 80 年代中期，關係資料庫管理系統（RDBMSes）和 SQL 已成為大多數人們儲存和查詢某些常規結構的資料的首選工具。關係資料庫已經持續稱霸了大約 25~30 年 —— 這對計算機史來說是極其漫長的時間。
 
@@ -42,20 +42,20 @@ breadcrumbs: false
 
 當時的其他資料庫迫使應用程式開發人員必須考慮資料庫內部的資料表示形式。關係模型致力於將上述實現細節隱藏在更簡潔的介面之後。
 
-多年來，在資料儲存和查詢方面存在著許多相互競爭的方法。在 20 世紀 70 年代和 80 年代初，網狀模型（network model）和層次模型（hierarchical model）曾是主要的選擇，但關係模型（relational model）隨後佔據了主導地位。物件資料庫在 20 世紀 80 年代末和 90 年代初來了又去。XML 資料庫在二十一世紀初出現，但只有小眾採用過。關係模型的每個競爭者都在其時代產生了大量的炒作，但從來沒有持續【2】。
+多年來，在資料儲存和查詢方面存在著許多相互競爭的方法。在 20 世紀 70 年代和 80 年代初，網狀模型（network model）和層次模型（hierarchical model）曾是主要的選擇，但關係模型（relational model）隨後佔據了主導地位。物件資料庫在 20 世紀 80 年代末和 90 年代初來了又去。XML 資料庫在二十一世紀初出現，但只有小眾採用過。關係模型的每個競爭者都在其時代產生了大量的炒作，但從來沒有持續[^ref_2]。
 
 隨著電腦越來越強大和互聯，它們開始用於日益多樣化的目的。關係資料庫非常成功地被推廣到業務資料處理的原始範圍之外更為廣泛的用例上。你今天在網上看到的大部分內容依舊是由關係資料庫來提供支援，無論是線上釋出、討論、社交網路、電子商務、遊戲、軟體即服務生產力應用程式等內容。
 
 ### NoSQL 的誕生
 
-現在 - 2010 年代，NoSQL 開始了最新一輪嘗試，試圖推翻關係模型的統治地位。“NoSQL” 這個名字讓人遺憾，因為實際上它並沒有涉及到任何特定的技術。最初它只是作為一個醒目的 Twitter 標籤，用在 2009 年一個關於分散式，非關係資料庫上的開源聚會上。無論如何，這個術語觸動了某些神經，並迅速在網路創業社群內外傳播開來。好些有趣的資料庫系統現在都與 *#NoSQL* 標籤相關聯，並且 NoSQL 被追溯性地重新解釋為 **不僅是 SQL（Not Only SQL）** 【4】。
+現在 - 2010 年代，NoSQL 開始了最新一輪嘗試，試圖推翻關係模型的統治地位。“NoSQL” 這個名字讓人遺憾，因為實際上它並沒有涉及到任何特定的技術。最初它只是作為一個醒目的 Twitter 標籤，用在 2009 年一個關於分散式，非關係資料庫上的開源聚會上。無論如何，這個術語觸動了某些神經，並迅速在網路創業社群內外傳播開來。好些有趣的資料庫系統現在都與 *#NoSQL* 標籤相關聯，並且 NoSQL 被追溯性地重新解釋為 **不僅是 SQL（Not Only SQL）** [^ref_4]。
 
 採用 NoSQL 資料庫的背後有幾個驅動因素，其中包括：
 
 * 需要比關係資料庫更好的可伸縮性，包括非常大的資料集或非常高的寫入吞吐量
 * 相比商業資料庫產品，免費和開源軟體更受偏愛
 * 關係模型不能很好地支援一些特殊的查詢操作
-* 受挫於關係模型的限制性，渴望一種更具多動態性與表現力的資料模型【5】
+* 受挫於關係模型的限制性，渴望一種更具多動態性與表現力的資料模型[^ref_5]
 
 不同的應用程式有不同的需求，一個用例的最佳技術選擇可能不同於另一個用例的最佳技術選擇。因此，在可預見的未來，關係資料庫似乎可能會繼續與各種非關係資料庫一起使用 - 這種想法有時也被稱為 **混合持久化（polyglot persistence）**。
 
@@ -74,10 +74,10 @@ breadcrumbs: false
 例如，[圖 2-1](./v1/ddia_0201.png) 展示了如何在關係模式中表示簡歷（一個 LinkedIn 簡介）。整個簡介可以透過一個唯一的識別符號 `user_id` 來標識。像 `first_name` 和 `last_name` 這樣的欄位每個使用者只出現一次，所以可以在 User 表上將其建模為列。但是，大多數人在職業生涯中擁有多於一份的工作，人們可能有不同樣的教育階段和任意數量的聯絡資訊。從使用者到這些專案之間存在一對多的關係，可以用多種方式來表示：
 
 * 傳統 SQL 模型（SQL：1999 之前）中，最常見的規範化表示形式是將職位，教育和聯絡資訊放在單獨的表中，對 User 表提供外部索引鍵引用，如 [圖 2-1](./v1/ddia_0201.png) 所示。
-* 後續的 SQL 標準增加了對結構化資料型別和 XML 資料的支援；這允許將多值資料儲存在單行內，並支援在這些文件內查詢和索引。這些功能在 Oracle，IBM DB2，MS SQL Server 和 PostgreSQL 中都有不同程度的支援【6,7】。JSON 資料型別也得到多個數據庫的支援，包括 IBM DB2，MySQL 和 PostgreSQL 【8】。
+* 後續的 SQL 標準增加了對結構化資料型別和 XML 資料的支援；這允許將多值資料儲存在單行內，並支援在這些文件內查詢和索引。這些功能在 Oracle，IBM DB2，MS SQL Server 和 PostgreSQL 中都有不同程度的支援[^ref_6] [^ref_7]。JSON 資料型別也得到多個數據庫的支援，包括 IBM DB2，MySQL 和 PostgreSQL [^ref_8]。
 * 第三種選擇是將職業，教育和聯絡資訊編碼為 JSON 或 XML 文件，將其儲存在資料庫的文字列中，並讓應用程式解析其結構和內容。這種配置下，通常不能使用資料庫來查詢該編碼列中的值。
 
-對於一個像簡歷這樣自包含文件的資料結構而言，JSON 表示是非常合適的：請參閱 [例 2-1](#例-2-1-用-json-文件表示一個-linkedin-簡介)。JSON 比 XML 更簡單。面向文件的資料庫（如 MongoDB 【9】，RethinkDB 【10】，CouchDB 【11】和 Espresso【12】）支援這種資料模型。
+對於一個像簡歷這樣自包含文件的資料結構而言，JSON 表示是非常合適的：請參閱 [例 2-1](#例-2-1-用-json-文件表示一個-linkedin-簡介)。JSON 比 XML 更簡單。面向文件的資料庫（如 MongoDB [^ref_9]，RethinkDB [^ref_10]，CouchDB [^ref_11]和 Espresso[^ref_12]）支援這種資料模型。
 
 ####  例 2-1. 用 JSON 文件表示一個 LinkedIn 簡介
 
@@ -177,19 +177,19 @@ JSON 表示比 [圖 2-1](./v1/ddia_0201.png) 中的多表模式具有更好的 *
 
 在多對多的關係和關聯已常規用在關係資料庫時，文件資料庫和 NoSQL 重啟了辯論：如何以最佳方式在資料庫中表示多對多關係。那場辯論可比 NoSQL 古老得多，事實上，最早可以追溯到計算機化資料庫系統。
 
-20 世紀 70 年代最受歡迎的業務資料處理資料庫是 IBM 的資訊管理系統（IMS），最初是為了阿波羅太空計劃的庫存管理而開發的，並於 1968 年有了首次商業釋出【13】。目前它仍在使用和維護，執行在 IBM 大型機的 OS/390 上【14】。
+20 世紀 70 年代最受歡迎的業務資料處理資料庫是 IBM 的資訊管理系統（IMS），最初是為了阿波羅太空計劃的庫存管理而開發的，並於 1968 年有了首次商業釋出[^ref_13]。目前它仍在使用和維護，執行在 IBM 大型機的 OS/390 上[^ref_14]。
 
-IMS 的設計中使用了一個相當簡單的資料模型，稱為 **層次模型（hierarchical model）**，它與文件資料庫使用的 JSON 模型有一些驚人的相似之處【2】。它將所有資料表示為巢狀在記錄中的記錄樹，這很像 [圖 2-2](./v1/ddia_0202.png) 的 JSON 結構。
+IMS 的設計中使用了一個相當簡單的資料模型，稱為 **層次模型（hierarchical model）**，它與文件資料庫使用的 JSON 模型有一些驚人的相似之處[^ref_2]。它將所有資料表示為巢狀在記錄中的記錄樹，這很像 [圖 2-2](./v1/ddia_0202.png) 的 JSON 結構。
 
-同文檔資料庫一樣，IMS 能良好處理一對多的關係，但是很難應對多對多的關係，並且不支援關聯。開發人員必須決定是否複製（非規範化）資料或手動解決從一個記錄到另一個記錄的引用。這些二十世紀六七十年代的問題與現在開發人員遇到的文件資料庫問題非常相似【15】。
+同文檔資料庫一樣，IMS 能良好處理一對多的關係，但是很難應對多對多的關係，並且不支援關聯。開發人員必須決定是否複製（非規範化）資料或手動解決從一個記錄到另一個記錄的引用。這些二十世紀六七十年代的問題與現在開發人員遇到的文件資料庫問題非常相似[^ref_15]。
 
-那時人們提出了各種不同的解決方案來解決層次模型的侷限性。其中最突出的兩個是 **關係模型**（relational model，它變成了 SQL，並統治了世界）和 **網狀模型**（network model，最初很受關注，但最終變得冷門）。這兩個陣營之間的 “大辯論” 在 70 年代持續了很久時間【2】。
+那時人們提出了各種不同的解決方案來解決層次模型的侷限性。其中最突出的兩個是 **關係模型**（relational model，它變成了 SQL，並統治了世界）和 **網狀模型**（network model，最初很受關注，但最終變得冷門）。這兩個陣營之間的 “大辯論” 在 70 年代持續了很久時間[^ref_2]。
 
 那兩個模式解決的問題與當前的問題相關，因此值得簡要回顧一下那場辯論。
 
 #### 網狀模型
 
-網狀模型由一個稱為資料系統語言會議（CODASYL）的委員會進行了標準化，並被數個不同的資料庫廠商實現；它也被稱為 CODASYL 模型【16】。
+網狀模型由一個稱為資料系統語言會議（CODASYL）的委員會進行了標準化，並被數個不同的資料庫廠商實現；它也被稱為 CODASYL 模型[^ref_16]。
 
 CODASYL 模型是層次模型的推廣。在層次模型的樹結構中，每條記錄只有一個父節點；在網路模式中，每條記錄可能有多個父節點。例如，“Greater Seattle Area” 地區可能是一條記錄，每個居住在該地區的使用者都可以與之相關聯。這允許對多對一和多對多的關係進行建模。
 
@@ -197,7 +197,7 @@ CODASYL 模型是層次模型的推廣。在層次模型的樹結構中，每條
 
 最簡單的情況下，訪問路徑類似遍歷連結串列：從列表頭開始，每次檢視一條記錄，直到找到所需的記錄。但在多對多關係的情況中，數條不同的路徑可以到達相同的記錄，網狀模型的程式設計師必須跟蹤這些不同的訪問路徑。
 
-CODASYL 中的查詢是透過利用遍歷記錄列和跟隨訪問路徑表在資料庫中移動遊標來執行的。如果記錄有多個父結點（即多個來自其他記錄的傳入指標），則應用程式程式碼必須跟蹤所有的各種關係。甚至 CODASYL 委員會成員也承認，這就像在 n 維資料空間中進行導航【17】。
+CODASYL 中的查詢是透過利用遍歷記錄列和跟隨訪問路徑表在資料庫中移動遊標來執行的。如果記錄有多個父結點（即多個來自其他記錄的傳入指標），則應用程式程式碼必須跟蹤所有的各種關係。甚至 CODASYL 委員會成員也承認，這就像在 n 維資料空間中進行導航[^ref_17]。
 
 儘管手動選擇訪問路徑能夠最有效地利用 20 世紀 70 年代非常有限的硬體功能（如磁帶驅動器，其搜尋速度非常慢），但這使得查詢和更新資料庫的程式碼變得複雜不靈活。無論是分層還是網狀模型，如果你沒有所需資料的路徑，就會陷入困境。你可以改變訪問路徑，但是必須瀏覽大量手寫資料庫查詢程式碼，並重寫來處理新的訪問路徑。更改應用程式的資料模型是很難的。
 
@@ -211,13 +211,13 @@ CODASYL 中的查詢是透過利用遍歷記錄列和跟隨訪問路徑表在資
 
 如果想按新的方式查詢資料，你可以宣告一個新的索引，查詢會自動使用最合適的那些索引。無需更改查詢來利用新的索引（請參閱 “[資料查詢語言](#資料查詢語言)”）。關係模型因此使新增應用程式新功能變得更加容易。
 
-關係資料庫的查詢最佳化器是複雜的，已耗費了多年的研究和開發精力【18】。關係模型的一個關鍵洞察是：只需構建一次查詢最佳化器，隨後使用該資料庫的所有應用程式都可以從中受益。如果你沒有查詢最佳化器的話，那麼為特定查詢手動編寫訪問路徑比編寫通用最佳化器更容易 —— 不過從長期看通用解決方案更好。
+關係資料庫的查詢最佳化器是複雜的，已耗費了多年的研究和開發精力[^ref_18]。關係模型的一個關鍵洞察是：只需構建一次查詢最佳化器，隨後使用該資料庫的所有應用程式都可以從中受益。如果你沒有查詢最佳化器的話，那麼為特定查詢手動編寫訪問路徑比編寫通用最佳化器更容易 —— 不過從長期看通用解決方案更好。
 
 #### 與文件資料庫相比
 
 在一個方面，文件資料庫還原為層次模型：在其父記錄中儲存巢狀記錄（[圖 2-1](./v1/ddia_0201.png) 中的一對多關係，如 `positions`，`education` 和 `contact_info`），而不是在單獨的表中。
 
-但是，在表示多對一和多對多的關係時，關係資料庫和文件資料庫並沒有根本的不同：在這兩種情況下，相關專案都被一個唯一的識別符號引用，這個識別符號在關係模型中被稱為 **外部索引鍵**，在文件模型中稱為 **文件引用**【9】。該識別符號在讀取時透過關聯或後續查詢來解析。迄今為止，文件資料庫沒有走 CODASYL 的老路。
+但是，在表示多對一和多對多的關係時，關係資料庫和文件資料庫並沒有根本的不同：在這兩種情況下，相關專案都被一個唯一的識別符號引用，這個識別符號在關係模型中被稱為 **外部索引鍵**，在文件模型中稱為 **文件引用**[^ref_9]。該識別符號在讀取時透過關聯或後續查詢來解析。迄今為止，文件資料庫沒有走 CODASYL 的老路。
 
 ### 關係型資料庫與文件資料庫在今日的對比
 
@@ -231,9 +231,9 @@ CODASYL 中的查詢是透過利用遍歷記錄列和跟隨訪問路徑表在資
 
 文件模型有一定的侷限性：例如，不能直接引用文件中的巢狀的專案，而是需要說 “使用者 251 的位置列表中的第二項”（很像層次模型中的訪問路徑）。但是，只要檔案巢狀不太深，這通常不是問題。
 
-文件資料庫對關聯的糟糕支援可能是個問題，也可能不是問題，這取決於應用程式。例如，如果某分析型應用程式使用一個文件資料庫來記錄何時何地發生了何事，那麼多對多關係可能永遠也用不上。【19】。
+文件資料庫對關聯的糟糕支援可能是個問題，也可能不是問題，這取決於應用程式。例如，如果某分析型應用程式使用一個文件資料庫來記錄何時何地發生了何事，那麼多對多關係可能永遠也用不上。[^ref_19]。
 
-但如果你的應用程式確實會用到多對多關係，那麼文件模型就沒有那麼誘人了。儘管可以透過反規範化來消除對關聯的需求，但這需要應用程式程式碼來做額外的工作以確保資料一致性。儘管應用程式程式碼可以透過向資料庫發出多個請求的方式來模擬關聯，但這也將複雜性轉移到應用程式中，而且通常也會比由資料庫內的專用程式碼更慢。在這種情況下，使用文件模型可能會導致更複雜的應用程式碼與更差的效能【15】。
+但如果你的應用程式確實會用到多對多關係，那麼文件模型就沒有那麼誘人了。儘管可以透過反規範化來消除對關聯的需求，但這需要應用程式程式碼來做額外的工作以確保資料一致性。儘管應用程式程式碼可以透過向資料庫發出多個請求的方式來模擬關聯，但這也將複雜性轉移到應用程式中，而且通常也會比由資料庫內的專用程式碼更慢。在這種情況下，使用文件模型可能會導致更複雜的應用程式碼與更差的效能[^ref_15]。
 
 我們沒有辦法說哪種資料模型更有助於簡化應用程式碼，因為它取決於資料項之間的關係種類。對高度關聯的資料而言，文件模型是極其糟糕的，關係模型是可以接受的，而選用圖形模型（請參閱 “[圖資料模型](#圖資料模型)”）是最自然的。
 
@@ -241,11 +241,11 @@ CODASYL 中的查詢是透過利用遍歷記錄列和跟隨訪問路徑表在資
 
 大多數文件資料庫以及關係資料庫中的 JSON 支援都不會強制文件中的資料採用何種模式。關係資料庫的 XML 支援通常帶有可選的模式驗證。沒有模式意味著可以將任意的鍵和值新增到文件中，並且當讀取時，客戶端無法保證文件可能包含的欄位。
 
-文件資料庫有時稱為 **無模式（schemaless）**，但這具有誤導性，因為讀取資料的程式碼通常假定某種結構 —— 即存在隱式模式，但不由資料庫強制執行【20】。一個更精確的術語是 **讀時模式**（即 schema-on-read，資料的結構是隱含的，只有在資料被讀取時才被解釋），相應的是 **寫時模式**（即 schema-on-write，傳統的關係資料庫方法中，模式明確，且資料庫確保所有的資料都符合其模式）【21】。
+文件資料庫有時稱為 **無模式（schemaless）**，但這具有誤導性，因為讀取資料的程式碼通常假定某種結構 —— 即存在隱式模式，但不由資料庫強制執行[^ref_20]。一個更精確的術語是 **讀時模式**（即 schema-on-read，資料的結構是隱含的，只有在資料被讀取時才被解釋），相應的是 **寫時模式**（即 schema-on-write，傳統的關係資料庫方法中，模式明確，且資料庫確保所有的資料都符合其模式）[^ref_21]。
 
-讀時模式類似於程式語言中的動態（執行時）型別檢查，而寫時模式類似於靜態（編譯時）型別檢查。就像靜態和動態型別檢查的相對優點具有很大的爭議性一樣【22】，資料庫中模式的強制性是一個具有爭議的話題，一般來說沒有正確或錯誤的答案。
+讀時模式類似於程式語言中的動態（執行時）型別檢查，而寫時模式類似於靜態（編譯時）型別檢查。就像靜態和動態型別檢查的相對優點具有很大的爭議性一樣[^ref_22]，資料庫中模式的強制性是一個具有爭議的話題，一般來說沒有正確或錯誤的答案。
 
-在應用程式想要改變其資料格式的情況下，這些方法之間的區別尤其明顯。例如，假設你把每個使用者的全名儲存在一個欄位中，而現在想分別儲存名字和姓氏【23】。在文件資料庫中，只需開始寫入具有新欄位的新文件，並在應用程式中使用程式碼來處理讀取舊文件的情況。例如：
+在應用程式想要改變其資料格式的情況下，這些方法之間的區別尤其明顯。例如，假設你把每個使用者的全名儲存在一個欄位中，而現在想分別儲存名字和姓氏[^ref_23]。在文件資料庫中，只需開始寫入具有新欄位的新文件，並在應用程式中使用程式碼來處理讀取舊文件的情況。例如：
 
 ```go
 if (user && user.name && !user.first_name) {
@@ -262,7 +262,7 @@ UPDATE users SET first_name = split_part(name, ' ', 1);      -- PostgreSQL
 UPDATE users SET first_name = substring_index(name, ' ', 1);      -- MySQL
 ```
 
-模式變更的速度很慢，而且要求停運。它的這種壞名譽並不是完全應得的：大多數關係資料庫系統可在幾毫秒內執行 `ALTER TABLE` 語句。MySQL 是一個值得注意的例外，它執行 `ALTER TABLE` 時會複製整個表，這可能意味著在更改一個大型表時會花費幾分鐘甚至幾個小時的停機時間，儘管存在各種工具來解決這個限制【24,25,26】。
+模式變更的速度很慢，而且要求停運。它的這種壞名譽並不是完全應得的：大多數關係資料庫系統可在幾毫秒內執行 `ALTER TABLE` 語句。MySQL 是一個值得注意的例外，它執行 `ALTER TABLE` 時會複製整個表，這可能意味著在更改一個大型表時會花費幾分鐘甚至幾個小時的停機時間，儘管存在各種工具來解決這個限制[^ref_24] [^ref_25] [^ref_26]。
 
 大型表上執行 `UPDATE` 語句在任何資料庫上都可能會很慢，因為每一行都需要重寫。要是不可接受的話，應用程式可以將 `first_name` 設定為預設值 `NULL`，並在讀取時再填充，就像使用文件資料庫一樣。
 
@@ -277,9 +277,9 @@ UPDATE users SET first_name = substring_index(name, ' ', 1);      -- MySQL
 
 文件通常以單個連續字串形式進行儲存，編碼為 JSON、XML 或其二進位制變體（如 MongoDB 的 BSON）。如果應用程式經常需要訪問整個文件（例如，將其渲染至網頁），那麼儲存區域性會帶來效能優勢。如果將資料分割到多個表中（如 [圖 2-1](./v1/ddia_0201.png) 所示），則需要進行多次索引查詢才能將其全部檢索出來，這可能需要更多的磁碟查詢並花費更多的時間。
 
-區域性僅僅適用於同時需要文件絕大部分內容的情況。即使只訪問文件其中的一小部分，資料庫通常需要載入整個文件，對於大型文件來說這種載入行為是很浪費的。更新文件時，通常需要整個重寫。只有不改變文件大小的修改才可以容易地原地執行。因此，通常建議保持相對小的文件，並避免增加文件大小的寫入【9】。這些效能限制大大減少了文件資料庫的實用場景。
+區域性僅僅適用於同時需要文件絕大部分內容的情況。即使只訪問文件其中的一小部分，資料庫通常需要載入整個文件，對於大型文件來說這種載入行為是很浪費的。更新文件時，通常需要整個重寫。只有不改變文件大小的修改才可以容易地原地執行。因此，通常建議保持相對小的文件，並避免增加文件大小的寫入[^ref_9]。這些效能限制大大減少了文件資料庫的實用場景。
 
-值得指出的是，為了區域性而分組集合相關資料的想法並不侷限於文件模型。例如，Google 的 Spanner 資料庫在關係資料模型中提供了同樣的區域性屬性，允許模式宣告一個表的行應該交錯（巢狀）在父表內【27】。Oracle 類似地允許使用一個稱為 **多表索引叢集表（multi-table index cluster tables）** 的類似特性【28】。Bigtable 資料模型（用於 Cassandra 和 HBase）中的 **列族（column-family）** 概念與管理區域性的目的類似【29】。
+值得指出的是，為了區域性而分組集合相關資料的想法並不侷限於文件模型。例如，Google 的 Spanner 資料庫在關係資料模型中提供了同樣的區域性屬性，允許模式宣告一個表的行應該交錯（巢狀）在父表內[^ref_27]。Oracle 類似地允許使用一個稱為 **多表索引叢集表（multi-table index cluster tables）** 的類似特性[^ref_28]。Bigtable 資料模型（用於 Cassandra 和 HBase）中的 **列族（column-family）** 概念與管理區域性的目的類似[^ref_29]。
 
 在 [第三章](./ch3) 將還會看到更多關於區域性的內容。
 
@@ -287,7 +287,7 @@ UPDATE users SET first_name = substring_index(name, ' ', 1);      -- MySQL
 
 自 2000 年代中期以來，大多數關係資料庫系統（MySQL 除外）都已支援 XML。這包括對 XML 文件進行本地修改的功能，以及在 XML 文件中進行索引和查詢的功能。這允許應用程式使用那種與文件資料庫應當使用的非常類似的資料模型。
 
-從 9.3 版本開始的 PostgreSQL 【8】，從 5.7 版本開始的 MySQL 以及從版本 10.5 開始的 IBM DB2【30】也對 JSON 文件提供了類似的支援級別。鑑於用在 Web APIs 的 JSON 流行趨勢，其他關係資料庫很可能會跟隨他們的腳步並新增 JSON 支援。
+從 9.3 版本開始的 PostgreSQL [^ref_8]，從 5.7 版本開始的 MySQL 以及從版本 10.5 開始的 IBM DB2[^ref_30]也對 JSON 文件提供了類似的支援級別。鑑於用在 Web APIs 的 JSON 流行趨勢，其他關係資料庫很可能會跟隨他們的腳步並新增 JSON 支援。
 
 在文件資料庫中，RethinkDB 在其查詢語言中支援類似關係的關聯，一些 MongoDB 驅動程式可以自動解析資料庫引用（有效地執行客戶端連線，儘管這可能比在資料庫中執行的連線慢，需要額外的網路往返，並且最佳化更少）。
 
@@ -295,7 +295,7 @@ UPDATE users SET first_name = substring_index(name, ' ', 1);      -- MySQL
 
 關係模型和文件模型的混合是未來資料庫一條很好的路線。
 
-[^v]: Codd 對關係模型【1】的原始描述實際上允許在關係模式中與 JSON 文件非常相似。他稱之為 **非簡單域（nonsimple domains）**。這個想法是，一行中的值不一定是一個像數字或字串一樣的原始資料型別，也可以是一個巢狀的關係（表），因此可以把一個任意巢狀的樹結構作為一個值，這很像 30 年後新增到 SQL 中的 JSON 或 XML 支援。
+[^v]: Codd 對關係模型[^ref_1]的原始描述實際上允許在關係模式中與 JSON 文件非常相似。他稱之為 **非簡單域（nonsimple domains）**。這個想法是，一行中的值不一定是一個像數字或字串一樣的原始資料型別，也可以是一個巢狀的關係（表），因此可以把一個任意巢狀的樹結構作為一個值，這很像 30 年後新增到 SQL 中的 JSON 或 XML 支援。
 
 
 ## 資料查詢語言
@@ -340,7 +340,7 @@ SELECT * FROM animals WHERE family ='Sharks';
 
 SQL 示例不確保任何特定的順序，因此不在意順序是否改變。但是如果查詢用命令式的程式碼來寫的話，那麼資料庫就永遠不可能確定程式碼是否依賴於排序。SQL 相當有限的功能性為資料庫提供了更多自動最佳化的空間。
 
-最後，宣告式語言往往適合並行執行。現在，CPU 的速度透過核心（core）的增加變得更快，而不是以比以前更高的時鐘速度執行【31】。命令程式碼很難在多個核心和多個機器之間並行化，因為它指定了指令必須以特定順序執行。宣告式語言更具有並行執行的潛力，因為它們僅指定結果的模式，而不指定用於確定結果的演算法。在適當情況下，資料庫可以自由使用查詢語言的並行實現【32】。
+最後，宣告式語言往往適合並行執行。現在，CPU 的速度透過核心（core）的增加變得更快，而不是以比以前更高的時鐘速度執行[^ref_31]。命令程式碼很難在多個核心和多個機器之間並行化，因為它指定了指令必須以特定順序執行。宣告式語言更具有並行執行的潛力，因為它們僅指定結果的模式，而不指定用於確定結果的演算法。在適當情況下，資料庫可以自由使用查詢語言的並行實現[^ref_32]。
 
 ### Web 上的宣告式查詢
 
@@ -415,11 +415,11 @@ for (var i = 0; i < liElements.length; i++) {
 
 在 Web 瀏覽器中，使用宣告式 CSS 樣式比使用 JavaScript 命令式地操作樣式要好得多。類似地，在資料庫中，使用像 SQL 這樣的宣告式查詢語言比使用命令式查詢 API 要好得多 [^vi]。
 
-[^vi]: IMS 和 CODASYL 都使用命令式 API。應用程式通常使用 COBOL 程式碼遍歷資料庫中的記錄，一次一條記錄【2,16】。
+[^vi]: IMS 和 CODASYL 都使用命令式 API。應用程式通常使用 COBOL 程式碼遍歷資料庫中的記錄，一次一條記錄[^ref_2] [^ref_16]。
 
 ### MapReduce查詢
 
-MapReduce 是一個由 Google 推廣的程式設計模型，用於在多臺機器上批次處理大規模的資料【33】。一些 NoSQL 資料儲存（包括 MongoDB 和 CouchDB）支援有限形式的 MapReduce，作為在多個文件中執行只讀查詢的機制。
+MapReduce 是一個由 Google 推廣的程式設計模型，用於在多臺機器上批次處理大規模的資料[^ref_33]。一些 NoSQL 資料儲存（包括 MongoDB 和 CouchDB）支援有限形式的 MapReduce，作為在多個文件中執行只讀查詢的機制。
 
 關於 MapReduce 更詳細的介紹在 [第十章](./ch10)。現在我們只簡要討論一下 MongoDB 使用的模型。
 
@@ -494,9 +494,9 @@ map 和 reduce 函式在功能上有所限制：它們必須是 **純** 函式�
 
 MapReduce 是一個相當底層的程式設計模型，用於計算機叢集上的分散式執行。像 SQL 這樣的更高階的查詢語言可以用一系列的 MapReduce 操作來實現（見 [第十章](./ch10)），但是也有很多不使用 MapReduce 的分散式 SQL 實現。須注意，SQL 並沒有限制它只能在單一機器上執行，而 MapReduce 也並沒有壟斷所有的分散式查詢執行。
 
-能夠在查詢中使用 JavaScript 程式碼是高階查詢的一個重要特性，但這不限於 MapReduce，一些 SQL 資料庫也可以用 JavaScript 函式進行擴充套件【34】。
+能夠在查詢中使用 JavaScript 程式碼是高階查詢的一個重要特性，但這不限於 MapReduce，一些 SQL 資料庫也可以用 JavaScript 函式進行擴充套件[^ref_34]。
 
-MapReduce 的一個可用性問題是，必須編寫兩個密切合作的 JavaScript 函式，這通常比編寫單個查詢更困難。此外，宣告式查詢語言為查詢最佳化器提供了更多機會來提高查詢的效能。基於這些原因，MongoDB 2.2 添加了一種叫做 **聚合管道** 的宣告式查詢語言的支援【9】。用這種語言表述鯊魚計數查詢如下所示：
+MapReduce 的一個可用性問題是，必須編寫兩個密切合作的 JavaScript 函式，這通常比編寫單個查詢更困難。此外，宣告式查詢語言為查詢最佳化器提供了更多機會來提高查詢的效能。基於這些原因，MongoDB 2.2 添加了一種叫做 **聚合管道** 的宣告式查詢語言的支援[^ref_9]。用這種語言表述鯊魚計數查詢如下所示：
 
 ```js
 db.observations.aggregate([
@@ -529,7 +529,7 @@ db.observations.aggregate([
 
 可以將那些眾所周知的演算法運用到這些圖上：例如，汽車導航系統搜尋道路網路中兩點之間的最短路徑，PageRank 可以用在網路圖上來確定網頁的流行程度，從而確定該網頁在搜尋結果中的排名。
 
-在剛剛給出的例子中，圖中的所有頂點代表了相同型別的事物（人、網頁或交叉路口）。不過，圖並不侷限於這樣的同類資料：同樣強大地是，圖提供了一種一致的方式，用來在單個數據儲存中儲存完全不同型別的物件。例如，Facebook 維護一個包含許多不同型別的頂點和邊的單個圖：頂點表示人、地點、事件、簽到和使用者的評論；邊表示哪些人是好友、簽到發生在哪裡、誰評論了什麼帖子、誰參與了什麼事件等等【35】。
+在剛剛給出的例子中，圖中的所有頂點代表了相同型別的事物（人、網頁或交叉路口）。不過，圖並不侷限於這樣的同類資料：同樣強大地是，圖提供了一種一致的方式，用來在單個數據儲存中儲存完全不同型別的物件。例如，Facebook 維護一個包含許多不同型別的頂點和邊的單個圖：頂點表示人、地點、事件、簽到和使用者的評論；邊表示哪些人是好友、簽到發生在哪裡、誰評論了什麼帖子、誰參與了什麼事件等等[^ref_35]。
 
 在本節中，我們將使用 [圖 2-5](./v1/ddia_0205.png) 所示的示例。它可以從社交網路或系譜資料庫中獲得：它顯示了兩個人，來自愛達荷州的 Lucy 和來自法國 Beaune 的 Alain。他們已婚，住在倫敦。
 
@@ -537,7 +537,7 @@ db.observations.aggregate([
 
 **圖 2-5 圖資料結構示例（框代表頂點，箭頭代表邊）**
 
-有幾種不同但相關的方法用來構建和查詢圖表中的資料。在本節中，我們將討論屬性圖模型（由 Neo4j，Titan 和 InfiniteGraph 實現）和三元組儲存（triple-store）模型（由 Datomic、AllegroGraph 等實現）。我們將檢視圖的三種宣告式查詢語言：Cypher，SPARQL 和 Datalog。除此之外，還有像 Gremlin 【36】這樣的圖形查詢語言和像 Pregel 這樣的圖形處理框架（見 [第十章](./ch10)）。
+有幾種不同但相關的方法用來構建和查詢圖表中的資料。在本節中，我們將討論屬性圖模型（由 Neo4j，Titan 和 InfiniteGraph 實現）和三元組儲存（triple-store）模型（由 Datomic、AllegroGraph 等實現）。我們將檢視圖的三種宣告式查詢語言：Cypher，SPARQL 和 Datalog。除此之外，還有像 Gremlin [^ref_36]這樣的圖形查詢語言和像 Pregel 這樣的圖形處理框架（見 [第十章](./ch10)）。
 
 ### 屬性圖
 
@@ -590,7 +590,7 @@ CREATE INDEX edges_heads ON edges (head_vertex);
 
 ### Cypher 查詢語言
 
-Cypher 是屬性圖的宣告式查詢語言，為 Neo4j 圖形資料庫而發明【37】（它是以電影 “駭客帝國” 中的一個角色來命名的，而與密碼學中的加密演算法無關【38】）。
+Cypher 是屬性圖的宣告式查詢語言，為 Neo4j 圖形資料庫而發明[^ref_37]（它是以電影 “駭客帝國” 中的一個角色來命名的，而與密碼學中的加密演算法無關[^ref_38]）。
 
 [例 2-3](#例-2-3-將圖-2-5-中的資料子集表示為-cypher-查詢) 顯示了將 [圖 2-5](./v1/ddia_0205.png) 的左邊部分插入圖形資料庫的 Cypher 查詢。你可以以類似的方式把圖的剩餘部分新增進去，但這裡為了文章可閱讀性而省略這部分的示例。每個頂點都有一個像 `USA` 或 `Idaho` 這樣的符號名稱，查詢的其他部分可以使用這些名稱在頂點之間建立邊，使用箭頭符號：`(Idaho) -[:WITHIN]-> (USA)` 建立一條標記為 `WITHIN` 的邊，`Idaho` 為尾節點，`USA` 為頭節點。
 
@@ -704,7 +704,7 @@ WITH RECURSIVE
 1. 原始資料型別中的值，例如字串或數字。在這種情況下，三元組的謂語和賓語相當於主語頂點上的屬性的鍵和值。例如，`(lucy, age, 33)` 就像屬性 `{"age": 33}` 的頂點 lucy。
 2. 圖中的另一個頂點。在這種情況下，謂語是圖中的一條邊，主語是其尾部頂點，而賓語是其頭部頂點。例如，在 `(lucy, marriedTo, alain)` 中主語和賓語 `lucy` 和 `alain` 都是頂點，並且謂語 `marriedTo` 是連線他們的邊的標籤。
 
-[例 2-6](#例-2-6-圖-2-5-中的資料子集表示為-turtle-三元組) 展示了與 [例 2-3](#例-2-3-將圖-2-5-中的資料子集表示為-cypher-查詢) 相同的資料，以稱為 Turtle 的格式（Notation3（N3）【39】的一個子集）寫成三元組。
+[例 2-6](#例-2-6-圖-2-5-中的資料子集表示為-turtle-三元組) 展示了與 [例 2-3](#例-2-3-將圖-2-5-中的資料子集表示為-cypher-查詢) 相同的資料，以稱為 Turtle 的格式（Notation3（N3）[^ref_39]的一個子集）寫成三元組。
 
 #### 例 2-6 圖 2-5 中的資料子集，表示為 Turtle 三元組
 
@@ -742,11 +742,11 @@ _:namerica  a :Location; :name "North America"; :type "continent".
 
 #### 語義網
 
-如果你深入瞭解關於三元組儲存的資訊，可能會陷入關於**語義網**的討論漩渦中。三元組儲存模型其實是完全獨立於語義網存在的，例如，Datomic【40】作為一種三元組儲存資料庫 [^vii]，從未被用於語義網中。但是，由於在很多人眼中這兩者緊密相連，我們應該簡要地討論一下。
+如果你深入瞭解關於三元組儲存的資訊，可能會陷入關於**語義網**的討論漩渦中。三元組儲存模型其實是完全獨立於語義網存在的，例如，Datomic[^ref_40]作為一種三元組儲存資料庫 [^vii]，從未被用於語義網中。但是，由於在很多人眼中這兩者緊密相連，我們應該簡要地討論一下。
 
 [^vii]: 從技術上講，Datomic 使用的是五元組而不是三元組，兩個額外的欄位是用於版本控制的元資料
 
-從本質上講，語義網是一個簡單且合理的想法：網站已經將資訊釋出為文字和圖片供人類閱讀，為什麼不將資訊作為機器可讀的資料也釋出給計算機呢？（基於三元組模型的）**資源描述框架**（**RDF**）【41】，被用作不同網站以統一的格式釋出資料的一種機制，允許來自不同網站的資料自動合併成 **一個數據網路** —— 成為一種網際網路範圍內的 “通用語義網資料庫”。
+從本質上講，語義網是一個簡單且合理的想法：網站已經將資訊釋出為文字和圖片供人類閱讀，為什麼不將資訊作為機器可讀的資料也釋出給計算機呢？（基於三元組模型的）**資源描述框架**（**RDF**）[^ref_41]，被用作不同網站以統一的格式釋出資料的一種機制，允許來自不同網站的資料自動合併成 **一個數據網路** —— 成為一種網際網路範圍內的 “通用語義網資料庫”。
 
 不幸的是，語義網在二十一世紀初被過度炒作，但到目前為止沒有任何跡象表明已在實踐中應用，這使得許多人嗤之以鼻。它還飽受眼花繚亂的縮略詞、過於複雜的標準提案和狂妄自大的困擾。
 
@@ -754,7 +754,7 @@ _:namerica  a :Location; :name "North America"; :type "continent".
 
 #### RDF 資料模型
 
-[例 2-7](#例-2-7-一種相對例-2-6-寫入資料的更為簡潔的方法) 中使用的 Turtle 語言是一種用於 RDF 資料的人類可讀格式。有時候，RDF 也可以以 XML 格式編寫，不過完成同樣的事情會相對囉嗦，請參閱 [例 2-8](#例-2-8-用-rdfxml-語法表示例-2-7-的資料)。Turtle/N3 是更可取的，因為它更容易閱讀，像 Apache Jena 【42】這樣的工具可以根據需要在不同的 RDF 格式之間進行自動轉換。
+[例 2-7](#例-2-7-一種相對例-2-6-寫入資料的更為簡潔的方法) 中使用的 Turtle 語言是一種用於 RDF 資料的人類可讀格式。有時候，RDF 也可以以 XML 格式編寫，不過完成同樣的事情會相對囉嗦，請參閱 [例 2-8](#例-2-8-用-rdfxml-語法表示例-2-7-的資料)。Turtle/N3 是更可取的，因為它更容易閱讀，像 Apache Jena [^ref_42]這樣的工具可以根據需要在不同的 RDF 格式之間進行自動轉換。
 
 #### 例 2-8 用 RDF/XML 語法表示例 2-7 的資料
 
@@ -790,7 +790,7 @@ RDF 有一些奇怪之處，因為它是為了在網際網路上交換資料而�
 
 ### SPARQL 查詢語言
 
-**SPARQL** 是一種用於三元組儲存的面向 RDF 資料模型的查詢語言【43】（它是 SPARQL 協議和 RDF 查詢語言的縮寫，發音為 “sparkle”）。SPARQL 早於 Cypher，並且由於 Cypher 的模式匹配借鑑於 SPARQL，這使得它們看起來非常相似【37】。
+**SPARQL** 是一種用於三元組儲存的面向 RDF 資料模型的查詢語言[^ref_43]（它是 SPARQL 協議和 RDF 查詢語言的縮寫，發音為 “sparkle”）。SPARQL 早於 Cypher，並且由於 Cypher 的模式匹配借鑑於 SPARQL，這使得它們看起來非常相似[^ref_37]。
 
 與之前相同的查詢 —— 查詢從美國移民到歐洲的人 —— 使用 SPARQL 比使用 Cypher 甚至更為簡潔（請參閱 [例 2-9](#例-2-9-與示例-2-4-相同的查詢用-sparql-表示)）。
 
@@ -836,9 +836,9 @@ SPARQL 是一種很好的查詢語言 —— 儘管它構想的語義網從未�
 
 ### 基礎：Datalog
 
-**Datalog** 是比 SPARQL、Cypher 更古老的語言，在 20 世紀 80 年代被學者廣泛研究【44,45,46】。它在軟體工程師中不太知名，但是它是重要的，因為它為以後的查詢語言提供了基礎。
+**Datalog** 是比 SPARQL、Cypher 更古老的語言，在 20 世紀 80 年代被學者廣泛研究[^ref_44] [^ref_45] [^ref_46]。它在軟體工程師中不太知名，但是它是重要的，因為它為以後的查詢語言提供了基礎。
 
-實踐中，Datalog 在有限的幾個資料系統中使用：例如，它是 Datomic 【40】的查詢語言，Cascalog 【47】是一種用於查詢 Hadoop 大資料集的 Datalog 實現 [^viii]。
+實踐中，Datalog 在有限的幾個資料系統中使用：例如，它是 Datomic [^ref_40]的查詢語言，Cascalog [^ref_47]是一種用於查詢 Hadoop 大資料集的 Datalog 實現 [^viii]。
 
 [^viii]: Datomic 和 Cascalog 使用 Datalog 的 Clojure S 表示式語法。在下面的例子中使用了一個更容易閱讀的 Prolog 語法，但兩者沒有任何功能差異。
 
@@ -922,8 +922,8 @@ Cypher 和 SPARQL 使用 SELECT 立即跳轉，但是 Datalog 一次只進行一
 
 雖然我們已經覆蓋了很多層面，但仍然有許多資料模型沒有提到。舉幾個簡單的例子：
 
-* 使用基因組資料的研究人員通常需要執行 **序列相似性搜尋**，這意味著需要一個很長的字串（代表一個 DNA 序列），並在一個擁有類似但不完全相同的字串的大型資料庫中尋找匹配。這裡所描述的資料庫都不能處理這種用法，這就是為什麼研究人員編寫了像 GenBank 這樣的專門的基因組資料庫軟體的原因【48】。
-* 粒子物理學家數十年來一直在進行大資料型別的大規模資料分析，像大型強子對撞機（LHC）這樣的專案現在會處理數百 PB 的資料！在這樣的規模下，需要定製解決方案來阻止硬體成本的失控【49】。
+* 使用基因組資料的研究人員通常需要執行 **序列相似性搜尋**，這意味著需要一個很長的字串（代表一個 DNA 序列），並在一個擁有類似但不完全相同的字串的大型資料庫中尋找匹配。這裡所描述的資料庫都不能處理這種用法，這就是為什麼研究人員編寫了像 GenBank 這樣的專門的基因組資料庫軟體的原因[^ref_48]。
+* 粒子物理學家數十年來一直在進行大資料型別的大規模資料分析，像大型強子對撞機（LHC）這樣的專案現在會處理數百 PB 的資料！在這樣的規模下，需要定製解決方案來阻止硬體成本的失控[^ref_49]。
 * **全文搜尋** 可以說是一種經常與資料庫一起使用的資料模型。資訊檢索是一個很大的專業課題，我們不會在本書中詳細介紹，但是我們將在第三章和第三部分中介紹搜尋索引。
 
 讓我們暫時將其放在一邊。在 [下一章](./ch3) 中，我們將討論在 **實現** 本章描述的資料模型時會遇到的一些權衡。
@@ -931,52 +931,100 @@ Cypher 和 SPARQL 使用 SELECT 立即跳轉，但是 Datalog 一次只進行一
 
 ## 參考文獻
 
-1. Edgar F. Codd: “[A Relational Model of Data for Large Shared Data Banks](https://www.seas.upenn.edu/~zives/03f/cis550/codd.pdf),” *Communications of the ACM*, volume 13, number 6, pages 377–387, June 1970. [doi:10.1145/362384.362685](http://dx.doi.org/10.1145/362384.362685)
-2. Michael Stonebraker and Joseph M. Hellerstein: “[What Goes Around Comes Around](http://mitpress2.mit.edu/books/chapters/0262693143chapm1.pdf),” in *Readings in Database Systems*, 4th edition, MIT Press, pages 2–41, 2005. ISBN: 978-0-262-69314-1
-3. Pramod J. Sadalage and Martin Fowler: *NoSQL Distilled*. Addison-Wesley, August 2012. ISBN: 978-0-321-82662-6
-4. Eric Evans: “[NoSQL: What's in a Name?](https://web.archive.org/web/20190623045155/http://blog.sym-link.com/2009/10/30/nosql_whats_in_a_name.html),” *blog.sym-link.com*, October 30, 2009.
-5. James Phillips: “[Surprises in Our NoSQL Adoption Survey](http://blog.couchbase.com/nosql-adoption-survey-surprises),” *blog.couchbase.com*, February 8, 2012.
-6. Michael Wagner: *SQL/XML:2006 – Evaluierung der Standardkonformität ausgewählter Datenbanksysteme*. Diplomica Verlag, Hamburg, 2010. ISBN: 978-3-836-64609-3
-7. “[XML Data (SQL Server)](https://docs.microsoft.com/en-us/sql/relational-databases/xml/xml-data-sql-server?view=sql-server-ver15),” SQL Server documentation, *docs.microsoft.com*, 2013.
-8. “[PostgreSQL 9.3.1 Documentation](http://www.postgresql.org/docs/9.3/static/index.html),” The PostgreSQL Global Development Group, 2013.
-9. “[The MongoDB 2.4 Manual](http://docs.mongodb.org/manual/),” MongoDB, Inc., 2013.
-10. “[RethinkDB 1.11 Documentation](http://www.rethinkdb.com/docs/),” *rethinkdb.com*, 2013.
-11. “[Apache CouchDB 1.6 Documentation](http://docs.couchdb.org/en/latest/),” *docs.couchdb.org*, 2014.
-12. Lin Qiao, Kapil Surlaker, Shirshanka Das, et al.: “[On Brewing Fresh Espresso: LinkedIn’s Distributed Data Serving Platform](http://www.slideshare.net/amywtang/espresso-20952131),” at *ACM International Conference on Management of Data* (SIGMOD), June 2013.
-13. Rick Long, Mark Harrington, Robert Hain, and Geoff Nicholls: [*IMS Primer*](http://www.redbooks.ibm.com/redbooks/pdfs/sg245352.pdf). IBM Redbook SG24-5352-00, IBM International Technical Support Organization, January 2000.
-14. Stephen D. Bartlett: “[IBM’s IMS—Myths, Realities, and Opportunities](https://public.dhe.ibm.com/software/data/ims/pdf/TCG2013015LI.pdf),” The Clipper Group Navigator, TCG2013015LI, July 2013.
-15. Sarah Mei: “[Why You Should Never Use MongoDB](http://www.sarahmei.com/blog/2013/11/11/why-you-should-never-use-mongodb/),” *sarahmei.com*, November 11, 2013.
-16. J. S. Knowles and D. M. R. Bell: “The CODASYL Model,” in *Databases—Role and Structure: An Advanced Course*, edited by P. M. Stocker, P. M. D. Gray, and M. P. Atkinson, pages 19–56, Cambridge University Press, 1984. ISBN: 978-0-521-25430-4
-17. Charles W. Bachman: “[The Programmer as Navigator](http://dl.acm.org/citation.cfm?id=362534),” *Communications of the ACM*, volume 16, number 11, pages 653–658, November 1973. [doi:10.1145/355611.362534](http://dx.doi.org/10.1145/355611.362534)
-18. Joseph M. Hellerstein, Michael Stonebraker, and James Hamilton: “[Architecture of a Database System](http://db.cs.berkeley.edu/papers/fntdb07-architecture.pdf),” *Foundations and Trends in Databases*, volume 1, number 2, pages 141–259, November 2007. [doi:10.1561/1900000002](http://dx.doi.org/10.1561/1900000002)
-19. Sandeep Parikh and Kelly Stirman: “[Schema Design for Time Series Data in MongoDB](http://blog.mongodb.org/post/65517193370/schema-design-for-time-series-data-in-mongodb),” *blog.mongodb.org*, October 30, 2013.
-20. Martin Fowler: “[Schemaless Data Structures](http://martinfowler.com/articles/schemaless/),” *martinfowler.com*, January 7, 2013.
-21. Amr Awadallah: “[Schema-on-Read vs. Schema-on-Write](http://www.slideshare.net/awadallah/schemaonread-vs-schemaonwrite),” at *Berkeley EECS RAD Lab Retreat*, Santa Cruz, CA, May 2009.
-22. Martin Odersky: “[The Trouble with Types](http://www.infoq.com/presentations/data-types-issues),” at *Strange Loop*, September 2013.
-23. Conrad Irwin: “[MongoDB—Confessions of a PostgreSQL Lover](https://speakerdeck.com/conradirwin/mongodb-confessions-of-a-postgresql-lover),” at *HTML5DevConf*, October 2013.
-24. “[Percona Toolkit Documentation: pt-online-schema-change](http://www.percona.com/doc/percona-toolkit/2.2/pt-online-schema-change.html),” Percona Ireland Ltd., 2013.
-25. Rany Keddo, Tobias Bielohlawek, and Tobias Schmidt: “[Large Hadron Migrator](https://github.com/soundcloud/lhm),” SoundCloud, 2013.
-26. Shlomi Noach: “[gh-ost: GitHub's Online Schema Migration Tool for MySQL](http://githubengineering.com/gh-ost-github-s-online-migration-tool-for-mysql/),” *githubengineering.com*, August 1, 2016.
-27. James C. Corbett, Jeffrey Dean, Michael Epstein, et al.: “[Spanner: Google’s Globally-Distributed Database](https://research.google/pubs/pub39966/),” at *10th USENIX Symposium on Operating System Design and Implementation* (OSDI), October 2012.
-28. Donald K. Burleson: “[Reduce I/O with Oracle Cluster Tables](https://web.archive.org/web/20231207233228/http://www.dba-oracle.com/oracle_tip_hash_index_cluster_table.htm),” *dba-oracle.com*.
-29. Fay Chang, Jeffrey Dean, Sanjay Ghemawat, et al.: “[Bigtable: A Distributed Storage System for Structured Data](https://research.google/pubs/pub27898/),” at *7th USENIX Symposium on Operating System Design and Implementation* (OSDI), November 2006.
-30. Bobbie J. Cochrane and Kathy A. McKnight: “[DB2 JSON Capabilities, Part 1: Introduction to DB2 JSON](https://web.archive.org/web/20180516203043/https://www.ibm.com/developerworks/data/library/techarticle/dm-1306nosqlforjson1/),” IBM developerWorks, June 20, 2013.
-31. Herb Sutter: “[The Free Lunch Is Over: A Fundamental Turn Toward Concurrency in Software](http://www.gotw.ca/publications/concurrency-ddj.htm),” *Dr. Dobb's Journal*, volume 30, number 3, pages 202-210, March 2005.
-32. Joseph M. Hellerstein: “[The Declarative Imperative: Experiences and Conjectures in Distributed Logic](http://www.eecs.berkeley.edu/Pubs/TechRpts/2010/EECS-2010-90.pdf),” Electrical Engineering and Computer Sciences, University of California at Berkeley, Tech report UCB/EECS-2010-90, June 2010.
-33. Jeffrey Dean and Sanjay Ghemawat: “[MapReduce: Simplified Data Processing on Large Clusters](https://research.google/pubs/pub62/),” at *6th USENIX Symposium on Operating System Design and Implementation* (OSDI), December 2004.
-34. Craig Kerstiens: “[JavaScript in Your Postgres](https://blog.heroku.com/javascript_in_your_postgres),” *blog.heroku.com*, June 5, 2013.
-35. Nathan Bronson, Zach Amsden, George Cabrera, et al.: “[TAO: Facebook’s Distributed Data Store for the Social Graph](https://www.usenix.org/conference/atc13/technical-sessions/presentation/bronson),” at *USENIX Annual Technical Conference* (USENIX ATC), June 2013.
-36. “[Apache TinkerPop3.2.3 Documentation](http://tinkerpop.apache.org/docs/3.2.3/reference/),” *tinkerpop.apache.org*, October 2016.
-37. “[The Neo4j Manual v2.0.0](http://docs.neo4j.org/chunked/2.0.0/index.html),” Neo Technology, 2013.
-38. Emil Eifrem: [Twitter correspondence](https://twitter.com/emileifrem/status/419107961512804352), January 3, 2014.
-39. David Beckett and Tim Berners-Lee: “[Turtle – Terse RDF Triple Language](http://www.w3.org/TeamSubmission/turtle/),” W3C Team Submission, March 28, 2011.
-40. “[Datomic Development Resources](http://docs.datomic.com/),” Metadata Partners, LLC, 2013.
-41. W3C RDF Working Group: “[Resource Description Framework (RDF)](http://www.w3.org/RDF/),” *w3.org*, 10 February 2004.
-42. “[Apache Jena](http://jena.apache.org/),” Apache Software Foundation.
-43. Steve Harris, Andy Seaborne, and Eric Prud'hommeaux: “[SPARQL 1.1 Query Language](http://www.w3.org/TR/sparql11-query/),” W3C Recommendation, March 2013.
-44. Todd J. Green, Shan Shan Huang, Boon Thau Loo, and Wenchao Zhou: “[Datalog and Recursive Query Processing](http://blogs.evergreen.edu/sosw/files/2014/04/Green-Vol5-DBS-017.pdf),” *Foundations and Trends in Databases*, volume 5, number 2, pages 105–195, November 2013. [doi:10.1561/1900000017](http://dx.doi.org/10.1561/1900000017)
-45. Stefano Ceri, Georg Gottlob, and Letizia Tanca: “[What You Always Wanted to Know About Datalog (And Never Dared to Ask)](https://www.researchgate.net/profile/Letizia_Tanca/publication/3296132_What_you_always_wanted_to_know_about_Datalog_and_never_dared_to_ask/links/0fcfd50ca2d20473ca000000.pdf),” *IEEE Transactions on Knowledge and Data Engineering*, volume 1, number 1, pages 146–166, March 1989. [doi:10.1109/69.43410](http://dx.doi.org/10.1109/69.43410)
-46. Serge Abiteboul, Richard Hull, and Victor Vianu: [*Foundations of Databases*](http://webdam.inria.fr/Alice/). Addison-Wesley, 1995. ISBN: 978-0-201-53771-0, available online at *webdam.inria.fr/Alice*
-47. Nathan Marz: “[Cascalog](https://github.com/nathanmarz/cascalog)," *github.com*.
-48. Dennis A. Benson, Ilene Karsch-Mizrachi, David J. Lipman, et al.: “[GenBank](https://academic.oup.com/nar/article/36/suppl_1/D25/2507746),” *Nucleic Acids Research*, volume 36, Database issue, pages D25–D30, December 2007. [doi:10.1093/nar/gkm929](http://dx.doi.org/10.1093/nar/gkm929)
-49. Fons Rademakers: “[ROOT for Big Data Analysis](https://indico.cern.ch/event/246453/contributions/1566610/attachments/423154/587535/ROOT-BigData-Analysis-London-2013.pdf),” at *Workshop on the Future of Big Data Management*, London, UK, June 2013.
+[^ref_1]: Edgar F. Codd: “[A Relational Model of Data for Large Shared Data Banks](https://www.seas.upenn.edu/~zives/03f/cis550/codd.pdf),” *Communications of the ACM*, volume 13, number 6, pages 377–387, June 1970. [doi:10.1145/362384.362685](http://dx.doi.org/10.1145/362384.362685)
+
+[^ref_2]: Michael Stonebraker and Joseph M. Hellerstein: “[What Goes Around Comes Around](http://mitpress2.mit.edu/books/chapters/0262693143chapm1.pdf),” in *Readings in Database Systems*, 4th edition, MIT Press, pages 2–41, 2005. ISBN: 978-0-262-69314-1
+
+[^ref_3]: Pramod J. Sadalage and Martin Fowler: *NoSQL Distilled*. Addison-Wesley, August 2012. ISBN: 978-0-321-82662-6
+
+[^ref_4]: Eric Evans: “[NoSQL: What's in a Name?](https://web.archive.org/web/20190623045155/http://blog.sym-link.com/2009/10/30/nosql_whats_in_a_name.html),” *blog.sym-link.com*, October 30, 2009.
+
+[^ref_5]: James Phillips: “[Surprises in Our NoSQL Adoption Survey](http://blog.couchbase.com/nosql-adoption-survey-surprises),” *blog.couchbase.com*, February 8, 2012.
+
+[^ref_6]: Michael Wagner: *SQL/XML:2006 – Evaluierung der Standardkonformität ausgewählter Datenbanksysteme*. Diplomica Verlag, Hamburg, 2010. ISBN: 978-3-836-64609-3
+
+[^ref_7]: “[XML Data (SQL Server)](https://docs.microsoft.com/en-us/sql/relational-databases/xml/xml-data-sql-server?view=sql-server-ver15),” SQL Server documentation, *docs.microsoft.com*, 2013.
+
+[^ref_8]: “[PostgreSQL 9.3.1 Documentation](http://www.postgresql.org/docs/9.3/static/index.html),” The PostgreSQL Global Development Group, 2013.
+
+[^ref_9]: “[The MongoDB 2.4 Manual](http://docs.mongodb.org/manual/),” MongoDB, Inc., 2013.
+
+[^ref_10]: “[RethinkDB 1.11 Documentation](http://www.rethinkdb.com/docs/),” *rethinkdb.com*, 2013.
+
+[^ref_11]: “[Apache CouchDB 1.6 Documentation](http://docs.couchdb.org/en/latest/),” *docs.couchdb.org*, 2014.
+
+[^ref_12]: Lin Qiao, Kapil Surlaker, Shirshanka Das, et al.: “[On Brewing Fresh Espresso: LinkedIn’s Distributed Data Serving Platform](http://www.slideshare.net/amywtang/espresso-20952131),” at *ACM International Conference on Management of Data* (SIGMOD), June 2013.
+
+[^ref_13]: Rick Long, Mark Harrington, Robert Hain, and Geoff Nicholls: [*IMS Primer*](http://www.redbooks.ibm.com/redbooks/pdfs/sg245352.pdf). IBM Redbook SG24-5352-00, IBM International Technical Support Organization, January 2000.
+
+[^ref_14]: Stephen D. Bartlett: “[IBM’s IMS—Myths, Realities, and Opportunities](https://public.dhe.ibm.com/software/data/ims/pdf/TCG2013015LI.pdf),” The Clipper Group Navigator, TCG2013015LI, July 2013.
+
+[^ref_15]: Sarah Mei: “[Why You Should Never Use MongoDB](http://www.sarahmei.com/blog/2013/11/11/why-you-should-never-use-mongodb/),” *sarahmei.com*, November 11, 2013.
+
+[^ref_16]: J. S. Knowles and D. M. R. Bell: “The CODASYL Model,” in *Databases—Role and Structure: An Advanced Course*, edited by P. M. Stocker, P. M. D. Gray, and M. P. Atkinson, pages 19–56, Cambridge University Press, 1984. ISBN: 978-0-521-25430-4
+
+[^ref_17]: Charles W. Bachman: “[The Programmer as Navigator](http://dl.acm.org/citation.cfm?id=362534),” *Communications of the ACM*, volume 16, number 11, pages 653–658, November 1973. [doi:10.1145/355611.362534](http://dx.doi.org/10.1145/355611.362534)
+
+[^ref_18]: Joseph M. Hellerstein, Michael Stonebraker, and James Hamilton: “[Architecture of a Database System](http://db.cs.berkeley.edu/papers/fntdb07-architecture.pdf),” *Foundations and Trends in Databases*, volume 1, number 2, pages 141–259, November 2007. [doi:10.1561/1900000002](http://dx.doi.org/10.1561/1900000002)
+
+[^ref_19]: Sandeep Parikh and Kelly Stirman: “[Schema Design for Time Series Data in MongoDB](http://blog.mongodb.org/post/65517193370/schema-design-for-time-series-data-in-mongodb),” *blog.mongodb.org*, October 30, 2013.
+
+[^ref_20]: Martin Fowler: “[Schemaless Data Structures](http://martinfowler.com/articles/schemaless/),” *martinfowler.com*, January 7, 2013.
+
+[^ref_21]: Amr Awadallah: “[Schema-on-Read vs. Schema-on-Write](http://www.slideshare.net/awadallah/schemaonread-vs-schemaonwrite),” at *Berkeley EECS RAD Lab Retreat*, Santa Cruz, CA, May 2009.
+
+[^ref_22]: Martin Odersky: “[The Trouble with Types](http://www.infoq.com/presentations/data-types-issues),” at *Strange Loop*, September 2013.
+
+[^ref_23]: Conrad Irwin: “[MongoDB—Confessions of a PostgreSQL Lover](https://speakerdeck.com/conradirwin/mongodb-confessions-of-a-postgresql-lover),” at *HTML5DevConf*, October 2013.
+
+[^ref_24]: “[Percona Toolkit Documentation: pt-online-schema-change](http://www.percona.com/doc/percona-toolkit/2.2/pt-online-schema-change.html),” Percona Ireland Ltd., 2013.
+
+[^ref_25]: Rany Keddo, Tobias Bielohlawek, and Tobias Schmidt: “[Large Hadron Migrator](https://github.com/soundcloud/lhm),” SoundCloud, 2013.
+
+[^ref_26]: Shlomi Noach: “[gh-ost: GitHub's Online Schema Migration Tool for MySQL](http://githubengineering.com/gh-ost-github-s-online-migration-tool-for-mysql/),” *githubengineering.com*, August 1, 2016.
+
+[^ref_27]: James C. Corbett, Jeffrey Dean, Michael Epstein, et al.: “[Spanner: Google’s Globally-Distributed Database](https://research.google/pubs/pub39966/),” at *10th USENIX Symposium on Operating System Design and Implementation* (OSDI), October 2012.
+
+[^ref_28]: Donald K. Burleson: “[Reduce I/O with Oracle Cluster Tables](https://web.archive.org/web/20231207233228/http://www.dba-oracle.com/oracle_tip_hash_index_cluster_table.htm),” *dba-oracle.com*.
+
+[^ref_29]: Fay Chang, Jeffrey Dean, Sanjay Ghemawat, et al.: “[Bigtable: A Distributed Storage System for Structured Data](https://research.google/pubs/pub27898/),” at *7th USENIX Symposium on Operating System Design and Implementation* (OSDI), November 2006.
+
+[^ref_30]: Bobbie J. Cochrane and Kathy A. McKnight: “[DB2 JSON Capabilities, Part 1: Introduction to DB2 JSON](https://web.archive.org/web/20180516203043/https://www.ibm.com/developerworks/data/library/techarticle/dm-1306nosqlforjson1/),” IBM developerWorks, June 20, 2013.
+
+[^ref_31]: Herb Sutter: “[The Free Lunch Is Over: A Fundamental Turn Toward Concurrency in Software](http://www.gotw.ca/publications/concurrency-ddj.htm),” *Dr. Dobb's Journal*, volume 30, number 3, pages 202-210, March 2005.
+
+[^ref_32]: Joseph M. Hellerstein: “[The Declarative Imperative: Experiences and Conjectures in Distributed Logic](http://www.eecs.berkeley.edu/Pubs/TechRpts/2010/EECS-2010-90.pdf),” Electrical Engineering and Computer Sciences, University of California at Berkeley, Tech report UCB/EECS-2010-90, June 2010.
+
+[^ref_33]: Jeffrey Dean and Sanjay Ghemawat: “[MapReduce: Simplified Data Processing on Large Clusters](https://research.google/pubs/pub62/),” at *6th USENIX Symposium on Operating System Design and Implementation* (OSDI), December 2004.
+
+[^ref_34]: Craig Kerstiens: “[JavaScript in Your Postgres](https://blog.heroku.com/javascript_in_your_postgres),” *blog.heroku.com*, June 5, 2013.
+
+[^ref_35]: Nathan Bronson, Zach Amsden, George Cabrera, et al.: “[TAO: Facebook’s Distributed Data Store for the Social Graph](https://www.usenix.org/conference/atc13/technical-sessions/presentation/bronson),” at *USENIX Annual Technical Conference* (USENIX ATC), June 2013.
+
+[^ref_36]: “[Apache TinkerPop3.2.3 Documentation](http://tinkerpop.apache.org/docs/3.2.3/reference/),” *tinkerpop.apache.org*, October 2016.
+
+[^ref_37]: “[The Neo4j Manual v2.0.0](http://docs.neo4j.org/chunked/2.0.0/index.html),” Neo Technology, 2013.
+
+[^ref_38]: Emil Eifrem: [Twitter correspondence](https://twitter.com/emileifrem/status/419107961512804352), January 3, 2014.
+
+[^ref_39]: David Beckett and Tim Berners-Lee: “[Turtle – Terse RDF Triple Language](http://www.w3.org/TeamSubmission/turtle/),” W3C Team Submission, March 28, 2011.
+
+[^ref_40]: “[Datomic Development Resources](http://docs.datomic.com/),” Metadata Partners, LLC, 2013.
+
+[^ref_41]: W3C RDF Working Group: “[Resource Description Framework (RDF)](http://www.w3.org/RDF/),” *w3.org*, 10 February 2004.
+
+[^ref_42]: “[Apache Jena](http://jena.apache.org/),” Apache Software Foundation.
+
+[^ref_43]: Steve Harris, Andy Seaborne, and Eric Prud'hommeaux: “[SPARQL 1.1 Query Language](http://www.w3.org/TR/sparql11-query/),” W3C Recommendation, March 2013.
+
+[^ref_44]: Todd J. Green, Shan Shan Huang, Boon Thau Loo, and Wenchao Zhou: “[Datalog and Recursive Query Processing](http://blogs.evergreen.edu/sosw/files/2014/04/Green-Vol5-DBS-017.pdf),” *Foundations and Trends in Databases*, volume 5, number 2, pages 105–195, November 2013. [doi:10.1561/1900000017](http://dx.doi.org/10.1561/1900000017)
+
+[^ref_45]: Stefano Ceri, Georg Gottlob, and Letizia Tanca: “[What You Always Wanted to Know About Datalog (And Never Dared to Ask)](https://www.researchgate.net/profile/Letizia_Tanca/publication/3296132_What_you_always_wanted_to_know_about_Datalog_and_never_dared_to_ask/links/0fcfd50ca2d20473ca000000.pdf),” *IEEE Transactions on Knowledge and Data Engineering*, volume 1, number 1, pages 146–166, March 1989. [doi:10.1109/69.43410](http://dx.doi.org/10.1109/69.43410)
+
+[^ref_46]: Serge Abiteboul, Richard Hull, and Victor Vianu: [*Foundations of Databases*](http://webdam.inria.fr/Alice/). Addison-Wesley, 1995. ISBN: 978-0-201-53771-0, available online at *webdam.inria.fr/Alice*
+
+[^ref_47]: Nathan Marz: “[Cascalog](https://github.com/nathanmarz/cascalog)," *github.com*.
+
+[^ref_48]: Dennis A. Benson, Ilene Karsch-Mizrachi, David J. Lipman, et al.: “[GenBank](https://academic.oup.com/nar/article/36/suppl_1/D25/2507746),” *Nucleic Acids Research*, volume 36, Database issue, pages D25–D30, December 2007. [doi:10.1093/nar/gkm929](http://dx.doi.org/10.1093/nar/gkm929)
+
+[^ref_49]: Fons Rademakers: “[ROOT for Big Data Analysis](https://indico.cern.ch/event/246453/contributions/1566610/attachments/423154/587535/ROOT-BigData-Analysis-London-2013.pdf),” at *Workshop on the Future of Big Data Management*, London, UK, June 2013.

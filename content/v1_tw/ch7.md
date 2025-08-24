@@ -37,11 +37,11 @@ breadcrumbs: false
 
 ## 事務的棘手概念
 
-現今，幾乎所有的關係型資料庫和一些非關係資料庫都支援 **事務**。其中大多數遵循 IBM System R（第一個 SQL 資料庫）在 1975 年引入的風格【1,2,3】。40 年裡，儘管一些實現細節發生了變化，但總體思路大同小異：MySQL、PostgreSQL、Oracle 和 SQL Server 等資料庫中的事務支援與 System R 異乎尋常地相似。
+現今，幾乎所有的關係型資料庫和一些非關係資料庫都支援 **事務**。其中大多數遵循 IBM System R（第一個 SQL 資料庫）在 1975 年引入的風格[^ref_1] [^ref_2] [^ref_3]。40 年裡，儘管一些實現細節發生了變化，但總體思路大同小異：MySQL、PostgreSQL、Oracle 和 SQL Server 等資料庫中的事務支援與 System R 異乎尋常地相似。
 
-2000 年以後，非關係（NoSQL）資料庫開始普及。它們的目標是在關係資料庫的現狀基礎上，透過提供新的資料模型選擇（請參閱 [第二章](./ch2)）並預設包含複製（第五章）和分割槽（第六章）來進一步提升。事務是這次運動的主要犧牲品：這些新一代資料庫中的許多資料庫完全放棄了事務，或者重新定義了這個詞，描述比以前所理解的更弱得多的一套保證【4】。
+2000 年以後，非關係（NoSQL）資料庫開始普及。它們的目標是在關係資料庫的現狀基礎上，透過提供新的資料模型選擇（請參閱 [第二章](./ch2)）並預設包含複製（第五章）和分割槽（第六章）來進一步提升。事務是這次運動的主要犧牲品：這些新一代資料庫中的許多資料庫完全放棄了事務，或者重新定義了這個詞，描述比以前所理解的更弱得多的一套保證[^ref_4]。
 
-隨著這種新型分散式資料庫的炒作，人們普遍認為事務是可伸縮性的對立面，任何大型系統都必須放棄事務以保持良好的效能和高可用性【5,6】。另一方面，資料庫廠商有時將事務保證作為 “重要應用” 和 “有價值資料” 的基本要求。這兩種觀點都是 **純粹的誇張**。
+隨著這種新型分散式資料庫的炒作，人們普遍認為事務是可伸縮性的對立面，任何大型系統都必須放棄事務以保持良好的效能和高可用性[^ref_5] [^ref_6]。另一方面，資料庫廠商有時將事務保證作為 “重要應用” 和 “有價值資料” 的基本要求。這兩種觀點都是 **純粹的誇張**。
 
 事實並非如此簡單：與其他技術設計選擇一樣，事務有其優勢和侷限性。為了理解這些權衡，讓我們瞭解事務所提供保證的細節 —— 無論是在正常執行中還是在各種極端（但是現實存在）的情況下。
 
@@ -49,9 +49,9 @@ breadcrumbs: false
 
 事務所提供的安全保證，通常由眾所周知的首字母縮略詞 ACID 來描述，ACID 代表 **原子性（Atomicity）**，**一致性（Consistency）**，**隔離性（Isolation）** 和 **永續性（Durability）**。它由 Theo Härder 和 Andreas Reuter 於 1983 年提出，旨在為資料庫中的容錯機制建立精確的術語。
 
-但實際上，不同資料庫的 ACID 實現並不相同。例如，我們將會看到，關於 **隔離性** 的含義就有許多含糊不清【8】。高層次上的想法很美好，但魔鬼隱藏在細節裡。今天，當一個系統聲稱自己 “符合 ACID” 時，實際上能期待的是什麼保證並不清楚。不幸的是，ACID 現在幾乎已經變成了一個營銷術語。
+但實際上，不同資料庫的 ACID 實現並不相同。例如，我們將會看到，關於 **隔離性** 的含義就有許多含糊不清[^ref_8]。高層次上的想法很美好，但魔鬼隱藏在細節裡。今天，當一個系統聲稱自己 “符合 ACID” 時，實際上能期待的是什麼保證並不清楚。不幸的是，ACID 現在幾乎已經變成了一個營銷術語。
 
-（不符合 ACID 標準的系統有時被稱為 BASE，它代表 **基本可用性（Basically Available）**，**軟狀態（Soft State）** 和 **最終一致性（Eventual consistency）**【9】，這比 ACID 的定義更加模糊，似乎 BASE 的唯一合理的定義是 “不是 ACID”，即它幾乎可以代表任何你想要的東西。）
+（不符合 ACID 標準的系統有時被稱為 BASE，它代表 **基本可用性（Basically Available）**，**軟狀態（Soft State）** 和 **最終一致性（Eventual consistency）**[^ref_9]，這比 ACID 的定義更加模糊，似乎 BASE 的唯一合理的定義是 “不是 ACID”，即它幾乎可以代表任何你想要的東西。）
 
 讓我們深入瞭解原子性，一致性，隔離性和永續性的定義，這可以讓我們提煉出事務的思想。
 
@@ -84,7 +84,7 @@ ACID 一致性的概念是，**對資料的一組特定約束必須始終成立*
 
 原子性、隔離性和永續性是資料庫的屬性，而一致性（在 ACID 意義上）是應用程式的屬性。應用可能依賴資料庫的原子性和隔離性來實現一致性，但這並不僅取決於資料庫。因此，字母 C 不屬於 ACID [^i]。
 
-[^i]: 喬・海勒斯坦（Joe Hellerstein）指出，在 Härder 與 Reuter 的論文中，“ACID 中的 C” 是被 “扔進去湊縮寫單詞的”【7】，而且那時候大家都不怎麼在乎一致性。
+[^i]: 喬・海勒斯坦（Joe Hellerstein）指出，在 Härder 與 Reuter 的論文中，“ACID 中的 C” 是被 “扔進去湊縮寫單詞的”[^ref_7]，而且那時候大家都不怎麼在乎一致性。
 
 #### 隔離性
 
@@ -92,13 +92,13 @@ ACID 一致性的概念是，**對資料的一組特定約束必須始終成立*
 
 [圖 7-1](./v1/ddia_0701.png) 是這類問題的一個簡單例子。假設你有兩個客戶端同時在資料庫中增長一個計數器。（假設資料庫沒有內建的自增操作）每個客戶端需要讀取計數器的當前值，加 1 ，再回寫新值。[圖 7-1](./v1/ddia_0701.png) 中，因為發生了兩次增長，計數器應該從 42 增至 44；但由於競態條件，實際上只增至 43 。
 
-ACID 意義上的隔離性意味著，**同時執行的事務是相互隔離的**：它們不能相互冒犯。傳統的資料庫教科書將隔離性形式化為 **可序列化（Serializability）**，這意味著每個事務可以假裝它是唯一在整個資料庫上執行的事務。資料庫確保當多個事務被提交時，結果與它們序列執行（一個接一個）是一樣的，儘管實際上它們可能是併發執行的【10】。
+ACID 意義上的隔離性意味著，**同時執行的事務是相互隔離的**：它們不能相互冒犯。傳統的資料庫教科書將隔離性形式化為 **可序列化（Serializability）**，這意味著每個事務可以假裝它是唯一在整個資料庫上執行的事務。資料庫確保當多個事務被提交時，結果與它們序列執行（一個接一個）是一樣的，儘管實際上它們可能是併發執行的[^ref_10]。
 
 ![](./v1/ddia_0701.png)
 
 **圖 7-1 兩個客戶之間的競爭狀態同時遞增計數器**
 
-然而實踐中很少會使用可序列的隔離，因為它有效能損失。一些流行的資料庫如 Oracle 11g，甚至沒有實現它。在 Oracle 中有一個名為 “可序列的” 隔離級別，但實際上它實現了一種叫做 **快照隔離（snapshot isolation）** 的功能，**這是一種比可序列化更弱的保證**【8,11】。我們將在 “[弱隔離級別](#弱隔離級別)” 中研究快照隔離和其他形式的隔離。
+然而實踐中很少會使用可序列的隔離，因為它有效能損失。一些流行的資料庫如 Oracle 11g，甚至沒有實現它。在 Oracle 中有一個名為 “可序列的” 隔離級別，但實際上它實現了一種叫做 **快照隔離（snapshot isolation）** 的功能，**這是一種比可序列化更弱的保證**[^ref_8] [^ref_11]。我們將在 “[弱隔離級別](#弱隔離級別)” 中研究快照隔離和其他形式的隔離。
 
 #### 永續性
 
@@ -117,11 +117,11 @@ ACID 意義上的隔離性意味著，**同時執行的事務是相互隔離的*
 > * 如果你寫入磁碟然後機器宕機，即使資料沒有丟失，在修復機器或將磁碟轉移到其他機器之前，也是無法訪問的。這種情況下，複製系統可以保持可用性。
 > * 一個相關性故障（停電，或一個特定輸入導致所有節點崩潰的 Bug）可能會一次性摧毀所有副本（請參閱「[可靠性](./ch1#可靠性)」），任何僅儲存在記憶體中的資料都會丟失，故記憶體資料庫仍然要和磁碟寫入打交道。
 > * 在非同步複製系統中，當主庫不可用時，最近的寫入操作可能會丟失（請參閱「[處理節點宕機](./ch5#處理節點宕機)」）。
-> * 當電源突然斷電時，特別是固態硬碟，有證據顯示有時會違反應有的保證：甚至 fsync 也不能保證正常工作【12】。硬碟韌體可能有錯誤，就像任何其他型別的軟體一樣【13,14】。
-> * 儲存引擎和檔案系統之間的微妙互動可能會導致難以追蹤的錯誤，並可能導致磁碟上的檔案在崩潰後被損壞【15,16】。
-> * 磁碟上的資料可能會在沒有檢測到的情況下逐漸損壞【17】。如果資料已損壞一段時間，副本和最近的備份也可能損壞。這種情況下，需要嘗試從歷史備份中恢復資料。
-> * 一項關於固態硬碟的研究發現，在執行的前四年中，30% 到 80% 的硬碟會產生至少一個壞塊【18】。相比固態硬碟，磁碟的壞道率較低，但完全失效的機率更高。
-> * 如果 SSD 斷電，可能會在幾周內開始丟失資料，具體取決於溫度【19】。
+> * 當電源突然斷電時，特別是固態硬碟，有證據顯示有時會違反應有的保證：甚至 fsync 也不能保證正常工作[^ref_12]。硬碟韌體可能有錯誤，就像任何其他型別的軟體一樣[^ref_13] [^ref_14]。
+> * 儲存引擎和檔案系統之間的微妙互動可能會導致難以追蹤的錯誤，並可能導致磁碟上的檔案在崩潰後被損壞[^ref_15] [^ref_16]。
+> * 磁碟上的資料可能會在沒有檢測到的情況下逐漸損壞[^ref_17]。如果資料已損壞一段時間，副本和最近的備份也可能損壞。這種情況下，需要嘗試從歷史備份中恢復資料。
+> * 一項關於固態硬碟的研究發現，在執行的前四年中，30% 到 80% 的硬碟會產生至少一個壞塊[^ref_18]。相比固態硬碟，磁碟的壞道率較低，但完全失效的機率更高。
+> * 如果 SSD 斷電，可能會在幾周內開始丟失資料，具體取決於溫度[^ref_19]。
 >
 > 在實踐中，沒有一種技術可以提供絕對保證。只有各種降低風險的技術，包括寫入磁碟，複製到遠端機器和備份 —— 它們可以且應該一起使用。與往常一樣，最好抱著懷疑的態度接受任何理論上的 “保證”。
 
@@ -175,7 +175,7 @@ SELECT COUNT（*）FROM emails WHERE recipient_id = 2 AND unread_flag = true
 
 [^iv]: 嚴格地說，**原子自增（atomic increment）** 這個術語在多執行緒程式設計的意義上使用了原子這個詞。在 ACID 的情況下，它實際上應該被稱為 **隔離的（isolated）** 的或 **可序列的（serializable）** 的增量。但這就太吹毛求疵了。
 
-這些單物件操作很有用，因為它們可以防止在多個客戶端嘗試同時寫入同一個物件時丟失更新（請參閱 “[防止丟失更新](#防止丟失更新)”）。但它們不是通常意義上的事務。CAS 以及其他單一物件操作被稱為 “輕量級事務”，甚至出於營銷目的被稱為 “ACID”【20,21,22】，但是這個術語是誤導性的。事務通常被理解為，**將多個物件上的多個操作合併為一個執行單元的機制**。
+這些單物件操作很有用，因為它們可以防止在多個客戶端嘗試同時寫入同一個物件時丟失更新（請參閱 “[防止丟失更新](#防止丟失更新)”）。但它們不是通常意義上的事務。CAS 以及其他單一物件操作被稱為 “輕量級事務”，甚至出於營銷目的被稱為 “ACID”[^ref_20] [^ref_21] [^ref_22]，但是這個術語是誤導性的。事務通常被理解為，**將多個物件上的多個操作合併為一個執行單元的機制**。
 
 #### 多物件事務的需求
 
@@ -217,13 +217,13 @@ SELECT COUNT（*）FROM emails WHERE recipient_id = 2 AND unread_flag = true
 
 出於這個原因，資料庫一直試圖透過提供 **事務隔離（transaction isolation）** 來隱藏應用程式開發者的併發問題。從理論上講，隔離可以透過假裝沒有併發發生，讓你的生活更加輕鬆：**可序列的（serializable）** 隔離等級意味著資料庫保證事務的效果如同序列執行（即一次一個，沒有任何併發）。
 
-實際上不幸的是：隔離並沒有那麼簡單。**可序列的隔離** 會有效能損失，許多資料庫不願意支付這個代價【8】。因此，系統通常使用較弱的隔離級別來防止一部分，而不是全部的併發問題。這些隔離級別難以理解，並且會導致微妙的錯誤，但是它們仍然在實踐中被使用【23】。
+實際上不幸的是：隔離並沒有那麼簡單。**可序列的隔離** 會有效能損失，許多資料庫不願意支付這個代價[^ref_8]。因此，系統通常使用較弱的隔離級別來防止一部分，而不是全部的併發問題。這些隔離級別難以理解，並且會導致微妙的錯誤，但是它們仍然在實踐中被使用[^ref_23]。
 
-弱事務隔離級別導致的併發性錯誤不僅僅是一個理論問題。它們造成了很多的資金損失【24,25】，耗費了財務審計人員的調查【26】，並導致客戶資料被破壞【27】。關於這類問題的一個流行的評論是 “如果你正在處理財務資料，請使用 ACID 資料庫！” —— 但是這一點沒有提到。即使是很多流行的關係型資料庫系統（通常被認為是 “ACID”）也使用弱隔離級別，所以它們也不一定能防止這些錯誤的發生。
+弱事務隔離級別導致的併發性錯誤不僅僅是一個理論問題。它們造成了很多的資金損失[^ref_24] [^ref_25]，耗費了財務審計人員的調查[^ref_26]，並導致客戶資料被破壞[^ref_27]。關於這類問題的一個流行的評論是 “如果你正在處理財務資料，請使用 ACID 資料庫！” —— 但是這一點沒有提到。即使是很多流行的關係型資料庫系統（通常被認為是 “ACID”）也使用弱隔離級別，所以它們也不一定能防止這些錯誤的發生。
 
 比起盲目地依賴工具，我們需要對存在的各種併發問題，以及如何防止這些問題有深入的理解。然後就可以使用我們所掌握的工具來構建可靠和正確的應用程式。
 
-在本節中，我們將看幾個在實踐中使用的弱（**非序列的**，即 nonserializable）隔離級別，並詳細討論哪種競爭條件可能發生也可能不發生，以便你可以決定什麼級別適合你的應用程式。一旦我們完成了這個工作，我們將詳細討論可序列化（請參閱 “[可序列化](#可序列化)”）。我們討論的隔離級別將是非正式的，透過示例來進行。如果你需要嚴格的定義和分析它們的屬性，你可以在學術文獻中找到它們【28,29,30】。
+在本節中，我們將看幾個在實踐中使用的弱（**非序列的**，即 nonserializable）隔離級別，並詳細討論哪種競爭條件可能發生也可能不發生，以便你可以決定什麼級別適合你的應用程式。一旦我們完成了這個工作，我們將詳細討論可序列化（請參閱 “[可序列化](#可序列化)”）。我們討論的隔離級別將是非正式的，透過示例來進行。如果你需要嚴格的定義和分析它們的屬性，你可以在學術文獻中找到它們[^ref_28] [^ref_29] [^ref_30]。
 
 ### 讀已提交
 
@@ -238,7 +238,7 @@ SELECT COUNT（*）FROM emails WHERE recipient_id = 2 AND unread_flag = true
 
 #### 沒有髒讀
 
-設想一個事務已經將一些資料寫入資料庫，但事務還沒有提交或中止。另一個事務可以看到未提交的資料嗎？如果是的話，那就叫做 **髒讀（dirty reads）**【2】。
+設想一個事務已經將一些資料寫入資料庫，但事務還沒有提交或中止。另一個事務可以看到未提交的資料嗎？如果是的話，那就叫做 **髒讀（dirty reads）**[^ref_2]。
 
 在 **讀已提交** 隔離級別執行的事務必須防止髒讀。這意味著事務的任何寫入操作只有在該事務提交時才能被其他人看到（然後所有的寫入操作都會立即變得可見）。如 [圖 7-4](./v1/ddia_0704.png) 所示，使用者 1 設定了 `x = 3`，但使用者 2 的 `get x` 仍舊返回舊值 2 （當用戶 1 尚未提交時）。
 
@@ -255,7 +255,7 @@ SELECT COUNT（*）FROM emails WHERE recipient_id = 2 AND unread_flag = true
 
 如果兩個事務同時嘗試更新資料庫中的相同物件，會發生什麼情況？我們不知道寫入的順序是怎樣的，但是我們通常認為後面的寫入會覆蓋前面的寫入。
 
-但是，如果先前的寫入是尚未提交事務的一部分，使得後面的寫入覆蓋了一個尚未提交的值，這時會發生什麼呢？這被稱作 **髒寫（dirty write）**【28】。在 **讀已提交** 的隔離級別上執行的事務必須防止髒寫，通常是延遲第二次寫入，直到第一次寫入事務提交或中止為止。
+但是，如果先前的寫入是尚未提交事務的一部分，使得後面的寫入覆蓋了一個尚未提交的值，這時會發生什麼呢？這被稱作 **髒寫（dirty write）**[^ref_28]。在 **讀已提交** 的隔離級別上執行的事務必須防止髒寫，通常是延遲第二次寫入，直到第一次寫入事務提交或中止為止。
 
 透過防止髒寫，這個隔離級別避免了一些併發問題：
 
@@ -268,7 +268,7 @@ SELECT COUNT（*）FROM emails WHERE recipient_id = 2 AND unread_flag = true
 
 #### 實現讀已提交
 
-**讀已提交** 是一個非常流行的隔離級別。這是 Oracle 11g、PostgreSQL、SQL Server 2012、MemSQL 和其他許多資料庫的預設設定【8】。
+**讀已提交** 是一個非常流行的隔離級別。這是 Oracle 11g、PostgreSQL、SQL Server 2012、MemSQL 和其他許多資料庫的預設設定[^ref_8]。
 
 最常見的情況是，資料庫透過使用 **行鎖（row-level lock）** 來防止髒寫：當事務想要修改特定物件（行或文件）時，它必須首先獲得該物件的鎖。然後必須持有該鎖直到事務被提交或中止。一次只有一個事務可持有任何給定物件的鎖；如果另一個事務要寫入同一個物件，則必須等到第一個事務提交或中止後，才能獲取該鎖並繼續。這種鎖定是讀已提交模式（或更強的隔離級別）的資料庫自動完成的。
 
@@ -278,7 +278,7 @@ SELECT COUNT（*）FROM emails WHERE recipient_id = 2 AND unread_flag = true
 
 出於這個原因，大多數資料庫 [^vi] 使用 [圖 7-4](./v1/ddia_0704.png) 的方式防止髒讀：對於寫入的每個物件，資料庫都會記住舊的已提交值，和由當前持有寫入鎖的事務設定的新值。當事務正在進行時，任何其他讀取物件的事務都會拿到舊值。只有當新值提交後，事務才會切換到讀取新值。
 
-[^vi]: 在撰寫本文時，唯一在讀已提交隔離級別使用讀鎖的主流資料庫是 IBM DB2 和使用 `read_committed_snapshot = off` 配置的 Microsoft SQL Server【23,36】。
+[^vi]: 在撰寫本文時，唯一在讀已提交隔離級別使用讀鎖的主流資料庫是 IBM DB2 和使用 `read_committed_snapshot = off` 配置的 Microsoft SQL Server[^ref_23] [^ref_36]。
 
 ### 快照隔離和可重複讀
 
@@ -302,11 +302,11 @@ Alice 在銀行有 1000 美元的儲蓄，分為兩個賬戶，每個 500 美元
 
 - **分析查詢和完整性檢查**：有時，你可能需要執行一個查詢，掃描大部分的資料庫。這樣的查詢在分析中很常見（請參閱 "[事務處理還是分析？](./ch3#事務處理還是分析？)"），也可能是定期完整性檢查（即監視資料損壞）的一部分。如果這些查詢在不同時間點觀察資料庫的不同部分，則可能會返回毫無意義的結果。
 
-**快照隔離（snapshot isolation）**【28】是這個問題最常見的解決方案。想法是，每個事務都從資料庫的 **一致快照（consistent snapshot）** 中讀取 —— 也就是說，事務可以看到事務開始時在資料庫中提交的所有資料。即使這些資料隨後被另一個事務更改，每個事務也只能看到該特定時間點的舊資料。
+**快照隔離（snapshot isolation）**[^ref_28]是這個問題最常見的解決方案。想法是，每個事務都從資料庫的 **一致快照（consistent snapshot）** 中讀取 —— 也就是說，事務可以看到事務開始時在資料庫中提交的所有資料。即使這些資料隨後被另一個事務更改，每個事務也只能看到該特定時間點的舊資料。
 
 快照隔離對長時間執行的只讀查詢（如備份和分析）非常有用。如果查詢的資料在查詢執行的同時發生變化，則很難理解查詢的含義。當一個事務可以看到資料庫在某個特定時間點凍結時的一致快照，理解起來就很容易了。
 
-快照隔離是一個流行的功能：PostgreSQL、使用 InnoDB 引擎的 MySQL、Oracle、SQL Server 等都支援【23,31,32】。
+快照隔離是一個流行的功能：PostgreSQL、使用 InnoDB 引擎的 MySQL、Oracle、SQL Server 等都支援[^ref_23] [^ref_31] [^ref_32]。
 
 #### 實現快照隔離
 
@@ -316,7 +316,7 @@ Alice 在銀行有 1000 美元的儲蓄，分為兩個賬戶，每個 500 美元
 
 如果一個數據庫只需要提供 **讀已提交** 的隔離級別，而不提供 **快照隔離**，那麼保留一個物件的兩個版本就足夠了：已提交的版本和被覆蓋但尚未提交的版本。不過支援快照隔離的儲存引擎通常也使用 MVCC 來實現 **讀已提交** 隔離級別。一種典型的方法是 **讀已提交** 為每個查詢使用單獨的快照，而 **快照隔離** 對整個事務使用相同的快照。
 
-[圖 7-7](./v1/ddia_0707.png) 說明了 PostgreSQL 如何實現基於 MVCC 的快照隔離【31】（其他實現類似）。當一個事務開始時，它被賦予一個唯一的，永遠增長 [^vii] 的事務 ID（`txid`）。每當事務向資料庫寫入任何內容時，它所寫入的資料都會被標記上寫入者的事務 ID。
+[圖 7-7](./v1/ddia_0707.png) 說明了 PostgreSQL 如何實現基於 MVCC 的快照隔離[^ref_31]（其他實現類似）。當一個事務開始時，它被賦予一個唯一的，永遠增長 [^vii] 的事務 ID（`txid`）。每當事務向資料庫寫入任何內容時，它所寫入的資料都會被標記上寫入者的事務 ID。
 
 [^vii]: 事實上，事務 ID 是 32 位整數，所以大約會在 40 億次事務之後溢位。PostgreSQL 的 Vacuum 過程會清理老舊的事務 ID，確保事務 ID 溢位（回捲）不會影響到資料。
 
@@ -352,19 +352,19 @@ Alice 在銀行有 1000 美元的儲蓄，分為兩個賬戶，每個 500 美元
 
 索引如何在多版本資料庫中工作？一種選擇是使索引簡單地指向物件的所有版本，並且需要索引查詢來過濾掉當前事務不可見的任何物件版本。當垃圾收集刪除任何事務不再可見的舊物件版本時，相應的索引條目也可以被刪除。
 
-在實踐中，許多實現細節決定了多版本併發控制的效能。例如，如果同一物件的不同版本可以放入同一個頁面中，PostgreSQL 的最佳化可以避免更新索引【31】。
+在實踐中，許多實現細節決定了多版本併發控制的效能。例如，如果同一物件的不同版本可以放入同一個頁面中，PostgreSQL 的最佳化可以避免更新索引[^ref_31]。
 
-在 CouchDB、Datomic 和 LMDB 中使用另一種方法。雖然它們也使用 [B 樹](./ch3#B樹)，但它們使用的是一種 **僅追加 / 寫時複製（append-only/copy-on-write）** 的變體，它們在更新時不覆蓋樹的頁面，而為每個修改頁面建立一份副本。從父頁面直到樹根都會級聯更新，以指向它們子頁面的新版本。任何不受寫入影響的頁面都不需要被複制，並且保持不變【33,34,35】。
+在 CouchDB、Datomic 和 LMDB 中使用另一種方法。雖然它們也使用 [B 樹](./ch3#B樹)，但它們使用的是一種 **僅追加 / 寫時複製（append-only/copy-on-write）** 的變體，它們在更新時不覆蓋樹的頁面，而為每個修改頁面建立一份副本。從父頁面直到樹根都會級聯更新，以指向它們子頁面的新版本。任何不受寫入影響的頁面都不需要被複制，並且保持不變[^ref_33] [^ref_34] [^ref_35]。
 
 使用僅追加的 B 樹，每個寫入事務（或一批事務）都會建立一棵新的 B 樹，當建立時，從該特定樹根生長的樹就是資料庫的一個一致性快照。沒必要根據事務 ID 過濾掉物件，因為後續寫入不能修改現有的 B 樹；它們只能建立新的樹根。但這種方法也需要一個負責壓縮和垃圾收集的後臺程序。
 
 #### 可重複讀與命名混淆
 
-快照隔離是一個有用的隔離級別，特別對於只讀事務而言。但是，許多資料庫實現了它，卻用不同的名字來稱呼。在 Oracle 中稱為 **可序列化（Serializable）** 的，在 PostgreSQL 和 MySQL 中稱為 **可重複讀（repeatable read）**【23】。
+快照隔離是一個有用的隔離級別，特別對於只讀事務而言。但是，許多資料庫實現了它，卻用不同的名字來稱呼。在 Oracle 中稱為 **可序列化（Serializable）** 的，在 PostgreSQL 和 MySQL 中稱為 **可重複讀（repeatable read）**[^ref_23]。
 
-這種命名混淆的原因是 SQL 標準沒有 **快照隔離** 的概念，因為標準是基於 System R 1975 年定義的隔離級別【2】，那時候 **快照隔離** 尚未發明。相反，它定義了 **可重複讀**，表面上看起來與快照隔離很相似。PostgreSQL 和 MySQL 稱其 **快照隔離** 級別為 **可重複讀（repeatable read）**，因為這樣符合標準要求，所以它們可以聲稱自己 “標準相容”。
+這種命名混淆的原因是 SQL 標準沒有 **快照隔離** 的概念，因為標準是基於 System R 1975 年定義的隔離級別[^ref_2]，那時候 **快照隔離** 尚未發明。相反，它定義了 **可重複讀**，表面上看起來與快照隔離很相似。PostgreSQL 和 MySQL 稱其 **快照隔離** 級別為 **可重複讀（repeatable read）**，因為這樣符合標準要求，所以它們可以聲稱自己 “標準相容”。
 
-不幸的是，SQL 標準對隔離級別的定義是有缺陷的 —— 模糊，不精確，並不像標準應有的樣子獨立於實現【28】。有幾個資料庫實現了可重複讀，但它們實際提供的保證存在很大的差異，儘管表面上是標準化的【23】。在研究文獻【29,30】中已經有了可重複讀的正式定義，但大多數的實現並不能滿足這個正式定義。最後，IBM DB2 使用 “可重複讀” 來引用可序列化【8】。
+不幸的是，SQL 標準對隔離級別的定義是有缺陷的 —— 模糊，不精確，並不像標準應有的樣子獨立於實現[^ref_28]。有幾個資料庫實現了可重複讀，但它們實際提供的保證存在很大的差異，儘管表面上是標準化的[^ref_23]。在研究文獻[^ref_29] [^ref_30]中已經有了可重複讀的正式定義，但大多數的實現並不能滿足這個正式定義。最後，IBM DB2 使用 “可重複讀” 來引用可序列化[^ref_8]。
 
 結果，沒有人真正知道 **可重複讀** 的意思。
 
@@ -394,9 +394,9 @@ UPDATE counters SET value = value + 1 WHERE key = 'foo';
 
 [^viii]: 將文字文件的編輯表示為原子的變化流是可能的，儘管相當複雜。請參閱 “[自動衝突解決](./ch5#自動衝突解決)”。
 
-原子操作通常透過在讀取物件時，獲取其上的排它鎖來實現。以便更新完成之前沒有其他事務可以讀取它。這種技術有時被稱為 **遊標穩定性（cursor stability）**【36,37】。另一個選擇是簡單地強制所有的原子操作在單一執行緒上執行。
+原子操作通常透過在讀取物件時，獲取其上的排它鎖來實現。以便更新完成之前沒有其他事務可以讀取它。這種技術有時被稱為 **遊標穩定性（cursor stability）**[^ref_36] [^ref_37]。另一個選擇是簡單地強制所有的原子操作在單一執行緒上執行。
 
-不幸的是，ORM 框架很容易意外地執行不安全的讀取 - 修改 - 寫入序列，而不是使用資料庫提供的原子操作【38】。如果你知道自己在做什麼那當然不是問題，但它經常產生那種很難測出來的微妙 Bug。
+不幸的是，ORM 框架很容易意外地執行不安全的讀取 - 修改 - 寫入序列，而不是使用資料庫提供的原子操作[^ref_38]。如果你知道自己在做什麼那當然不是問題，但它經常產生那種很難測出來的微妙 Bug。
 
 #### 顯式鎖定
 
@@ -425,7 +425,7 @@ COMMIT;
 
 原子操作和鎖是透過強制 **讀取 - 修改 - 寫入序列** 按順序發生，來防止丟失更新的方法。另一種方法是允許它們並行執行，如果事務管理器檢測到丟失更新，則中止事務並強制它們重試其 **讀取 - 修改 - 寫入序列**。
 
-這種方法的一個優點是，資料庫可以結合快照隔離高效地執行此檢查。事實上，PostgreSQL 的可重複讀，Oracle 的可序列化和 SQL Server 的快照隔離級別，都會自動檢測到丟失更新，並中止惹麻煩的事務。但是，MySQL/InnoDB 的可重複讀並不會檢測 **丟失更新**【23】。一些作者【28,30】認為，資料庫必須能防止丟失更新才稱得上是提供了 **快照隔離**，所以在這個定義下，MySQL 下不提供快照隔離。
+這種方法的一個優點是，資料庫可以結合快照隔離高效地執行此檢查。事實上，PostgreSQL 的可重複讀，Oracle 的可序列化和 SQL Server 的快照隔離級別，都會自動檢測到丟失更新，並中止惹麻煩的事務。但是，MySQL/InnoDB 的可重複讀並不會檢測 **丟失更新**[^ref_23]。一些作者[^ref_28] [^ref_30]認為，資料庫必須能防止丟失更新才稱得上是提供了 **快照隔離**，所以在這個定義下，MySQL 下不提供快照隔離。
 
 丟失更新檢測是一個很好的功能，因為它不需要應用程式碼使用任何特殊的資料庫功能，你可能會忘記使用鎖或原子操作，從而引入錯誤；但丟失更新的檢測是自動發生的，因此不太容易出錯。
 
@@ -451,7 +451,7 @@ UPDATE wiki_pages SET content = '新內容'
 
 相反，如 “[檢測併發寫入](./ch5#檢測併發寫入)” 一節所述，這種複製資料庫中的一種常見方法是允許併發寫入建立多個衝突版本的值（也稱為兄弟），並使用應用程式碼或特殊資料結構在事實發生之後解決和合並這些版本。
 
-原子操作可以在複製的上下文中很好地工作，尤其當它們具有可交換性時（即，可以在不同的副本上以不同的順序應用它們，且仍然可以得到相同的結果）。例如，遞增計數器或向集合新增元素是可交換的操作。這是 Riak 2.0 資料型別背後的思想，它可以防止複製副本丟失更新。當不同的客戶端同時更新一個值時，Riak 自動將更新合併在一起，以免丟失更新【39】。
+原子操作可以在複製的上下文中很好地工作，尤其當它們具有可交換性時（即，可以在不同的副本上以不同的順序應用它們，且仍然可以得到相同的結果）。例如，遞增計數器或向集合新增元素是可交換的操作。這是 Riak 2.0 資料型別背後的思想，它可以防止複製副本丟失更新。當不同的客戶端同時更新一個值時，Riak 自動將更新合併在一起，以免丟失更新[^ref_39]。
 
 另一方面，最後寫入勝利（LWW）的衝突解決方法很容易丟失更新，如 “[最後寫入勝利（丟棄併發寫入）](./ch5#最後寫入勝利（丟棄併發寫入）)” 中所述。不幸的是，LWW 是許多複製資料庫中的預設方案。
 
@@ -461,7 +461,7 @@ UPDATE wiki_pages SET content = '新內容'
 
 但是，併發寫入間可能發生的競爭條件還沒有完。在本節中，我們將看到一些更微妙的衝突例子。
 
-首先，想象一下這個例子：你正在為醫院寫一個醫生輪班管理程式。醫院通常會同時要求幾位醫生待命，但底線是至少有一位醫生在待命。醫生可以放棄他們的班次（例如，如果他們自己生病了），只要至少有一個同事在這一班中繼續工作【40,41】。
+首先，想象一下這個例子：你正在為醫院寫一個醫生輪班管理程式。醫院通常會同時要求幾位醫生待命，但底線是至少有一位醫生在待命。醫生可以放棄他們的班次（例如，如果他們自己生病了），只要至少有一個同事在這一班中繼續工作[^ref_40] [^ref_41]。
 
 現在想象一下，Alice 和 Bob 是兩位值班醫生。兩人都感到不適，所以他們都決定請假。不幸的是，他們恰好在同一時間點選按鈕下班。[圖 7-8](./v1/ddia_0708.png) 說明了接下來的事情。
 
@@ -473,15 +473,15 @@ UPDATE wiki_pages SET content = '新內容'
 
 #### 寫入偏差的特徵
 
-這種異常稱為 **寫入偏差**【28】。它既不是 **髒寫**，也不是 **丟失更新**，因為這兩個事務正在更新兩個不同的物件（Alice 和 Bob 各自的待命記錄）。在這裡發生的衝突並不是那麼明顯，但是這顯然是一個競爭條件：如果兩個事務一個接一個地執行，那麼第二個醫生就不能歇班了。異常行為只有在事務併發進行時才有可能發生。
+這種異常稱為 **寫入偏差**[^ref_28]。它既不是 **髒寫**，也不是 **丟失更新**，因為這兩個事務正在更新兩個不同的物件（Alice 和 Bob 各自的待命記錄）。在這裡發生的衝突並不是那麼明顯，但是這顯然是一個競爭條件：如果兩個事務一個接一個地執行，那麼第二個醫生就不能歇班了。異常行為只有在事務併發進行時才有可能發生。
 
 可以將寫入偏差視為丟失更新問題的一般化。如果兩個事務讀取相同的物件，然後更新其中一些物件（不同的事務可能更新不同的物件），則可能發生寫入偏差。在多個事務更新同一個物件的特殊情況下，就會發生髒寫或丟失更新（取決於時序）。
 
 我們已經看到，有各種不同的方法來防止丟失的更新。但對於寫入偏差，我們的選擇更受限制：
 
 * 由於涉及多個物件，單物件的原子操作不起作用。
-* 不幸的是，在一些快照隔離的實現中，自動檢測丟失更新對此並沒有幫助。在 PostgreSQL 的可重複讀，MySQL/InnoDB 的可重複讀，Oracle 可序列化或 SQL Server 的快照隔離級別中，都不會自動檢測寫入偏差【23】。自動防止寫入偏差需要真正的可序列化隔離（請參閱 “[可序列化](#可序列化)”）。
-* 某些資料庫允許配置約束，然後由資料庫強制執行（例如，唯一性，外部索引鍵約束或特定值限制）。但是為了指定至少有一名醫生必須線上，需要一個涉及多個物件的約束。大多數資料庫沒有內建對這種約束的支援，但是你可以使用觸發器，或者物化檢視來實現它們，這取決於不同的資料庫【42】。
+* 不幸的是，在一些快照隔離的實現中，自動檢測丟失更新對此並沒有幫助。在 PostgreSQL 的可重複讀，MySQL/InnoDB 的可重複讀，Oracle 可序列化或 SQL Server 的快照隔離級別中，都不會自動檢測寫入偏差[^ref_23]。自動防止寫入偏差需要真正的可序列化隔離（請參閱 “[可序列化](#可序列化)”）。
+* 某些資料庫允許配置約束，然後由資料庫強制執行（例如，唯一性，外部索引鍵約束或特定值限制）。但是為了指定至少有一名醫生必須線上，需要一個涉及多個物件的約束。大多數資料庫沒有內建對這種約束的支援，但是你可以使用觸發器，或者物化檢視來實現它們，這取決於不同的資料庫[^ref_42]。
 * 如果無法使用可序列化的隔離級別，則此情況下的次優選項可能是顯式鎖定事務所依賴的行。在例子中，你可以寫下如下的程式碼：
 
 ```sql
@@ -504,7 +504,7 @@ COMMIT;
 
 寫入偏差乍看像是一個深奧的問題，但一旦意識到這一點，很容易會注意到它可能發生在更多場景下。以下是一些例子：
 
-- **會議室預訂系統**：比如你想要規定不能在同一時間對同一個會議室進行多次的預訂【43】。當有人想要預訂時，首先檢查是否存在相互衝突的預訂（即預訂時間範圍重疊的同一房間），如果沒有找到，則建立會議（請參閱 [例 7-2](#例-7-2-會議室預訂系統試圖避免重複預訂在快照隔離下不安全)）[^ix]。
+- **會議室預訂系統**：比如你想要規定不能在同一時間對同一個會議室進行多次的預訂[^ref_43]。當有人想要預訂時，首先檢查是否存在相互衝突的預訂（即預訂時間範圍重疊的同一房間），如果沒有找到，則建立會議（請參閱 [例 7-2](#例-7-2-會議室預訂系統試圖避免重複預訂在快照隔離下不安全)）[^ix]。
 
   [^ix]: 在 PostgreSQL 中，你可以使用範圍型別優雅地執行此操作，但在其他資料庫中並未得到廣泛支援。
 
@@ -531,7 +531,7 @@ COMMIT;
 
 - **搶注使用者名稱**：在每個使用者擁有唯一使用者名稱的網站上，兩個使用者可能會嘗試同時建立具有相同使用者名稱的帳戶。可以在事務檢查名稱是否被搶佔，如果沒有則使用該名稱建立賬戶。但是像在前面的例子中那樣，在快照隔離下這是不安全的。幸運的是，唯一約束是一個簡單的解決辦法（第二個事務在提交時會因為違反使用者名稱唯一約束而被中止）。
 
-- **防止雙重開支**：允許使用者花錢或使用積分的服務，需要檢查使用者的支付數額不超過其餘額。可以透過在使用者的帳戶中插入一個試探性的消費專案來實現這一點，列出帳戶中的所有專案，並檢查總和是否為正值【44】。在寫入偏差場景下，可能會發生兩個支出專案同時插入，一起導致餘額變為負值，但這兩個事務都不會注意到另一個。
+- **防止雙重開支**：允許使用者花錢或使用積分的服務，需要檢查使用者的支付數額不超過其餘額。可以透過在使用者的帳戶中插入一個試探性的消費專案來實現這一點，列出帳戶中的所有專案，並檢查總和是否為正值[^ref_44]。在寫入偏差場景下，可能會發生兩個支出專案同時插入，一起導致餘額變為負值，但這兩個事務都不會注意到另一個。
 
 #### 導致寫入偏差的幻讀
 
@@ -549,7 +549,7 @@ COMMIT;
 
 在醫生值班的例子中，在步驟 3 中修改的行，是步驟 1 中返回的行之一，所以我們可以透過鎖定步驟 1 中的行（`SELECT FOR UPDATE`）來使事務安全並避免寫入偏差。但是其他四個例子是不同的：它們檢查是否 **不存在** 某些滿足條件的行，寫入會 **新增** 一個匹配相同條件的行。如果步驟 1 中的查詢沒有返回任何行，則 `SELECT FOR UPDATE` 鎖不了任何東西。
 
-這種效應：一個事務中的寫入改變另一個事務的搜尋查詢的結果，被稱為 **幻讀**【3】。快照隔離避免了只讀查詢中幻讀，但是在像我們討論的例子那樣的讀寫事務中，幻讀會導致特別棘手的寫入偏差情況。
+這種效應：一個事務中的寫入改變另一個事務的搜尋查詢的結果，被稱為 **幻讀**[^ref_3]。快照隔離避免了只讀查詢中幻讀，但是在像我們討論的例子那樣的讀寫事務中，幻讀會導致特別棘手的寫入偏差情況。
 
 #### 物化衝突
 
@@ -559,7 +559,7 @@ COMMIT;
 
 現在，要建立預訂的事務可以鎖定（`SELECT FOR UPDATE`）表中與所需房間和時間段對應的行。在獲得鎖定之後，它可以檢查重疊的預訂並像以前一樣插入新的預訂。請注意，這個表並不是用來儲存預訂相關的資訊 —— 它完全就是一組鎖，用於防止同時修改同一房間和時間範圍內的預訂。
 
-這種方法被稱為 **物化衝突（materializing conflicts）**，因為它將幻讀變為資料庫中一組具體行上的鎖衝突【11】。不幸的是，弄清楚如何物化衝突可能很難，也很容易出錯，並且讓併發控制機制洩漏到應用資料模型是很醜陋的做法。出於這些原因，如果沒有其他辦法可以實現，物化衝突應被視為最後的手段。在大多數情況下。**可序列化（Serializable）** 的隔離級別是更可取的。
+這種方法被稱為 **物化衝突（materializing conflicts）**，因為它將幻讀變為資料庫中一組具體行上的鎖衝突[^ref_11]。不幸的是，弄清楚如何物化衝突可能很難，也很容易出錯，並且讓併發控制機制洩漏到應用資料模型是很醜陋的做法。出於這些原因，如果沒有其他辦法可以實現，物化衝突應被視為最後的手段。在大多數情況下。**可序列化（Serializable）** 的隔離級別是更可取的。
 
 
 ## 可序列化
@@ -568,9 +568,9 @@ COMMIT;
 
 - 隔離級別難以理解，並且在不同的資料庫中實現的不一致（例如，“可重複讀” 的含義天差地別）。
 - 光檢查應用程式碼很難判斷在特定的隔離級別執行是否安全。特別是在大型應用程式中，你可能並不知道併發發生的所有事情。
-- 沒有檢測競爭條件的好工具。原則上來說，靜態分析可能會有幫助【26】，但研究中的技術還沒法實際應用。併發問題的測試是很難的，因為它們通常是非確定性的 —— 只有在倒楣的時序下才會出現問題。
+- 沒有檢測競爭條件的好工具。原則上來說，靜態分析可能會有幫助[^ref_26]，但研究中的技術還沒法實際應用。併發問題的測試是很難的，因為它們通常是非確定性的 —— 只有在倒楣的時序下才會出現問題。
 
-這不是一個新問題，從 20 世紀 70 年代以來就一直是這樣了，當時首先引入了較弱的隔離級別【2】。一直以來，研究人員的答案都很簡單：使用 **可序列化（serializable）** 的隔離級別！
+這不是一個新問題，從 20 世紀 70 年代以來就一直是這樣了，當時首先引入了較弱的隔離級別[^ref_2]。一直以來，研究人員的答案都很簡單：使用 **可序列化（serializable）** 的隔離級別！
 
 **可序列化（Serializability）** 隔離通常被認為是最強的隔離級別。它保證即使事務可以並行執行，最終的結果也是一樣的，就好像它們沒有任何併發性，連續挨個執行一樣。因此資料庫保證，如果事務在單獨執行時正常執行，則它們在併發執行時繼續保持正確 —— 換句話說，資料庫可以防止 **所有** 可能的競爭條件。
 
@@ -586,14 +586,14 @@ COMMIT;
 
 避免併發問題的最簡單方法就是完全不要併發：在單個執行緒上按順序一次只執行一個事務。這樣做就完全繞開了檢測 / 防止事務間衝突的問題，由此產生的隔離，正是可序列化的定義。
 
-儘管這似乎是一個明顯的主意，但資料庫設計人員只是在 2007 年左右才決定，單執行緒迴圈執行事務是可行的【45】。如果多執行緒併發在過去的 30 年中被認為是獲得良好效能的關鍵所在，那麼究竟是什麼改變致使單執行緒執行變為可能呢？
+儘管這似乎是一個明顯的主意，但資料庫設計人員只是在 2007 年左右才決定，單執行緒迴圈執行事務是可行的[^ref_45]。如果多執行緒併發在過去的 30 年中被認為是獲得良好效能的關鍵所在，那麼究竟是什麼改變致使單執行緒執行變為可能呢？
 
 兩個進展引發了這個反思：
 
 - RAM 足夠便宜了，許多場景現在都可以將完整的活躍資料集儲存在記憶體中（請參閱 “[在記憶體中儲存一切](./ch3#在記憶體中儲存一切)”）。當事務需要訪問的所有資料都在記憶體中時，事務處理的執行速度要比等待資料從磁碟載入時快得多。
 - 資料庫設計人員意識到 OLTP 事務通常很短，而且只進行少量的讀寫操作（請參閱 “[事務處理還是分析？](./ch3#事務處理還是分析？)”）。相比之下，長時間執行的分析查詢通常是隻讀的，因此它們可以在序列執行迴圈之外的一致快照（使用快照隔離）上執行。
 
-序列執行事務的方法在 VoltDB/H-Store、Redis 和 Datomic 中實現【46,47,48】。設計用於單執行緒執行的系統有時可以比支援併發的系統性能更好，因為它可以避免鎖的協調開銷。但是其吞吐量僅限於單個 CPU 核的吞吐量。為了充分利用單一執行緒，需要有與傳統形式的事務不同的結構。
+序列執行事務的方法在 VoltDB/H-Store、Redis 和 Datomic 中實現[^ref_46] [^ref_47] [^ref_48]。設計用於單執行緒執行的系統有時可以比支援併發的系統性能更好，因為它可以避免鎖的協調開銷。但是其吞吐量僅限於單個 CPU 核的吞吐量。為了充分利用單一執行緒，需要有與傳統形式的事務不同的結構。
 
 #### 在儲存過程中封裝事務
 
@@ -629,11 +629,11 @@ VoltDB 還使用儲存過程進行復制：但不是將事務的寫入結果從�
 
 順序執行所有事務使併發控制簡單多了，但資料庫的事務吞吐量被限制為單機單核的速度。只讀事務可以使用快照隔離在其它地方執行，但對於寫入吞吐量較高的應用，單執行緒事務處理器可能成為一個嚴重的瓶頸。
 
-為了伸縮至多個 CPU 核心和多個節點，可以對資料進行分割槽（請參閱 [第六章](./ch6)），在 VoltDB 中支援這樣做。如果你可以找到一種對資料集進行分割槽的方法，以便每個事務只需要在單個分割槽中讀寫資料，那麼每個分割槽就可以擁有自己獨立執行的事務處理執行緒。在這種情況下可以為每個分割槽指派一個獨立的 CPU 核，事務吞吐量就可以與 CPU 核數保持線性伸縮【47】。
+為了伸縮至多個 CPU 核心和多個節點，可以對資料進行分割槽（請參閱 [第六章](./ch6)），在 VoltDB 中支援這樣做。如果你可以找到一種對資料集進行分割槽的方法，以便每個事務只需要在單個分割槽中讀寫資料，那麼每個分割槽就可以擁有自己獨立執行的事務處理執行緒。在這種情況下可以為每個分割槽指派一個獨立的 CPU 核，事務吞吐量就可以與 CPU 核數保持線性伸縮[^ref_47]。
 
 但是，對於需要訪問多個分割槽的任何事務，資料庫必須在觸及的所有分割槽之間協調事務。儲存過程需要跨越所有分割槽鎖定執行，以確保整個系統的可序列性。
 
-由於跨分割槽事務具有額外的協調開銷，所以它們比單分割槽事務慢得多。VoltDB 報告的吞吐量大約是每秒 1000 個跨分割槽寫入，比單分割槽吞吐量低幾個數量級，並且不能透過增加更多的機器來增加吞吐量【49】。
+由於跨分割槽事務具有額外的協調開銷，所以它們比單分割槽事務慢得多。VoltDB 報告的吞吐量大約是每秒 1000 個跨分割槽寫入，比單分割槽吞吐量低幾個數量級，並且不能透過增加更多的機器來增加吞吐量[^ref_49]。
 
 事務是否可以是劃分至單個分割槽很大程度上取決於應用資料的結構。簡單的鍵值資料通常可以非常容易地進行分割槽，但是具有多個次級索引的資料可能需要大量的跨分割槽協調（請參閱 “[分割槽與次級索引](./ch6#分割槽與次級索引)”）。
 
@@ -669,7 +669,7 @@ VoltDB 還使用儲存過程進行復制：但不是將事務的寫入結果從�
 
 #### 實現兩階段鎖
 
-2PL 用於 MySQL（InnoDB）和 SQL Server 中的可序列化隔離級別，以及 DB2 中的可重複讀隔離級別【23,36】。
+2PL 用於 MySQL（InnoDB）和 SQL Server 中的可序列化隔離級別，以及 DB2 中的可重複讀隔離級別[^ref_23] [^ref_36]。
 
 讀與寫的阻塞是透過為資料庫中每個物件新增鎖來實現的。鎖可以處於 **共享模式（shared mode）** 或 **獨佔模式（exclusive mode）**。鎖使用如下：
 
@@ -698,7 +698,7 @@ VoltDB 還使用儲存過程進行復制：但不是將事務的寫入結果從�
 
 在會議室預訂的例子中，這意味著如果一個事務在某個時間視窗內搜尋了一個房間的現有預訂（見 [例 7-2](#例-7-2-會議室預訂系統試圖避免重複預訂在快照隔離下不安全)），則另一個事務不能同時插入或更新同一時間視窗與同一房間的另一個預訂 （可以同時插入其他房間的預訂，或在不影響另一個預定的條件下預定同一房間的其他時間段）。
 
-如何實現這一點？從概念上講，我們需要一個 **謂詞鎖（predicate lock）**【3】。它類似於前面描述的共享 / 排它鎖，但不屬於特定的物件（例如，表中的一行），它屬於所有符合某些搜尋條件的物件，如：
+如何實現這一點？從概念上講，我們需要一個 **謂詞鎖（predicate lock）**[^ref_3]。它類似於前面描述的共享 / 排它鎖，但不屬於特定的物件（例如，表中的一行），它屬於所有符合某些搜尋條件的物件，如：
 
 ```sql
 SELECT * FROM bookings
@@ -716,7 +716,7 @@ WHERE room_id = 123 AND
 
 #### 索引範圍鎖
 
-不幸的是謂詞鎖效能不佳：**如果活躍事務持有很多鎖，檢查匹配的鎖會非常耗時。** 因此，大多數使用 2PL 的資料庫實際上實現了索引範圍鎖（index-range locking，也稱為 **next-key locking**），這是一個簡化的近似版謂詞鎖【41,50】。
+不幸的是謂詞鎖效能不佳：**如果活躍事務持有很多鎖，檢查匹配的鎖會非常耗時。** 因此，大多數使用 2PL 的資料庫實際上實現了索引範圍鎖（index-range locking，也稱為 **next-key locking**），這是一個簡化的近似版謂詞鎖[^ref_41] [^ref_50]。
 
 透過使謂詞匹配到一個更大的集合來簡化謂詞鎖是安全的。例如，如果你有在中午和下午 1 點之間預訂 123 號房間的謂詞鎖，則鎖定 123 號房間的所有時間段，或者鎖定 12:00~13:00 時間段的所有房間（不只是 123 號房間）是一個安全的近似，因為任何滿足原始謂詞的寫入也一定會滿足這種更鬆散的近似。
 
@@ -736,7 +736,7 @@ WHERE room_id = 123 AND
 
 本章描繪了資料庫中併發控制的黯淡畫面。一方面，我們實現了效能不好（2PL）或者伸縮性不好（序列執行）的可序列化隔離級別。另一方面，我們有效能良好的弱隔離級別，但容易出現各種競爭條件（丟失更新、寫入偏差、幻讀等）。序列化的隔離級別和高效能是從根本上相互矛盾的嗎？
 
-也許不是：一個稱為 **可序列化快照隔離（SSI, serializable snapshot isolation）** 的演算法是非常有前途的。它提供了完整的可序列化隔離級別，但與快照隔離相比只有很小的效能損失。SSI 是相當新的：它在 2008 年首次被描述【40】，並且是 Michael Cahill 的博士論文【51】的主題。
+也許不是：一個稱為 **可序列化快照隔離（SSI, serializable snapshot isolation）** 的演算法是非常有前途的。它提供了完整的可序列化隔離級別，但與快照隔離相比只有很小的效能損失。SSI 是相當新的：它在 2008 年首次被描述[^ref_40]，並且是 Michael Cahill 的博士論文[^ref_51]的主題。
 
 今天，SSI 既用於單節點資料庫（PostgreSQL9.1 以後的可序列化隔離級別），也用於分散式資料庫（FoundationDB 使用類似的演算法）。由於 SSI 與其他併發控制機制相比還很年輕，還處於在實踐中證明自己表現的階段。但它有可能因為足夠快而在未來成為新的預設選項。
 
@@ -748,7 +748,7 @@ WHERE room_id = 123 AND
 
 相比之下，**序列化快照隔離** 是一種 **樂觀（optimistic）** 的併發控制技術。在這種情況下，樂觀意味著，如果存在潛在的危險也不阻止事務，而是繼續執行事務，希望一切都會好起來。當一個事務想要提交時，資料庫檢查是否有什麼不好的事情發生（即隔離是否被違反）；如果是的話，事務將被中止，並且必須重試。只有可序列化的事務才被允許提交。
 
-樂觀併發控制是一個古老的想法【52】，其優點和缺點已經爭論了很長時間【53】。如果存在很多 **爭用**（contention，即很多事務試圖訪問相同的物件），則表現不佳，因為這會導致很大一部分事務需要中止。如果系統已經接近最大吞吐量，來自重試事務的額外負載可能會使效能變差。
+樂觀併發控制是一個古老的想法[^ref_52]，其優點和缺點已經爭論了很長時間[^ref_53]。如果存在很多 **爭用**（contention，即很多事務試圖訪問相同的物件），則表現不佳，因為這會導致很大一部分事務需要中止。如果系統已經接近最大吞吐量，來自重試事務的額外負載可能會使效能變差。
 
 但是，如果有足夠的空閒容量，並且事務之間的爭用不是太高，樂觀的併發控制技術往往比悲觀的效能要好。可交換的原子操作可以減少爭用：例如，如果多個事務同時要增加一個計數器，那麼應用增量的順序（只要計數器不在同一個事務中讀取）就無關緊要了，所以併發增量可以全部應用且不會有衝突。
 
@@ -799,11 +799,11 @@ WHERE room_id = 123 AND
 
 與往常一樣，許多工程細節會影響演算法的實際表現。例如一個權衡是跟蹤事務的讀取和寫入的 **粒度（granularity）**。如果資料庫詳細地跟蹤每個事務的活動（細粒度），那麼可以準確地確定哪些事務需要中止，但是簿記開銷可能變得很顯著。簡略的跟蹤速度更快（粗粒度），但可能會導致更多不必要的事務中止。
 
-在某些情況下，事務可以讀取被另一個事務覆蓋的資訊：這取決於發生了什麼，有時可以證明執行結果無論如何都是可序列化的。PostgreSQL 使用這個理論來減少不必要的中止次數【11,41】。
+在某些情況下，事務可以讀取被另一個事務覆蓋的資訊：這取決於發生了什麼，有時可以證明執行結果無論如何都是可序列化的。PostgreSQL 使用這個理論來減少不必要的中止次數[^ref_11] [^ref_41]。
 
 與兩階段鎖定相比，可序列化快照隔離的最大優點是一個事務不需要阻塞等待另一個事務所持有的鎖。就像在快照隔離下一樣，寫不會阻塞讀，反之亦然。這種設計原則使得查詢延遲更可預測，波動更少。特別是，只讀查詢可以執行在一致快照上，而不需要任何鎖定，這對於讀取繁重的工作負載非常有吸引力。
 
-與序列執行相比，可序列化快照隔離並不侷限於單個 CPU 核的吞吐量：FoundationDB 將序列化衝突的檢測分佈在多臺機器上，允許擴充套件到很高的吞吐量。即使資料可能跨多臺機器進行分割槽，事務也可以在保證可序列化隔離等級的同時讀寫多個分割槽中的資料【54】。
+與序列執行相比，可序列化快照隔離並不侷限於單個 CPU 核的吞吐量：FoundationDB 將序列化衝突的檢測分佈在多臺機器上，允許擴充套件到很高的吞吐量。即使資料可能跨多臺機器進行分割槽，事務也可以在保證可序列化隔離等級的同時讀寫多個分割槽中的資料[^ref_54]。
 
 中止率顯著影響 SSI 的整體表現。例如，長時間讀取和寫入資料的事務很可能會發生衝突並中止，因此 SSI 要求同時讀寫的事務儘量短（只讀的長事務可能沒問題）。對於慢事務，SSI 可能比兩階段鎖定或序列執行更不敏感。
 
@@ -845,57 +845,110 @@ WHERE room_id = 123 AND
 
 ## 參考文獻
 
-1. Donald D. Chamberlin, Morton M. Astrahan, Michael W. Blasgen, et al.: “[A History and Evaluation of System R](https://citeseerx.ist.psu.edu/pdf/ebb29a0ca16e04e7eeb6b606b22a9eadb3a9d531),” *Communications of the ACM*, volume 24, number 10, pages 632–646, October 1981. [doi:10.1145/358769.358784](http://dx.doi.org/10.1145/358769.358784)
-2. Jim N. Gray, Raymond A. Lorie, Gianfranco R. Putzolu, and Irving L. Traiger: “[Granularity of Locks and Degrees of Consistency in a Shared Data Base](https://citeseerx.ist.psu.edu/pdf/e127f0a6a912bb9150ecfe03c0ebf7fbc289a023),” in *Modelling in Data Base Management Systems: Proceedings of the IFIP Working Conference on Modelling in Data Base Management Systems*, edited by G. M. Nijssen, pages 364–394, Elsevier/North Holland Publishing, 1976. Also in *Readings in Database Systems*, 4th edition, edited by Joseph M. Hellerstein and Michael Stonebraker, MIT Press, 2005. ISBN: 978-0-262-69314-1
-3. Kapali P. Eswaran, Jim N. Gray, Raymond A. Lorie, and Irving L. Traiger: “[The Notions of Consistency and Predicate Locks in a Database System](http://research.microsoft.com/en-us/um/people/gray/papers/On%20the%20Notions%20of%20Consistency%20and%20Predicate%20Locks%20in%20a%20Database%20System%20CACM.pdf),” *Communications of the ACM*, volume 19, number 11, pages 624–633, November 1976.
-4. “[ACID Transactions Are Incredibly Helpful](http://web.archive.org/web/20150320053809/https://foundationdb.com/acid-claims),” FoundationDB, LLC, 2013.
-5. John D. Cook: “[ACID Versus BASE for Database Transactions](http://www.johndcook.com/blog/2009/07/06/brewer-cap-theorem-base/),” *johndcook.com*, July 6, 2009.
-6. Gavin Clarke: “[NoSQL's CAP Theorem Busters: We Don't Drop ACID](http://www.theregister.co.uk/2012/11/22/foundationdb_fear_of_cap_theorem/),” *theregister.co.uk*, November 22, 2012.
-7. Theo Härder and Andreas Reuter: “[Principles of Transaction-Oriented Database Recovery](https://citeseerx.ist.psu.edu/pdf/11ef7c142295aeb1a28a0e714c91fc8d610c3047),” *ACM Computing Surveys*, volume 15, number 4, pages 287–317, December 1983. [doi:10.1145/289.291](http://dx.doi.org/10.1145/289.291)
-8. Peter Bailis, Alan Fekete, Ali Ghodsi, et al.: “[HAT, not CAP: Towards Highly Available Transactions](http://www.bailis.org/papers/hat-hotos2013.pdf),” at *14th USENIX Workshop on Hot Topics in Operating Systems* (HotOS), May 2013.
-9. Armando Fox, Steven D. Gribble, Yatin Chawathe, et al.: “[Cluster-Based Scalable Network Services](https://people.eecs.berkeley.edu/~brewer/cs262b/TACC.pdf),” at *16th ACM Symposium on Operating Systems Principles* (SOSP), October 1997.
-10. Philip A. Bernstein, Vassos Hadzilacos, and Nathan Goodman: [*Concurrency Control and Recovery in Database Systems*](https://www.microsoft.com/en-us/research/people/philbe/book/). Addison-Wesley, 1987. ISBN: 978-0-201-10715-9, available online at *research.microsoft.com*.
-11. Alan Fekete, Dimitrios Liarokapis, Elizabeth O'Neil, et al.: “[Making Snapshot Isolation Serializable](https://www.cse.iitb.ac.in/infolab/Data/Courses/CS632/2009/Papers/p492-fekete.pdf),” *ACM Transactions on Database Systems*, volume 30, number 2, pages 492–528, June 2005. [doi:10.1145/1071610.1071615](http://dx.doi.org/10.1145/1071610.1071615)
-12. Mai Zheng, Joseph Tucek, Feng Qin, and Mark Lillibridge: “[Understanding the Robustness of SSDs Under Power Fault](https://www.usenix.org/system/files/conference/fast13/fast13-final80.pdf),” at *11th USENIX Conference on File and Storage Technologies* (FAST), February 2013.
-13. Laurie Denness: “[SSDs: A Gift and a Curse](https://laur.ie/blog/2015/06/ssds-a-gift-and-a-curse/),” *laur.ie*, June 2, 2015.
-14. Adam Surak: “[When Solid State Drives Are Not That Solid](https://blog.algolia.com/when-solid-state-drives-are-not-that-solid/),” *blog.algolia.com*, June 15, 2015.
-15. Thanumalayan Sankaranarayana Pillai, Vijay Chidambaram, Ramnatthan Alagappan, et al.: “[All File Systems Are Not Created Equal: On the Complexity of Crafting Crash-Consistent Applications](http://research.cs.wisc.edu/wind/Publications/alice-osdi14.pdf),” at *11th USENIX Symposium on Operating Systems Design and Implementation* (OSDI), October 2014.
-16. Chris Siebenmann: “[Unix's File Durability Problem](https://utcc.utoronto.ca/~cks/space/blog/unix/FileSyncProblem),” *utcc.utoronto.ca*, April 14, 2016.
-17. Lakshmi N. Bairavasundaram, Garth R. Goodson, Bianca Schroeder, et al.: “[An Analysis of Data Corruption in the Storage Stack](http://research.cs.wisc.edu/adsl/Publications/corruption-fast08.pdf),” at *6th USENIX Conference on File and Storage Technologies* (FAST), February 2008.
-18. Bianca Schroeder, Raghav Lagisetty, and Arif Merchant: “[Flash Reliability in Production: The Expected and the Unexpected](https://www.usenix.org/conference/fast16/technical-sessions/presentation/schroeder),” at *14th USENIX Conference on File and Storage Technologies* (FAST), February 2016.
-19. Don Allison: “[SSD Storage – Ignorance of Technology Is No Excuse](https://blog.korelogic.com/blog/2015/03/24),” *blog.korelogic.com*, March 24, 2015.
-20. Dave Scherer: “[Those Are Not Transactions (Cassandra 2.0)](http://web.archive.org/web/20150526065247/http://blog.foundationdb.com/those-are-not-transactions-cassandra-2-0),” *blog.foundationdb.com*, September 6, 2013.
-21. Kyle Kingsbury: “[Call Me Maybe: Cassandra](http://aphyr.com/posts/294-call-me-maybe-cassandra/),” *aphyr.com*, September 24, 2013.
-22. “[ACID Support in Aerospike](https://web.archive.org/web/20170305002118/https://www.aerospike.com/docs/architecture/assets/AerospikeACIDSupport.pdf),” Aerospike, Inc., June 2014.
-23. Martin Kleppmann: “[Hermitage: Testing the 'I' in ACID](http://martin.kleppmann.com/2014/11/25/hermitage-testing-the-i-in-acid.html),” *martin.kleppmann.com*, November 25, 2014.
-24. Tristan D'Agosta: “[BTC Stolen from Poloniex](https://bitcointalk.org/index.php?topic=499580),” *bitcointalk.org*, March 4, 2014.
-25. bitcointhief2: “[How I Stole Roughly 100 BTC from an Exchange and How I Could Have Stolen More!](http://www.reddit.com/r/Bitcoin/comments/1wtbiu/how_i_stole_roughly_100_btc_from_an_exchange_and/),” *reddit.com*, February 2, 2014.
-26. Sudhir Jorwekar, Alan Fekete, Krithi Ramamritham, and S. Sudarshan: “[Automating the Detection of Snapshot Isolation Anomalies](http://www.vldb.org/conf/2007/papers/industrial/p1263-jorwekar.pdf),” at *33rd International Conference on Very Large Data Bases* (VLDB), September 2007.
-27. Michael Melanson: “[Transactions: The Limits of Isolation](https://www.michaelmelanson.net/posts/transactions-the-limits-of-isolation/),” *michaelmelanson.net*, November 30, 2014.
-28. Hal Berenson, Philip A. Bernstein, Jim N. Gray, et al.: “[A Critique of ANSI SQL Isolation Levels](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/tr-95-51.pdf),” at *ACM International Conference on Management of Data* (SIGMOD), May 1995.
-29. Atul Adya: “[Weak Consistency: A Generalized Theory and Optimistic Implementations for Distributed Transactions](http://pmg.csail.mit.edu/papers/adya-phd.pdf),” PhD Thesis, Massachusetts Institute of Technology, March 1999.
-30. Peter Bailis, Aaron Davidson, Alan Fekete, et al.: “[Highly Available Transactions: Virtues and Limitations (Extended Version)](http://arxiv.org/pdf/1302.0309.pdf),” at *40th International Conference on Very Large Data Bases* (VLDB), September 2014.
-31. Bruce Momjian: “[MVCC Unmasked](http://momjian.us/main/presentations/internals.html#mvcc),” *momjian.us*, July 2014.
-32. Annamalai Gurusami: “[Repeatable Read Isolation Level in InnoDB – How Consistent Read View Works](https://web.archive.org/web/20161225080947/https://blogs.oracle.com/mysqlinnodb/entry/repeatable_read_isolation_level_in),” *blogs.oracle.com*, January 15, 2013.
-33. Nikita Prokopov: “[Unofficial Guide to Datomic Internals](http://tonsky.me/blog/unofficial-guide-to-datomic-internals/),” *tonsky.me*, May 6, 2014.
-34. Baron Schwartz: “[Immutability, MVCC, and Garbage Collection](https://web.archive.org/web/20220122020806/https://www.xaprb.com/blog/2013/12/28/immutability-mvcc-and-garbage-collection/),” *xaprb.com*, December 28, 2013.
-35. J. Chris Anderson, Jan Lehnardt, and Noah Slater: *CouchDB: The Definitive Guide*. O'Reilly Media, 2010. ISBN: 978-0-596-15589-6
-36. Rikdeb Mukherjee: “[Isolation in DB2 (Repeatable Read, Read Stability, Cursor Stability, Uncommitted Read) with Examples](http://mframes.blogspot.co.uk/2013/07/isolation-in-cursor.html),” *mframes.blogspot.co.uk*, July 4, 2013.
-37. Steve Hilker: “[Cursor Stability (CS) – IBM DB2 Community](https://web.archive.org/web/20150420001721/http://www.toadworld.com/platforms/ibmdb2/w/wiki/6661.cursor-stability-cs.aspx),” *toadworld.com*, March 14, 2013.
-38. Nate Wiger: “[An Atomic Rant](https://nateware.com/2010/02/18/an-atomic-rant/),” *nateware.com*, February 18, 2010.
-39. Joel Jacobson: “[Riak 2.0: Data Types](https://web.archive.org/web/20160327135816/http://blog.joeljacobson.com/riak-2-0-data-types/),” *blog.joeljacobson.com*, March 23, 2014.
-40. Michael J. Cahill, Uwe Röhm, and Alan Fekete: “[Serializable Isolation for Snapshot Databases](https://web.archive.org/web/20200709144151/https://cs.nyu.edu/courses/Fall12/CSCI-GA.2434-001/p729-cahill.pdf),” at *ACM International Conference on Management of Data* (SIGMOD), June 2008. [doi:10.1145/1376616.1376690](http://dx.doi.org/10.1145/1376616.1376690)
-41. Dan R. K. Ports and Kevin Grittner: “[Serializable Snapshot Isolation in PostgreSQL](http://drkp.net/papers/ssi-vldb12.pdf),” at *38th International Conference on Very Large Databases* (VLDB), August 2012.
-42. Tony Andrews: “[Enforcing Complex Constraints in Oracle](http://tonyandrews.blogspot.co.uk/2004/10/enforcing-complex-constraints-in.html),” *tonyandrews.blogspot.co.uk*, October 15, 2004.
-43. Douglas B. Terry, Marvin M. Theimer, Karin Petersen, et al.: “[Managing Update Conflicts in Bayou, a Weakly Connected Replicated Storage System](https://citeseerx.ist.psu.edu/pdf/20c450f099b661c5a2dff3f348773a0d1af1b09b),” at *15th ACM Symposium on Operating Systems Principles* (SOSP), December 1995. [doi:10.1145/224056.224070](http://dx.doi.org/10.1145/224056.224070)
-44. Gary Fredericks: “[Postgres Serializability Bug](https://github.com/gfredericks/pg-serializability-bug),” *github.com*, September 2015.
-45. Michael Stonebraker, Samuel Madden, Daniel J. Abadi, et al.: “[The End of an Architectural Era (It’s Time for a Complete Rewrite)](https://citeseerx.ist.psu.edu/pdf/775d54c66d271028a7d4dadf07cce6f918584cd3),” at *33rd International Conference on Very Large Data Bases* (VLDB), September 2007.
-46. John Hugg: “[H-Store/VoltDB Architecture vs. CEP Systems and Newer Streaming Architectures](https://www.youtube.com/watch?v=hD5M4a1UVz8),” at *Data @Scale Boston*, November 2014.
-47. Robert Kallman, Hideaki Kimura, Jonathan Natkins, et al.: “[H-Store: A High-Performance, Distributed Main Memory Transaction Processing System](http://www.vldb.org/pvldb/vol1/1454211.pdf),” *Proceedings of the VLDB Endowment*, volume 1, number 2, pages 1496–1499, August 2008.
-48. Rich Hickey: “[The Architecture of Datomic](http://www.infoq.com/articles/Architecture-Datomic),” *infoq.com*, November 2, 2012.
-49. John Hugg: “[Debunking Myths About the VoltDB In-Memory Database](https://dzone.com/articles/debunking-myths-about-voltdb),” *dzone.com*, May 28, 2014.
-50. Joseph M. Hellerstein, Michael Stonebraker, and James Hamilton: “[Architecture of a Database System](https://dsf.berkeley.edu/papers/fntdb07-architecture.pdf),” *Foundations and Trends in Databases*, volume 1, number 2, pages 141–259, November 2007. [doi:10.1561/1900000002](http://dx.doi.org/10.1561/1900000002)
-51. Michael J. Cahill: “[Serializable Isolation for Snapshot Databases](https://ses.library.usyd.edu.au/bitstream/handle/2123/5353/michael-cahill-2009-thesis.pdf),” PhD Thesis, University of Sydney, July 2009.
-52. D. Z. Badal: “[Correctness of Concurrency Control and Implications in Distributed Databases](http://ieeexplore.ieee.org/abstract/document/762563/),” at *3rd International IEEE Computer Software and Applications Conference* (COMPSAC), November 1979.
-53. Rakesh Agrawal, Michael J. Carey, and Miron Livny: “[Concurrency Control Performance Modeling: Alternatives and Implications](http://www.eecs.berkeley.edu/~brewer/cs262/ConcControl.pdf),” *ACM Transactions on Database Systems* (TODS), volume 12, number 4, pages 609–654, December 1987. [doi:10.1145/32204.32220](http://dx.doi.org/10.1145/32204.32220)
-54. Dave Rosenthal: “[Databases at 14.4MHz](http://web.archive.org/web/20150427041746/http://blog.foundationdb.com/databases-at-14.4mhz),” *blog.foundationdb.com*, December 10, 2014.
+[^ref_1]: Donald D. Chamberlin, Morton M. Astrahan, Michael W. Blasgen, et al.: “[A History and Evaluation of System R](https://citeseerx.ist.psu.edu/pdf/ebb29a0ca16e04e7eeb6b606b22a9eadb3a9d531),” *Communications of the ACM*, volume 24, number 10, pages 632–646, October 1981. [doi:10.1145/358769.358784](http://dx.doi.org/10.1145/358769.358784)
+
+[^ref_2]: Jim N. Gray, Raymond A. Lorie, Gianfranco R. Putzolu, and Irving L. Traiger: “[Granularity of Locks and Degrees of Consistency in a Shared Data Base](https://citeseerx.ist.psu.edu/pdf/e127f0a6a912bb9150ecfe03c0ebf7fbc289a023),” in *Modelling in Data Base Management Systems: Proceedings of the IFIP Working Conference on Modelling in Data Base Management Systems*, edited by G. M. Nijssen, pages 364–394, Elsevier/North Holland Publishing, 1976. Also in *Readings in Database Systems*, 4th edition, edited by Joseph M. Hellerstein and Michael Stonebraker, MIT Press, 2005. ISBN: 978-0-262-69314-1
+
+[^ref_3]: Kapali P. Eswaran, Jim N. Gray, Raymond A. Lorie, and Irving L. Traiger: “[The Notions of Consistency and Predicate Locks in a Database System](http://research.microsoft.com/en-us/um/people/gray/papers/On%20the%20Notions%20of%20Consistency%20and%20Predicate%20Locks%20in%20a%20Database%20System%20CACM.pdf),” *Communications of the ACM*, volume 19, number 11, pages 624–633, November 1976.
+
+[^ref_4]: “[ACID Transactions Are Incredibly Helpful](http://web.archive.org/web/20150320053809/https://foundationdb.com/acid-claims),” FoundationDB, LLC, 2013.
+
+[^ref_5]: John D. Cook: “[ACID Versus BASE for Database Transactions](http://www.johndcook.com/blog/2009/07/06/brewer-cap-theorem-base/),” *johndcook.com*, July 6, 2009.
+
+[^ref_6]: Gavin Clarke: “[NoSQL's CAP Theorem Busters: We Don't Drop ACID](http://www.theregister.co.uk/2012/11/22/foundationdb_fear_of_cap_theorem/),” *theregister.co.uk*, November 22, 2012.
+
+[^ref_7]: Theo Härder and Andreas Reuter: “[Principles of Transaction-Oriented Database Recovery](https://citeseerx.ist.psu.edu/pdf/11ef7c142295aeb1a28a0e714c91fc8d610c3047),” *ACM Computing Surveys*, volume 15, number 4, pages 287–317, December 1983. [doi:10.1145/289.291](http://dx.doi.org/10.1145/289.291)
+
+[^ref_8]: Peter Bailis, Alan Fekete, Ali Ghodsi, et al.: “[HAT, not CAP: Towards Highly Available Transactions](http://www.bailis.org/papers/hat-hotos2013.pdf),” at *14th USENIX Workshop on Hot Topics in Operating Systems* (HotOS), May 2013.
+
+[^ref_9]: Armando Fox, Steven D. Gribble, Yatin Chawathe, et al.: “[Cluster-Based Scalable Network Services](https://people.eecs.berkeley.edu/~brewer/cs262b/TACC.pdf),” at *16th ACM Symposium on Operating Systems Principles* (SOSP), October 1997.
+
+[^ref_10]: Philip A. Bernstein, Vassos Hadzilacos, and Nathan Goodman: [*Concurrency Control and Recovery in Database Systems*](https://www.microsoft.com/en-us/research/people/philbe/book/). Addison-Wesley, 1987. ISBN: 978-0-201-10715-9, available online at *research.microsoft.com*.
+
+[^ref_11]: Alan Fekete, Dimitrios Liarokapis, Elizabeth O'Neil, et al.: “[Making Snapshot Isolation Serializable](https://www.cse.iitb.ac.in/infolab/Data/Courses/CS632/2009/Papers/p492-fekete.pdf),” *ACM Transactions on Database Systems*, volume 30, number 2, pages 492–528, June 2005. [doi:10.1145/1071610.1071615](http://dx.doi.org/10.1145/1071610.1071615)
+
+[^ref_12]: Mai Zheng, Joseph Tucek, Feng Qin, and Mark Lillibridge: “[Understanding the Robustness of SSDs Under Power Fault](https://www.usenix.org/system/files/conference/fast13/fast13-final80.pdf),” at *11th USENIX Conference on File and Storage Technologies* (FAST), February 2013.
+
+[^ref_13]: Laurie Denness: “[SSDs: A Gift and a Curse](https://laur.ie/blog/2015/06/ssds-a-gift-and-a-curse/),” *laur.ie*, June 2, 2015.
+
+[^ref_14]: Adam Surak: “[When Solid State Drives Are Not That Solid](https://blog.algolia.com/when-solid-state-drives-are-not-that-solid/),” *blog.algolia.com*, June 15, 2015.
+
+[^ref_15]: Thanumalayan Sankaranarayana Pillai, Vijay Chidambaram, Ramnatthan Alagappan, et al.: “[All File Systems Are Not Created Equal: On the Complexity of Crafting Crash-Consistent Applications](http://research.cs.wisc.edu/wind/Publications/alice-osdi14.pdf),” at *11th USENIX Symposium on Operating Systems Design and Implementation* (OSDI), October 2014.
+
+[^ref_16]: Chris Siebenmann: “[Unix's File Durability Problem](https://utcc.utoronto.ca/~cks/space/blog/unix/FileSyncProblem),” *utcc.utoronto.ca*, April 14, 2016.
+
+[^ref_17]: Lakshmi N. Bairavasundaram, Garth R. Goodson, Bianca Schroeder, et al.: “[An Analysis of Data Corruption in the Storage Stack](http://research.cs.wisc.edu/adsl/Publications/corruption-fast08.pdf),” at *6th USENIX Conference on File and Storage Technologies* (FAST), February 2008.
+
+[^ref_18]: Bianca Schroeder, Raghav Lagisetty, and Arif Merchant: “[Flash Reliability in Production: The Expected and the Unexpected](https://www.usenix.org/conference/fast16/technical-sessions/presentation/schroeder),” at *14th USENIX Conference on File and Storage Technologies* (FAST), February 2016.
+
+[^ref_19]: Don Allison: “[SSD Storage – Ignorance of Technology Is No Excuse](https://blog.korelogic.com/blog/2015/03/24),” *blog.korelogic.com*, March 24, 2015.
+
+[^ref_20]: Dave Scherer: “[Those Are Not Transactions (Cassandra 2.0)](http://web.archive.org/web/20150526065247/http://blog.foundationdb.com/those-are-not-transactions-cassandra-2-0),” *blog.foundationdb.com*, September 6, 2013.
+
+[^ref_21]: Kyle Kingsbury: “[Call Me Maybe: Cassandra](http://aphyr.com/posts/294-call-me-maybe-cassandra/),” *aphyr.com*, September 24, 2013.
+
+[^ref_22]: “[ACID Support in Aerospike](https://web.archive.org/web/20170305002118/https://www.aerospike.com/docs/architecture/assets/AerospikeACIDSupport.pdf),” Aerospike, Inc., June 2014.
+
+[^ref_23]: Martin Kleppmann: “[Hermitage: Testing the 'I' in ACID](http://martin.kleppmann.com/2014/11/25/hermitage-testing-the-i-in-acid.html),” *martin.kleppmann.com*, November 25, 2014.
+
+[^ref_24]: Tristan D'Agosta: “[BTC Stolen from Poloniex](https://bitcointalk.org/index.php?topic=499580),” *bitcointalk.org*, March 4, 2014.
+
+[^ref_25]: bitcointhief2: “[How I Stole Roughly 100 BTC from an Exchange and How I Could Have Stolen More!](http://www.reddit.com/r/Bitcoin/comments/1wtbiu/how_i_stole_roughly_100_btc_from_an_exchange_and/),” *reddit.com*, February 2, 2014.
+
+[^ref_26]: Sudhir Jorwekar, Alan Fekete, Krithi Ramamritham, and S. Sudarshan: “[Automating the Detection of Snapshot Isolation Anomalies](http://www.vldb.org/conf/2007/papers/industrial/p1263-jorwekar.pdf),” at *33rd International Conference on Very Large Data Bases* (VLDB), September 2007.
+
+[^ref_27]: Michael Melanson: “[Transactions: The Limits of Isolation](https://www.michaelmelanson.net/posts/transactions-the-limits-of-isolation/),” *michaelmelanson.net*, November 30, 2014.
+
+[^ref_28]: Hal Berenson, Philip A. Bernstein, Jim N. Gray, et al.: “[A Critique of ANSI SQL Isolation Levels](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/tr-95-51.pdf),” at *ACM International Conference on Management of Data* (SIGMOD), May 1995.
+
+[^ref_29]: Atul Adya: “[Weak Consistency: A Generalized Theory and Optimistic Implementations for Distributed Transactions](http://pmg.csail.mit.edu/papers/adya-phd.pdf),” PhD Thesis, Massachusetts Institute of Technology, March 1999.
+
+[^ref_30]: Peter Bailis, Aaron Davidson, Alan Fekete, et al.: “[Highly Available Transactions: Virtues and Limitations (Extended Version)](http://arxiv.org/pdf/1302.0309.pdf),” at *40th International Conference on Very Large Data Bases* (VLDB), September 2014.
+
+[^ref_31]: Bruce Momjian: “[MVCC Unmasked](http://momjian.us/main/presentations/internals.html#mvcc),” *momjian.us*, July 2014.
+
+[^ref_32]: Annamalai Gurusami: “[Repeatable Read Isolation Level in InnoDB – How Consistent Read View Works](https://web.archive.org/web/20161225080947/https://blogs.oracle.com/mysqlinnodb/entry/repeatable_read_isolation_level_in),” *blogs.oracle.com*, January 15, 2013.
+
+[^ref_33]: Nikita Prokopov: “[Unofficial Guide to Datomic Internals](http://tonsky.me/blog/unofficial-guide-to-datomic-internals/),” *tonsky.me*, May 6, 2014.
+
+[^ref_34]: Baron Schwartz: “[Immutability, MVCC, and Garbage Collection](https://web.archive.org/web/20220122020806/https://www.xaprb.com/blog/2013/12/28/immutability-mvcc-and-garbage-collection/),” *xaprb.com*, December 28, 2013.
+
+[^ref_35]: J. Chris Anderson, Jan Lehnardt, and Noah Slater: *CouchDB: The Definitive Guide*. O'Reilly Media, 2010. ISBN: 978-0-596-15589-6
+
+[^ref_36]: Rikdeb Mukherjee: “[Isolation in DB2 (Repeatable Read, Read Stability, Cursor Stability, Uncommitted Read) with Examples](http://mframes.blogspot.co.uk/2013/07/isolation-in-cursor.html),” *mframes.blogspot.co.uk*, July 4, 2013.
+
+[^ref_37]: Steve Hilker: “[Cursor Stability (CS) – IBM DB2 Community](https://web.archive.org/web/20150420001721/http://www.toadworld.com/platforms/ibmdb2/w/wiki/6661.cursor-stability-cs.aspx),” *toadworld.com*, March 14, 2013.
+
+[^ref_38]: Nate Wiger: “[An Atomic Rant](https://nateware.com/2010/02/18/an-atomic-rant/),” *nateware.com*, February 18, 2010.
+
+[^ref_39]: Joel Jacobson: “[Riak 2.0: Data Types](https://web.archive.org/web/20160327135816/http://blog.joeljacobson.com/riak-2-0-data-types/),” *blog.joeljacobson.com*, March 23, 2014.
+
+[^ref_40]: Michael J. Cahill, Uwe Röhm, and Alan Fekete: “[Serializable Isolation for Snapshot Databases](https://web.archive.org/web/20200709144151/https://cs.nyu.edu/courses/Fall12/CSCI-GA.2434-001/p729-cahill.pdf),” at *ACM International Conference on Management of Data* (SIGMOD), June 2008. [doi:10.1145/1376616.1376690](http://dx.doi.org/10.1145/1376616.1376690)
+
+[^ref_41]: Dan R. K. Ports and Kevin Grittner: “[Serializable Snapshot Isolation in PostgreSQL](http://drkp.net/papers/ssi-vldb12.pdf),” at *38th International Conference on Very Large Databases* (VLDB), August 2012.
+
+[^ref_42]: Tony Andrews: “[Enforcing Complex Constraints in Oracle](http://tonyandrews.blogspot.co.uk/2004/10/enforcing-complex-constraints-in.html),” *tonyandrews.blogspot.co.uk*, October 15, 2004.
+
+[^ref_43]: Douglas B. Terry, Marvin M. Theimer, Karin Petersen, et al.: “[Managing Update Conflicts in Bayou, a Weakly Connected Replicated Storage System](https://citeseerx.ist.psu.edu/pdf/20c450f099b661c5a2dff3f348773a0d1af1b09b),” at *15th ACM Symposium on Operating Systems Principles* (SOSP), December 1995. [doi:10.1145/224056.224070](http://dx.doi.org/10.1145/224056.224070)
+
+[^ref_44]: Gary Fredericks: “[Postgres Serializability Bug](https://github.com/gfredericks/pg-serializability-bug),” *github.com*, September 2015.
+
+[^ref_45]: Michael Stonebraker, Samuel Madden, Daniel J. Abadi, et al.: “[The End of an Architectural Era (It’s Time for a Complete Rewrite)](https://citeseerx.ist.psu.edu/pdf/775d54c66d271028a7d4dadf07cce6f918584cd3),” at *33rd International Conference on Very Large Data Bases* (VLDB), September 2007.
+
+[^ref_46]: John Hugg: “[H-Store/VoltDB Architecture vs. CEP Systems and Newer Streaming Architectures](https://www.youtube.com/watch?v=hD5M4a1UVz8),” at *Data @Scale Boston*, November 2014.
+
+[^ref_47]: Robert Kallman, Hideaki Kimura, Jonathan Natkins, et al.: “[H-Store: A High-Performance, Distributed Main Memory Transaction Processing System](http://www.vldb.org/pvldb/vol1/1454211.pdf),” *Proceedings of the VLDB Endowment*, volume 1, number 2, pages 1496–1499, August 2008.
+
+[^ref_48]: Rich Hickey: “[The Architecture of Datomic](http://www.infoq.com/articles/Architecture-Datomic),” *infoq.com*, November 2, 2012.
+
+[^ref_49]: John Hugg: “[Debunking Myths About the VoltDB In-Memory Database](https://dzone.com/articles/debunking-myths-about-voltdb),” *dzone.com*, May 28, 2014.
+
+[^ref_50]: Joseph M. Hellerstein, Michael Stonebraker, and James Hamilton: “[Architecture of a Database System](https://dsf.berkeley.edu/papers/fntdb07-architecture.pdf),” *Foundations and Trends in Databases*, volume 1, number 2, pages 141–259, November 2007. [doi:10.1561/1900000002](http://dx.doi.org/10.1561/1900000002)
+
+[^ref_51]: Michael J. Cahill: “[Serializable Isolation for Snapshot Databases](https://ses.library.usyd.edu.au/bitstream/handle/2123/5353/michael-cahill-2009-thesis.pdf),” PhD Thesis, University of Sydney, July 2009.
+
+[^ref_52]: D. Z. Badal: “[Correctness of Concurrency Control and Implications in Distributed Databases](http://ieeexplore.ieee.org/abstract/document/762563/),” at *3rd International IEEE Computer Software and Applications Conference* (COMPSAC), November 1979.
+
+[^ref_53]: Rakesh Agrawal, Michael J. Carey, and Miron Livny: “[Concurrency Control Performance Modeling: Alternatives and Implications](http://www.eecs.berkeley.edu/~brewer/cs262/ConcControl.pdf),” *ACM Transactions on Database Systems* (TODS), volume 12, number 4, pages 609–654, December 1987. [doi:10.1145/32204.32220](http://dx.doi.org/10.1145/32204.32220)
+
+[^ref_54]: Dave Rosenthal: “[Databases at 14.4MHz](http://web.archive.org/web/20150427041746/http://blog.foundationdb.com/databases-at-14.4mhz),” *blog.foundationdb.com*, December 10, 2014.

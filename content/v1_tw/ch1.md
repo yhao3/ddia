@@ -37,7 +37,7 @@ breadcrumbs: false
 
 那我們為什麼要把這些東西放在 **資料系統（data system）** 的總稱之下混為一談呢？
 
-近些年來，出現了許多新的資料儲存工具與資料處理工具。它們針對不同應用場景進行最佳化，因此不再適合生硬地歸入傳統類別【1】。類別之間的界限變得越來越模糊，例如：資料儲存可以被當成訊息佇列用（Redis），訊息佇列則帶有類似資料庫的持久保證（Apache Kafka）。
+近些年來，出現了許多新的資料儲存工具與資料處理工具。它們針對不同應用場景進行最佳化，因此不再適合生硬地歸入傳統類別[^ref_1]。類別之間的界限變得越來越模糊，例如：資料儲存可以被當成訊息佇列用（Redis），訊息佇列則帶有類似資料庫的持久保證（Apache Kafka）。
 
 其次，越來越多的應用程式有著各種嚴格而廣泛的要求，單個工具不足以滿足所有的資料處理和儲存需求。取而代之的是，總體工作被拆分成一系列能被單個工具高效完成的任務，並透過應用程式碼將它們縫合起來。
 
@@ -80,9 +80,9 @@ breadcrumbs: false
 
 造成錯誤的原因叫做 **故障（fault）**，能預料並應對故障的系統特性可稱為 **容錯（fault-tolerant）** 或 **回彈性（resilient）**。“**容錯**” 一詞可能會產生誤導，因為它暗示著系統可以容忍所有可能的錯誤，但在實際中這是不可能的。比方說，如果整個地球（及其上的所有伺服器）都被黑洞吞噬了，想要容忍這種錯誤，需要把網路託管到太空中 —— 這種預算能不能批准就祝你好運了。所以在討論容錯時，只有談論特定型別的錯誤才有意義。
 
-注意 **故障（fault）** 不同於 **失效（failure）**【2】。**故障** 通常定義為系統的一部分狀態偏離其標準，而 **失效** 則是系統作為一個整體停止向用戶提供服務。故障的機率不可能降到零，因此最好設計容錯機制以防因 **故障** 而導致 **失效**。本書中我們將介紹幾種用不可靠的部件構建可靠系統的技術。
+注意 **故障（fault）** 不同於 **失效（failure）**[^ref_2]。**故障** 通常定義為系統的一部分狀態偏離其標準，而 **失效** 則是系統作為一個整體停止向用戶提供服務。故障的機率不可能降到零，因此最好設計容錯機制以防因 **故障** 而導致 **失效**。本書中我們將介紹幾種用不可靠的部件構建可靠系統的技術。
 
-反直覺的是，在這類容錯系統中，透過故意觸發來 **提高** 故障率是有意義的，例如：在沒有警告的情況下隨機地殺死單個程序。許多高危漏洞實際上是由糟糕的錯誤處理導致的【3】，因此我們可以透過故意引發故障來確保容錯機制不斷執行並接受考驗，從而提高故障自然發生時系統能正確處理的信心。Netflix 公司的 *Chaos Monkey*【4】就是這種方法的一個例子。
+反直覺的是，在這類容錯系統中，透過故意觸發來 **提高** 故障率是有意義的，例如：在沒有警告的情況下隨機地殺死單個程序。許多高危漏洞實際上是由糟糕的錯誤處理導致的[^ref_3]，因此我們可以透過故意引發故障來確保容錯機制不斷執行並接受考驗，從而提高故障自然發生時系統能正確處理的信心。Netflix 公司的 *Chaos Monkey*[^ref_4]就是這種方法的一個例子。
 
 儘管比起 **阻止錯誤（prevent error）**，我們通常更傾向於 **容忍錯誤**。但也有 **預防勝於治療** 的情況（比如不存在治療方法時）。安全問題就屬於這種情況。例如，如果攻擊者破壞了系統，並獲取了敏感資料，這種事是撤銷不了的。但本書主要討論的是可以恢復的故障種類，正如下面幾節所述。
 
@@ -90,13 +90,13 @@ breadcrumbs: false
 
 當想到系統失效的原因時，**硬體故障（hardware faults）** 總會第一個進入腦海。硬碟崩潰、記憶體出錯、機房斷電、有人拔錯網線…… 任何與大型資料中心打過交道的人都會告訴你：一旦你擁有很多機器，這些事情 **總** 會發生！
 
-據報道稱，硬碟的 **平均無故障時間（MTTF, mean time to failure）** 約為 10 到 50 年【5】【6】。因此從數學期望上講，在擁有 10000 個磁碟的儲存叢集上，平均每天會有 1 個磁碟出故障。
+據報道稱，硬碟的 **平均無故障時間（MTTF, mean time to failure）** 約為 10 到 50 年 [^ref_5] [^ref_6]。因此從數學期望上講，在擁有 10000 個磁碟的儲存叢集上，平均每天會有 1 個磁碟出故障。
 
 為了減少系統的故障率，第一反應通常都是增加單個硬體的冗餘度，例如：磁碟可以組建 RAID，伺服器可能有雙路電源和熱插拔 CPU，資料中心可能有電池和柴油發電機作為後備電源，某個元件掛掉時冗餘元件可以立刻接管（takeover）。這種方法雖然不能完全防止由硬體問題導致的系統失效，但它簡單易懂，通常也足以讓機器不間斷執行很多年。
 
 直到最近，硬體冗餘對於大多數應用來說已經足夠了，它使單臺機器完全失效變得相當罕見。只要你能快速地把備份恢復到新機器上，故障停機時間對大多數應用而言都算不上災難性的。只有少量高可用性至關重要的應用才會要求有多套硬體冗餘。
 
-但是隨著資料量和應用計算需求的增加，越來越多的應用開始大量使用機器，這會相應地增加硬體故障率。此外，在類似亞馬遜 AWS（Amazon Web Services）的一些雲服務平臺上，虛擬機器例項不可用卻沒有任何警告也是很常見的【7】，因為雲平臺的設計就是優先考慮 **靈活性（flexibility）** 和 **彈性（elasticity）**[^i]，而不是單機可靠性。
+但是隨著資料量和應用計算需求的增加，越來越多的應用開始大量使用機器，這會相應地增加硬體故障率。此外，在類似亞馬遜 AWS（Amazon Web Services）的一些雲服務平臺上，虛擬機器例項不可用卻沒有任何警告也是很常見的[^ref_7]，因為雲平臺的設計就是優先考慮 **靈活性（flexibility）** 和 **彈性（elasticity）**[^i]，而不是單機可靠性。
 
 如果在硬體冗餘的基礎上進一步引入軟體容錯機制，那麼系統在容忍整個（單臺）機器故障的道路上就更進一步了。這樣的系統也有運維上的便利，例如：如果需要重啟機器（例如應用作業系統安全補丁），單伺服器系統就需要計劃停機。而允許機器失效的系統則可以一次修復一個節點，無需整個系統停機。
 
@@ -106,26 +106,26 @@ breadcrumbs: false
 
 我們通常認為硬體故障是隨機的、相互獨立的：一臺機器的磁碟失效並不意味著另一臺機器的磁碟也會失效。雖然大量硬體元件之間可能存在微弱的相關性（例如伺服器機架的溫度等共同的原因），但同時發生故障也是極為罕見的。
 
-另一類錯誤是內部的 **系統性錯誤（systematic error）**【8】。這類錯誤難以預料，而且因為是跨節點相關的，所以比起不相關的硬體故障往往可能造成更多的 **系統失效**【5】。例子包括：
+另一類錯誤是內部的 **系統性錯誤（systematic error）**[^ref_8]。這類錯誤難以預料，而且因為是跨節點相關的，所以比起不相關的硬體故障往往可能造成更多的 **系統失效**[^ref_5]。例子包括：
 
-* 接受特定的錯誤輸入，便導致所有應用伺服器例項崩潰的 BUG。例如 2012 年 6 月 30 日的閏秒，由於 Linux 核心中的一個錯誤【9】，許多應用同時掛掉了。
+* 接受特定的錯誤輸入，便導致所有應用伺服器例項崩潰的 BUG。例如 2012 年 6 月 30 日的閏秒，由於 Linux 核心中的一個錯誤[^ref_9]，許多應用同時掛掉了。
 * 失控程序會用盡一些共享資源，包括 CPU 時間、記憶體、磁碟空間或網路頻寬。
 * 系統依賴的服務變慢，沒有響應，或者開始返回錯誤的響應。
-* 級聯故障，一個元件中的小故障觸發另一個元件中的故障，進而觸發更多的故障【10】。
+* 級聯故障，一個元件中的小故障觸發另一個元件中的故障，進而觸發更多的故障[^ref_10]。
 
-導致這類軟體故障的 BUG 通常會潛伏很長時間，直到被異常情況觸發為止。這種情況意味著軟體對其環境做出了某種假設 —— 雖然這種假設通常來說是正確的，但由於某種原因最後不再成立了【11】。
+導致這類軟體故障的 BUG 通常會潛伏很長時間，直到被異常情況觸發為止。這種情況意味著軟體對其環境做出了某種假設 —— 雖然這種假設通常來說是正確的，但由於某種原因最後不再成立了[^ref_11]。
 
-雖然軟體中的系統性故障沒有速效藥，但我們還是有很多小辦法，例如：仔細考慮系統中的假設和互動；徹底的測試；程序隔離；允許程序崩潰並重啟；測量、監控並分析生產環境中的系統行為。如果系統能夠提供一些保證（例如在一個訊息佇列中，進入與發出的訊息數量相等），那麼系統就可以在執行時不斷自檢，並在出現 **差異（discrepancy）** 時報警【12】。
+雖然軟體中的系統性故障沒有速效藥，但我們還是有很多小辦法，例如：仔細考慮系統中的假設和互動；徹底的測試；程序隔離；允許程序崩潰並重啟；測量、監控並分析生產環境中的系統行為。如果系統能夠提供一些保證（例如在一個訊息佇列中，進入與發出的訊息數量相等），那麼系統就可以在執行時不斷自檢，並在出現 **差異（discrepancy）** 時報警[^ref_12]。
 
 ### 人為錯誤
 
-設計並構建了軟體系統的工程師是人類，維持系統執行的運維也是人類。即使他們懷有最大的善意，人類也是不可靠的。舉個例子，一項關於大型網際網路服務的研究發現，運維配置錯誤是導致服務中斷的首要原因，而硬體故障（伺服器或網路）僅導致了 10-25% 的服務中斷【13】。
+設計並構建了軟體系統的工程師是人類，維持系統執行的運維也是人類。即使他們懷有最大的善意，人類也是不可靠的。舉個例子，一項關於大型網際網路服務的研究發現，運維配置錯誤是導致服務中斷的首要原因，而硬體故障（伺服器或網路）僅導致了 10-25% 的服務中斷[^ref_13]。
 
 儘管人類不可靠，但怎麼做才能讓系統變得可靠？最好的系統會組合使用以下幾種辦法：
 
 * 以最小化犯錯機會的方式設計系統。例如，精心設計的抽象、API 和管理後臺使做對事情更容易，搞砸事情更困難。但如果介面限制太多，人們就會忽略它們的好處而想辦法繞開。很難正確把握這種微妙的平衡。
 * 將人們最容易犯錯的地方與可能導致失效的地方 **解耦（decouple）**。特別是提供一個功能齊全的非生產環境 **沙箱（sandbox）**，使人們可以在不影響真實使用者的情況下，使用真實資料安全地探索和實驗。
-* 在各個層次進行徹底的測試【3】，從單元測試、全系統整合測試到手動測試。自動化測試易於理解，已經被廣泛使用，特別適合用來覆蓋正常情況中少見的 **邊緣場景（corner case）**。
+* 在各個層次進行徹底的測試[^ref_3]，從單元測試、全系統整合測試到手動測試。自動化測試易於理解，已經被廣泛使用，特別適合用來覆蓋正常情況中少見的 **邊緣場景（corner case）**。
 * 允許從人為錯誤中簡單快速地恢復，以最大限度地減少失效情況帶來的影響。例如，快速回滾配置變更，分批發布新程式碼（以便任何意外錯誤隻影響一小部分使用者），並提供資料重算工具（以備舊的計算出錯）。
 * 配置詳細和明確的監控，比如效能指標和錯誤率。在其他工程學科中這指的是 **遙測（telemetry）**（一旦火箭離開了地面，遙測技術對於跟蹤發生的事情和理解失敗是至關重要的）。監控可以向我們發出預警訊號，並允許我們檢查是否有任何地方違反了假設和約束。當出現問題時，指標資料對於問題診斷是非常寶貴的。
 * 良好的管理實踐與充分的培訓 —— 一個複雜而重要的方面，但超出了本書的範圍。
@@ -134,7 +134,7 @@ breadcrumbs: false
 
 可靠性不僅僅是針對核電站和空中交通管制軟體而言，我們也期望更多平凡的應用能可靠地執行。商務應用中的錯誤會導致生產力損失（也許資料報告不完整還會有法律風險），而電商網站的中斷則可能會導致收入和聲譽的巨大損失。
 
-即使在 “非關鍵” 應用中，我們也對使用者負有責任。試想一位家長把所有的照片和孩子的影片儲存在你的照片應用裡【15】。如果資料庫突然損壞，他們會感覺如何？他們可能會知道如何從備份恢復嗎？
+即使在 “非關鍵” 應用中，我們也對使用者負有責任。試想一位家長把所有的照片和孩子的影片儲存在你的照片應用裡[^ref_15]。如果資料庫突然損壞，他們會感覺如何？他們可能會知道如何從備份恢復嗎？
 
 在某些情況下，我們可能會選擇犧牲可靠性來降低開發成本（例如為未經證實的市場開發產品原型）或運營成本（例如利潤率極低的服務），但我們偷工減料時，應該清楚意識到自己在做什麼。
 
@@ -149,7 +149,7 @@ breadcrumbs: false
 
 在討論增長問題（如果負載加倍會發生什麼？）前，首先要能簡要描述系統的當前負載。負載可以用一些稱為 **負載引數（load parameters）** 的數字來描述。引數的最佳選擇取決於系統架構，它可能是每秒向 Web 伺服器發出的請求、資料庫中的讀寫比率、聊天室中同時活躍的使用者數量、快取命中率或其他東西。除此之外，也許平均情況對你很重要，也許你的瓶頸是少數極端場景。
 
-為了使這個概念更加具體，我們以推特在 2012 年 11 月釋出的資料【16】為例。推特的兩個主要業務是：
+為了使這個概念更加具體，我們以推特在 2012 年 11 月釋出的資料[^ref_16]為例。推特的兩個主要業務是：
 
 - 釋出推文
 	使用者可以向其粉絲釋出新訊息（平均 4.6k 請求 / 秒，峰值超過 12k 請求 / 秒）。
@@ -181,7 +181,7 @@ breadcrumbs: false
 
     ![](./v1/ddia_0103.png)
 
-    **圖 1-3 用於分發推特至關注者的資料流水線，2012 年 11 月的負載引數【16】**
+    **圖 1-3 用於分發推特至關注者的資料流水線，2012 年 11 月的負載引數[^ref_16]**
 
 推特的第一個版本使用了方法 1，但系統很難跟上主頁時間線查詢的負載。所以公司轉向了方法 2，方法 2 的效果更好，因為發推頻率比查詢主頁時間線的頻率幾乎低了兩個數量級，所以在這種情況下，最好在寫入時做更多的工作，而在讀取時做更少的工作。
 
@@ -206,11 +206,11 @@ breadcrumbs: false
 
 > #### 延遲和響應時間
 >
-> **延遲（latency）** 和 **響應時間（response time）** 經常用作同義詞，但實際上它們並不一樣。響應時間是客戶所看到的，除了實際處理請求的時間（ **服務時間（service time）** ）之外，還包括網路延遲和排隊延遲。延遲是某個請求等待處理的 **持續時長**，在此期間它處於 **休眠（latent）** 狀態，並等待服務【17】。
+> **延遲（latency）** 和 **響應時間（response time）** 經常用作同義詞，但實際上它們並不一樣。響應時間是客戶所看到的，除了實際處理請求的時間（ **服務時間（service time）** ）之外，還包括網路延遲和排隊延遲。延遲是某個請求等待處理的 **持續時長**，在此期間它處於 **休眠（latent）** 狀態，並等待服務[^ref_17]。
 
 即使不斷重複傳送同樣的請求，每次得到的響應時間也都會略有不同。現實世界的系統會處理各式各樣的請求，響應時間可能會有很大差異。因此我們需要將響應時間視為一個可以測量的數值 **分佈（distribution）**，而不是單個數值。
 
-在 [圖 1-4](./v1/ddia_0104.png) 中，每個灰條代表一次對服務的請求，其高度表示請求花費了多長時間。大多數請求是相當快的，但偶爾會出現需要更長的時間的異常值。這也許是因為緩慢的請求實質上開銷更大，例如它們可能會處理更多的資料。但即使（你認為）所有請求都花費相同時間的情況下，隨機的附加延遲也會導致結果變化，例如：上下文切換到後臺程序，網路資料包丟失與 TCP 重傳，垃圾收集暫停，強制從磁碟讀取的頁面錯誤，伺服器機架中的震動【18】，還有很多其他原因。
+在 [圖 1-4](./v1/ddia_0104.png) 中，每個灰條代表一次對服務的請求，其高度表示請求花費了多長時間。大多數請求是相當快的，但偶爾會出現需要更長的時間的異常值。這也許是因為緩慢的請求實質上開銷更大，例如它們可能會處理更多的資料。但即使（你認為）所有請求都花費相同時間的情況下，隨機的附加延遲也會導致結果變化，例如：上下文切換到後臺程序，網路資料包丟失與 TCP 重傳，垃圾收集暫停，強制從磁碟讀取的頁面錯誤，伺服器機架中的震動[^ref_18]，還有很多其他原因。
 
 ![](./v1/ddia_0104.png)
 
@@ -224,7 +224,7 @@ breadcrumbs: false
 
 為了弄清異常值有多糟糕，可以看看更高的百分位點，例如第 95、99 和 99.9 百分位點（縮寫為 p95，p99 和 p999）。它們意味著 95%、99% 或 99.9% 的請求響應時間要比該閾值快，例如：如果第 95 百分位點響應時間是 1.5 秒，則意味著 100 個請求中的 95 個響應時間快於 1.5 秒，而 100 個請求中的 5 個響應時間超過 1.5 秒。如 [圖 1-4](./v1/ddia_0104.png) 所示。
 
-響應時間的高百分位點（也稱為 **尾部延遲**，即 **tail latencies**）非常重要，因為它們直接影響使用者的服務體驗。例如亞馬遜在描述內部服務的響應時間要求時是以 99.9 百分位點為準，即使它隻影響一千個請求中的一個。這是因為請求響應最慢的客戶往往也是資料最多的客戶，也可以說是最有價值的客戶 —— 因為他們掏錢了【19】。保證網站響應迅速對於保持客戶的滿意度非常重要，亞馬遜觀察到：響應時間增加 100 毫秒，銷售量就減少 1%【20】；而另一些報告說：慢 1 秒鐘會讓客戶滿意度指標減少 16%【21，22】。
+響應時間的高百分位點（也稱為 **尾部延遲**，即 **tail latencies**）非常重要，因為它們直接影響使用者的服務體驗。例如亞馬遜在描述內部服務的響應時間要求時是以 99.9 百分位點為準，即使它隻影響一千個請求中的一個。這是因為請求響應最慢的客戶往往也是資料最多的客戶，也可以說是最有價值的客戶 —— 因為他們掏錢了[^ref_19]。保證網站響應迅速對於保持客戶的滿意度非常重要，亞馬遜觀察到：響應時間增加 100 毫秒，銷售量就減少 1%[^ref_20]；而另一些報告說：慢 1 秒鐘會讓客戶滿意度指標減少 16%【21，22】。
 
 另一方面，最佳化第 99.99 百分位點（一萬個請求中最慢的一個）被認為太昂貴了，不能為亞馬遜的目標帶來足夠好處。減小高百分位點處的響應時間相當困難，因為它很容易受到隨機事件的影響，這超出了控制範圍，而且效益也很小。
 
@@ -232,15 +232,15 @@ breadcrumbs: false
 
 **排隊延遲（queueing delay）** 通常佔了高百分位點處響應時間的很大一部分。由於伺服器只能並行處理少量的事務（如受其 CPU 核數的限制），所以只要有少量緩慢的請求就能阻礙後續請求的處理，這種效應有時被稱為 **頭部阻塞（head-of-line blocking）** 。即使後續請求在伺服器上處理的非常迅速，由於需要等待先前請求完成，客戶端最終看到的是緩慢的總體響應時間。因為存在這種效應，測量客戶端的響應時間非常重要。
 
-為測試系統的可伸縮性而人為產生負載時，產生負載的客戶端要獨立於響應時間不斷傳送請求。如果客戶端在傳送下一個請求之前等待先前的請求完成，這種行為會產生人為排隊的效果，使得測試時的佇列比現實情況更短，使測量結果產生偏差【23】。
+為測試系統的可伸縮性而人為產生負載時，產生負載的客戶端要獨立於響應時間不斷傳送請求。如果客戶端在傳送下一個請求之前等待先前的請求完成，這種行為會產生人為排隊的效果，使得測試時的佇列比現實情況更短，使測量結果產生偏差[^ref_23]。
 
 > #### 實踐中的百分位點
 >
-> 在多重呼叫的後端服務裡，高百分位數變得特別重要。即使並行呼叫，終端使用者請求仍然需要等待最慢的並行呼叫完成。如 [圖 1-5](./v1/ddia_0105.png) 所示，只需要一個緩慢的呼叫就可以使整個終端使用者請求變慢。即使只有一小部分後端呼叫速度較慢，如果終端使用者請求需要多個後端呼叫，則獲得較慢呼叫的機會也會增加，因此較高比例的終端使用者請求速度會變慢（該效果稱為尾部延遲放大，即 tail latency amplification【24】）。
+> 在多重呼叫的後端服務裡，高百分位數變得特別重要。即使並行呼叫，終端使用者請求仍然需要等待最慢的並行呼叫完成。如 [圖 1-5](./v1/ddia_0105.png) 所示，只需要一個緩慢的呼叫就可以使整個終端使用者請求變慢。即使只有一小部分後端呼叫速度較慢，如果終端使用者請求需要多個後端呼叫，則獲得較慢呼叫的機會也會增加，因此較高比例的終端使用者請求速度會變慢（該效果稱為尾部延遲放大，即 tail latency amplification[^ref_24]）。
 >
 > 如果你想將響應時間百分點新增到你的服務的監視儀表板，則需要持續有效地計算它們。例如，你可以使用滑動視窗來跟蹤連續10分鐘內的請求響應時間。每一分鐘，你都會計算出該視窗中的響應時間中值和各種百分數，並將這些度量值繪製在圖上。
 >
-> 簡單的實現是在時間視窗內儲存所有請求的響應時間列表，並且每分鐘對列表進行排序。如果對你來說效率太低，那麼有一些演算法能夠以最小的 CPU 和記憶體成本（如前向衰減【25】、t-digest【26】或 HdrHistogram 【27】）來計算百分位數的近似值。請注意，平均百分比（例如，減少時間解析度或合併來自多臺機器的資料）在數學上沒有意義 - 聚合響應時間資料的正確方法是新增直方圖【28】。
+> 簡單的實現是在時間視窗內儲存所有請求的響應時間列表，並且每分鐘對列表進行排序。如果對你來說效率太低，那麼有一些演算法能夠以最小的 CPU 和記憶體成本（如前向衰減[^ref_25]、t-digest[^ref_26]或 HdrHistogram [^ref_27]）來計算百分位數的近似值。請注意，平均百分比（例如，減少時間解析度或合併來自多臺機器的資料）在數學上沒有意義 - 聚合響應時間資料的正確方法是新增直方圖[^ref_28]。
 
 ![](./v1/ddia_0105.png)
 
@@ -292,7 +292,7 @@ breadcrumbs: false
 
 有人認為，“良好的運維經常可以繞開垃圾（或不完整）軟體的侷限性，而再好的軟體攤上垃圾運維也沒法可靠執行”。儘管運維的某些方面可以，而且應該是自動化的，但在最初建立正確運作的自動化機制仍然取決於人。
 
-運維團隊對於保持軟體系統順利執行至關重要。一個優秀運維團隊的典型職責如下（或者更多）【29】：
+運維團隊對於保持軟體系統順利執行至關重要。一個優秀運維團隊的典型職責如下（或者更多）[^ref_29]：
 
 * 監控系統的執行狀況，並在服務狀態不佳時快速恢復服務。
 * 跟蹤問題的原因，例如系統故障或效能下降。
@@ -318,13 +318,13 @@ breadcrumbs: false
 
 ### 簡單性：管理複雜度
 
-小型軟體專案可以使用簡單討喜的、富表現力的程式碼，但隨著專案越來越大，程式碼往往變得非常複雜，難以理解。這種複雜度拖慢了所有系統相關人員，進一步增加了維護成本。一個陷入複雜泥潭的軟體專案有時被描述為 **爛泥潭（a big ball of mud）** 【30】。
+小型軟體專案可以使用簡單討喜的、富表現力的程式碼，但隨著專案越來越大，程式碼往往變得非常複雜，難以理解。這種複雜度拖慢了所有系統相關人員，進一步增加了維護成本。一個陷入複雜泥潭的軟體專案有時被描述為 **爛泥潭（a big ball of mud）** [^ref_30]。
 
-**複雜度（complexity）** 有各種可能的症狀，例如：狀態空間激增、模組間緊密耦合、糾結的依賴關係、不一致的命名和術語、解決效能問題的 Hack、需要繞開的特例等等，現在已經有很多關於這個話題的討論【31,32,33】。
+**複雜度（complexity）** 有各種可能的症狀，例如：狀態空間激增、模組間緊密耦合、糾結的依賴關係、不一致的命名和術語、解決效能問題的 Hack、需要繞開的特例等等，現在已經有很多關於這個話題的討論[^ref_31] [^ref_32] [^ref_33]。
 
 因為複雜度導致維護困難時，預算和時間安排通常會超支。在複雜的軟體中進行變更，引入錯誤的風險也更大：當開發人員難以理解系統時，隱藏的假設、無意的後果和意外的互動就更容易被忽略。相反，降低複雜度能極大地提高軟體的可維護性，因此簡單性應該是構建系統的一個關鍵目標。
 
-簡化系統並不一定意味著減少功能；它也可以意味著消除 **額外的（accidental）** 的複雜度。Moseley 和 Marks【32】把 **額外複雜度** 定義為：由具體實現中湧現，而非（從使用者視角看，系統所解決的）問題本身固有的複雜度。
+簡化系統並不一定意味著減少功能；它也可以意味著消除 **額外的（accidental）** 的複雜度。Moseley 和 Marks[^ref_32]把 **額外複雜度** 定義為：由具體實現中湧現，而非（從使用者視角看，系統所解決的）問題本身固有的複雜度。
 
 用於消除 **額外複雜度** 的最好工具之一是 **抽象（abstraction）**。一個好的抽象可以將大量實現細節隱藏在一個乾淨，簡單易懂的外觀下面。一個好的抽象也可以廣泛用於各類不同應用。比起重複造很多輪子，重用抽象不僅更有效率，而且有助於開發高質量的軟體。抽象元件的質量改進將使所有使用它的應用受益。
 
@@ -342,7 +342,7 @@ breadcrumbs: false
 
 這些敏捷技術的大部分討論都集中在相當小的規模（同一個應用中的幾個程式碼檔案）。本書將探索在更大資料系統層面上提高敏捷性的方法，可能由幾個不同的應用或服務組成。例如，為了將裝配主頁時間線的方法從方法 1 變為方法 2，你會如何 “重構” 推特的架構 ？
 
-修改資料系統並使其適應不斷變化需求的容易程度，是與 **簡單性** 和 **抽象性** 密切相關的：簡單易懂的系統通常比複雜系統更容易修改。但由於這是一個非常重要的概念，我們將用一個不同的詞來指代資料系統層面的敏捷性： **可演化性（evolvability）** 【34】。
+修改資料系統並使其適應不斷變化需求的容易程度，是與 **簡單性** 和 **抽象性** 密切相關的：簡單易懂的系統通常比複雜系統更容易修改。但由於這是一個非常重要的概念，我們將用一個不同的詞來指代資料系統層面的敏捷性： **可演化性（evolvability）** [^ref_34]。
 
 
 ## 本章小結
@@ -364,37 +364,70 @@ breadcrumbs: false
 
 ## 參考文獻
 
-1. Michael Stonebraker and Uğur Çetintemel: “['One Size Fits All': An Idea Whose Time Has Come and Gone](https://cs.brown.edu/~ugur/fits_all.pdf),” at *21st International Conference on Data Engineering* (ICDE), April 2005.
-2. Walter L. Heimerdinger and Charles B. Weinstock: “[A Conceptual Framework for System Fault Tolerance](https://resources.sei.cmu.edu/asset_files/TechnicalReport/1992_005_001_16112.pdf),” Technical Report CMU/SEI-92-TR-033, Software Engineering Institute, Carnegie Mellon University, October 1992.
-3. Ding Yuan, Yu Luo, Xin Zhuang, et al.: “[Simple Testing Can Prevent Most Critical Failures: An Analysis of Production Failures in Distributed Data-Intensive Systems](https://www.usenix.org/system/files/conference/osdi14/osdi14-paper-yuan.pdf),” at *11th USENIX Symposium on Operating Systems Design and Implementation* (OSDI), October 2014.
-4. Yury Izrailevsky and Ariel Tseitlin: “[The Netflix Simian Army](https://netflixtechblog.com/the-netflix-simian-army-16e57fbab116),” *netflixtechblog.com*, July 19, 2011.
-5. Daniel Ford, François Labelle, Florentina I. Popovici, et al.: “[Availability in Globally Distributed Storage Systems](http://research.google.com/pubs/archive/36737.pdf),” at *9th USENIX Symposium on Operating Systems Design and Implementation* (OSDI), October 2010.
-6. Brian Beach: “[Hard Drive Reliability Update – Sep 2014](https://www.backblaze.com/blog/hard-drive-reliability-update-september-2014/),” *backblaze.com*, September 23, 2014.
-7. Laurie Voss: “[AWS: The Good, the Bad and the Ugly](https://web.archive.org/web/20160429075023/http://blog.awe.sm/2012/12/18/aws-the-good-the-bad-and-the-ugly/),” *blog.awe.sm*, December 18, 2012.
-8. Haryadi S. Gunawi, Mingzhe Hao, Tanakorn Leesatapornwongsa, et al.: “[What Bugs Live in the Cloud?](http://ucare.cs.uchicago.edu/pdf/socc14-cbs.pdf),” at *5th ACM Symposium on Cloud Computing* (SoCC), November 2014. [doi:10.1145/2670979.2670986](http://dx.doi.org/10.1145/2670979.2670986)
-9. Nelson Minar: “[Leap Second Crashes Half the Internet](http://www.somebits.com/weblog/tech/bad/leap-second-2012.html),” *somebits.com*, July 3, 2012.
-10. Amazon Web Services: “[Summary of the Amazon EC2 and Amazon RDS Service Disruption in the US East Region](http://aws.amazon.com/message/65648/),” *aws.amazon.com*, April 29, 2011.
-11. Richard I. Cook: “[How Complex Systems Fail](https://www.adaptivecapacitylabs.com/HowComplexSystemsFail.pdf),” Cognitive Technologies Laboratory, April 2000.
-12. Jay Kreps: “[Getting Real About Distributed System Reliability](http://blog.empathybox.com/post/19574936361/getting-real-about-distributed-system-reliability),” *blog.empathybox.com*, March 19, 2012.
-13. David Oppenheimer, Archana Ganapathi, and David A. Patterson: “[Why Do Internet Services Fail, and What Can Be Done About It?](http://static.usenix.org/legacy/events/usits03/tech/full_papers/oppenheimer/oppenheimer.pdf),” at *4th USENIX Symposium on Internet Technologies and Systems* (USITS), March 2003.
-14. Nathan Marz: “[Principles of Software Engineering, Part 1](http://nathanmarz.com/blog/principles-of-software-engineering-part-1.html),” *nathanmarz.com*, April 2, 2013.
-15. Michael Jurewitz: “[The Human Impact of Bugs](http://jury.me/blog/2013/3/14/the-human-impact-of-bugs),” *jury.me*, March 15, 2013.
-16. Raffi Krikorian: “[Timelines at Scale](http://www.infoq.com/presentations/Twitter-Timeline-Scalability),” at *QCon San Francisco*, November 2012.
-17. Martin Fowler: *Patterns of Enterprise Application Architecture*. Addison Wesley, 2002. ISBN: 978-0-321-12742-6
-18. Kelly Sommers: “[After all that run around, what caused 500ms disk latency even when we replaced physical server?](https://twitter.com/kellabyte/status/532930540777635840)” *twitter.com*, November 13, 2014.
-19. Giuseppe DeCandia, Deniz Hastorun, Madan Jampani, et al.: “[Dynamo: Amazon's Highly Available Key-Value Store](http://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf),” at *21st ACM Symposium on Operating Systems Principles* (SOSP), October 2007.
-20. Greg Linden: “[Make Data Useful](http://glinden.blogspot.co.uk/2006/12/slides-from-my-talk-at-stanford.html),” slides from presentation at Stanford University Data Mining class (CS345), December 2006.
-21. Tammy Everts: “[The Real Cost of Slow Time vs Downtime](https://www.slideshare.net/Radware/radware-cmg2014-tammyevertsslowtimevsdowntime),” *slideshare.net*, November 5, 2014.
-22. Jake Brutlag: “[Speed Matters](https://ai.googleblog.com/2009/06/speed-matters.html),” *ai.googleblog.com*, June 23, 2009.
-23. Tyler Treat: “[Everything You Know About Latency Is Wrong](http://bravenewgeek.com/everything-you-know-about-latency-is-wrong/),” *bravenewgeek.com*, December 12, 2015.
-24. Jeffrey Dean and Luiz André Barroso: “[The Tail at Scale](http://cacm.acm.org/magazines/2013/2/160173-the-tail-at-scale/fulltext),” *Communications of the ACM*, volume 56, number 2, pages 74–80, February 2013. [doi:10.1145/2408776.2408794](http://dx.doi.org/10.1145/2408776.2408794)
-25. Graham Cormode, Vladislav Shkapenyuk, Divesh Srivastava, and Bojian Xu: “[Forward Decay: A Practical Time Decay Model for Streaming Systems](http://dimacs.rutgers.edu/~graham/pubs/papers/fwddecay.pdf),” at *25th IEEE International Conference on Data Engineering* (ICDE), March 2009.
-26. Ted Dunning and Otmar Ertl: “[Computing Extremely Accurate Quantiles Using t-Digests](https://github.com/tdunning/t-digest),” *github.com*, March 2014.
-27. Gil Tene: “[HdrHistogram](http://www.hdrhistogram.org/),” *hdrhistogram.org*.
-28. Baron Schwartz: “[Why Percentiles Don’t Work the Way You Think](https://orangematter.solarwinds.com/2016/11/18/why-percentiles-dont-work-the-way-you-think/),” *solarwinds.com*, November 18, 2016.
-29. James Hamilton: “[On Designing and Deploying Internet-Scale Services](https://www.usenix.org/legacy/events/lisa07/tech/full_papers/hamilton/hamilton.pdf),” at *21st Large Installation System Administration Conference* (LISA), November 2007.
-30. Brian Foote and Joseph Yoder: “[Big Ball of Mud](http://www.laputan.org/pub/foote/mud.pdf),” at *4th Conference on Pattern Languages of Programs* (PLoP), September 1997.
-31. Frederick P Brooks: “No Silver Bullet – Essence and Accident in Software Engineering,” in *The Mythical Man-Month*, Anniversary edition, Addison-Wesley, 1995. ISBN: 978-0-201-83595-3
-32. Ben Moseley and Peter Marks: “[Out of the Tar Pit](https://curtclifton.net/papers/MoseleyMarks06a.pdf),” at *BCS Software Practice Advancement* (SPA), 2006.
-33. Rich Hickey: “[Simple Made Easy](http://www.infoq.com/presentations/Simple-Made-Easy),” at *Strange Loop*, September 2011.
-34. Hongyu Pei Breivold, Ivica Crnkovic, and Peter J. Eriksson: “[Analyzing Software Evolvability](http://www.es.mdh.se/pdf_publications/1251.pdf),” at *32nd Annual IEEE International Computer Software and Applications Conference* (COMPSAC), July 2008. [doi:10.1109/COMPSAC.2008.50](http://dx.doi.org/10.1109/COMPSAC.2008.50)
+[^ref_1]: Michael Stonebraker and Uğur Çetintemel: “['One Size Fits All': An Idea Whose Time Has Come and Gone](https://cs.brown.edu/~ugur/fits_all.pdf),” at *21st International Conference on Data Engineering* (ICDE), April 2005.
+
+[^ref_2]: Walter L. Heimerdinger and Charles B. Weinstock: “[A Conceptual Framework for System Fault Tolerance](https://resources.sei.cmu.edu/asset_files/TechnicalReport/1992_005_001_16112.pdf),” Technical Report CMU/SEI-92-TR-033, Software Engineering Institute, Carnegie Mellon University, October 1992.
+
+[^ref_3]: Ding Yuan, Yu Luo, Xin Zhuang, et al.: “[Simple Testing Can Prevent Most Critical Failures: An Analysis of Production Failures in Distributed Data-Intensive Systems](https://www.usenix.org/system/files/conference/osdi14/osdi14-paper-yuan.pdf),” at *11th USENIX Symposium on Operating Systems Design and Implementation* (OSDI), October 2014.
+
+[^ref_4]: Yury Izrailevsky and Ariel Tseitlin: “[The Netflix Simian Army](https://netflixtechblog.com/the-netflix-simian-army-16e57fbab116),” *netflixtechblog.com*, July 19, 2011.
+
+[^ref_5]: Daniel Ford, François Labelle, Florentina I. Popovici, et al.: “[Availability in Globally Distributed Storage Systems](http://research.google.com/pubs/archive/36737.pdf),” at *9th USENIX Symposium on Operating Systems Design and Implementation* (OSDI), October 2010.
+
+[^ref_6]: Brian Beach: “[Hard Drive Reliability Update – Sep 2014](https://www.backblaze.com/blog/hard-drive-reliability-update-september-2014/),” *backblaze.com*, September 23, 2014.
+
+[^ref_7]: Laurie Voss: “[AWS: The Good, the Bad and the Ugly](https://web.archive.org/web/20160429075023/http://blog.awe.sm/2012/12/18/aws-the-good-the-bad-and-the-ugly/),” *blog.awe.sm*, December 18, 2012.
+
+[^ref_8]: Haryadi S. Gunawi, Mingzhe Hao, Tanakorn Leesatapornwongsa, et al.: “[What Bugs Live in the Cloud?](http://ucare.cs.uchicago.edu/pdf/socc14-cbs.pdf),” at *5th ACM Symposium on Cloud Computing* (SoCC), November 2014. [doi:10.1145/2670979.2670986](http://dx.doi.org/10.1145/2670979.2670986)
+
+[^ref_9]: Nelson Minar: “[Leap Second Crashes Half the Internet](http://www.somebits.com/weblog/tech/bad/leap-second-2012.html),” *somebits.com*, July 3, 2012.
+
+[^ref_10]: Amazon Web Services: “[Summary of the Amazon EC2 and Amazon RDS Service Disruption in the US East Region](http://aws.amazon.com/message/65648/),” *aws.amazon.com*, April 29, 2011.
+
+[^ref_11]: Richard I. Cook: “[How Complex Systems Fail](https://www.adaptivecapacitylabs.com/HowComplexSystemsFail.pdf),” Cognitive Technologies Laboratory, April 2000.
+
+[^ref_12]: Jay Kreps: “[Getting Real About Distributed System Reliability](http://blog.empathybox.com/post/19574936361/getting-real-about-distributed-system-reliability),” *blog.empathybox.com*, March 19, 2012.
+
+[^ref_13]: David Oppenheimer, Archana Ganapathi, and David A. Patterson: “[Why Do Internet Services Fail, and What Can Be Done About It?](http://static.usenix.org/legacy/events/usits03/tech/full_papers/oppenheimer/oppenheimer.pdf),” at *4th USENIX Symposium on Internet Technologies and Systems* (USITS), March 2003.
+
+[^ref_14]: Nathan Marz: “[Principles of Software Engineering, Part 1](http://nathanmarz.com/blog/principles-of-software-engineering-part-1.html),” *nathanmarz.com*, April 2, 2013.
+
+[^ref_15]: Michael Jurewitz: “[The Human Impact of Bugs](http://jury.me/blog/2013/3/14/the-human-impact-of-bugs),” *jury.me*, March 15, 2013.
+
+[^ref_16]: Raffi Krikorian: “[Timelines at Scale](http://www.infoq.com/presentations/Twitter-Timeline-Scalability),” at *QCon San Francisco*, November 2012.
+
+[^ref_17]: Martin Fowler: *Patterns of Enterprise Application Architecture*. Addison Wesley, 2002. ISBN: 978-0-321-12742-6
+
+[^ref_18]: Kelly Sommers: “[After all that run around, what caused 500ms disk latency even when we replaced physical server?](https://twitter.com/kellabyte/status/532930540777635840)” *twitter.com*, November 13, 2014.
+
+[^ref_19]: Giuseppe DeCandia, Deniz Hastorun, Madan Jampani, et al.: “[Dynamo: Amazon's Highly Available Key-Value Store](http://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf),” at *21st ACM Symposium on Operating Systems Principles* (SOSP), October 2007.
+
+[^ref_20]: Greg Linden: “[Make Data Useful](http://glinden.blogspot.co.uk/2006/12/slides-from-my-talk-at-stanford.html),” slides from presentation at Stanford University Data Mining class (CS345), December 2006.
+
+[^ref_21]: Tammy Everts: “[The Real Cost of Slow Time vs Downtime](https://www.slideshare.net/Radware/radware-cmg2014-tammyevertsslowtimevsdowntime),” *slideshare.net*, November 5, 2014.
+
+[^ref_22]: Jake Brutlag: “[Speed Matters](https://ai.googleblog.com/2009/06/speed-matters.html),” *ai.googleblog.com*, June 23, 2009.
+
+[^ref_23]: Tyler Treat: “[Everything You Know About Latency Is Wrong](http://bravenewgeek.com/everything-you-know-about-latency-is-wrong/),” *bravenewgeek.com*, December 12, 2015.
+
+[^ref_24]: Jeffrey Dean and Luiz André Barroso: “[The Tail at Scale](http://cacm.acm.org/magazines/2013/2/160173-the-tail-at-scale/fulltext),” *Communications of the ACM*, volume 56, number 2, pages 74–80, February 2013. [doi:10.1145/2408776.2408794](http://dx.doi.org/10.1145/2408776.2408794)
+
+[^ref_25]: Graham Cormode, Vladislav Shkapenyuk, Divesh Srivastava, and Bojian Xu: “[Forward Decay: A Practical Time Decay Model for Streaming Systems](http://dimacs.rutgers.edu/~graham/pubs/papers/fwddecay.pdf),” at *25th IEEE International Conference on Data Engineering* (ICDE), March 2009.
+
+[^ref_26]: Ted Dunning and Otmar Ertl: “[Computing Extremely Accurate Quantiles Using t-Digests](https://github.com/tdunning/t-digest),” *github.com*, March 2014.
+
+[^ref_27]: Gil Tene: “[HdrHistogram](http://www.hdrhistogram.org/),” *hdrhistogram.org*.
+
+[^ref_28]: Baron Schwartz: “[Why Percentiles Don’t Work the Way You Think](https://orangematter.solarwinds.com/2016/11/18/why-percentiles-dont-work-the-way-you-think/),” *solarwinds.com*, November 18, 2016.
+
+[^ref_29]: James Hamilton: “[On Designing and Deploying Internet-Scale Services](https://www.usenix.org/legacy/events/lisa07/tech/full_papers/hamilton/hamilton.pdf),” at *21st Large Installation System Administration Conference* (LISA), November 2007.
+
+[^ref_30]: Brian Foote and Joseph Yoder: “[Big Ball of Mud](http://www.laputan.org/pub/foote/mud.pdf),” at *4th Conference on Pattern Languages of Programs* (PLoP), September 1997.
+
+[^ref_31]: Frederick P Brooks: “No Silver Bullet – Essence and Accident in Software Engineering,” in *The Mythical Man-Month*, Anniversary edition, Addison-Wesley, 1995. ISBN: 978-0-201-83595-3
+
+[^ref_32]: Ben Moseley and Peter Marks: “[Out of the Tar Pit](https://curtclifton.net/papers/MoseleyMarks06a.pdf),” at *BCS Software Practice Advancement* (SPA), 2006.
+
+[^ref_33]: Rich Hickey: “[Simple Made Easy](http://www.infoq.com/presentations/Simple-Made-Easy),” at *Strange Loop*, September 2011.
+
+[^ref_34]: Hongyu Pei Breivold, Ivica Crnkovic, and Peter J. Eriksson: “[Analyzing Software Evolvability](http://www.es.mdh.se/pdf_publications/1251.pdf),” at *32nd Annual IEEE International Computer Software and Applications Conference* (COMPSAC), July 2008. [doi:10.1109/COMPSAC.2008.50](http://dx.doi.org/10.1109/COMPSAC.2008.50)

@@ -25,7 +25,7 @@ math: true
 
 在複製時需要進行許多權衡：例如，使用同步複製還是非同步複製？如何處理失敗的副本？這些通常是資料庫中的配置選項，細節因資料庫而異，但原理在許多不同的實現中都類似。本章會討論這些決策的後果。
 
-資料庫的複製算得上是老生常談了 ——70 年代研究得出的基本原則至今沒有太大變化【1】，因為網路的基本約束仍保持不變。然而在研究之外，許多開發人員仍然假設一個數據庫只有一個節點。分散式資料庫變為主流只是最近發生的事。許多程式設計師都是這一領域的新手，因此對於諸如 **最終一致性（eventual consistency）** 等問題存在許多誤解。在 “[複製延遲問題](#複製延遲問題)” 一節，我們將更加精確地瞭解最終一致性，並討論諸如 **讀己之寫（read-your-writes）** 和 **單調讀（monotonic read）** 等內容。
+資料庫的複製算得上是老生常談了 ——70 年代研究得出的基本原則至今沒有太大變化[^ref_1]，因為網路的基本約束仍保持不變。然而在研究之外，許多開發人員仍然假設一個數據庫只有一個節點。分散式資料庫變為主流只是最近發生的事。許多程式設計師都是這一領域的新手，因此對於諸如 **最終一致性（eventual consistency）** 等問題存在許多誤解。在 “[複製延遲問題](#複製延遲問題)” 一節，我們將更加精確地瞭解最終一致性，並討論諸如 **讀己之寫（read-your-writes）** 和 **單調讀（monotonic read）** 等內容。
 
 ## 領導者與追隨者
 
@@ -43,7 +43,7 @@ math: true
 
 **圖 5-1 基於領導者的（主/從）複製**
 
-這種複製模式是許多關係資料庫的內建功能，如 PostgreSQL（從 9.0 版本開始）、MySQL、Oracle Data Guard【2】和 SQL Server 的 AlwaysOn 可用性組【3】。它也被用於一些非關係資料庫，包括 MongoDB、RethinkDB 和 Espresso【4】。最後，基於領導者的複製並不僅限於資料庫：像 Kafka【5】和 RabbitMQ 高可用佇列【6】這樣的分散式訊息代理也使用它。某些網路檔案系統，例如 DRBD 這樣的塊複製裝置也與之類似。
+這種複製模式是許多關係資料庫的內建功能，如 PostgreSQL（從 9.0 版本開始）、MySQL、Oracle Data Guard[^ref_2]和 SQL Server 的 AlwaysOn 可用性組[^ref_3]。它也被用於一些非關係資料庫，包括 MongoDB、RethinkDB 和 Espresso[^ref_4]。最後，基於領導者的複製並不僅限於資料庫：像 Kafka[^ref_5]和 RabbitMQ 高可用佇列[^ref_6]這樣的分散式訊息代理也使用它。某些網路檔案系統，例如 DRBD 這樣的塊複製裝置也與之類似。
 
 ### 同步複製與非同步複製
 
@@ -63,7 +63,7 @@ math: true
 
 同步複製的優點是，從庫能保證有與主庫一致的最新資料副本。如果主庫突然失效，我們可以確信這些資料仍然能在從庫上找到。缺點是，如果同步從庫沒有響應（比如它已經崩潰，或者出現網路故障，或其它任何原因），主庫就無法處理寫入操作。主庫必須阻止所有寫入，並等待同步副本再次可用。
 
-因此，將所有從庫都設定為同步的是不切實際的：任何一個節點的中斷都會導致整個系統停滯不前。實際上，如果在資料庫上啟用同步複製，通常意味著其中 **一個** 從庫是同步的，而其他的從庫則是非同步的。如果該同步從庫變得不可用或緩慢，則將一個非同步從庫改為同步執行。這保證你至少在兩個節點上擁有最新的資料副本：主庫和同步從庫。這種配置有時也被稱為 **半同步（semi-synchronous）**【7】。
+因此，將所有從庫都設定為同步的是不切實際的：任何一個節點的中斷都會導致整個系統停滯不前。實際上，如果在資料庫上啟用同步複製，通常意味著其中 **一個** 從庫是同步的，而其他的從庫則是非同步的。如果該同步從庫變得不可用或緩慢，則將一個非同步從庫改為同步執行。這保證你至少在兩個節點上擁有最新的資料副本：主庫和同步從庫。這種配置有時也被稱為 **半同步（semi-synchronous）**[^ref_7]。
 
 通常情況下，基於領導者的複製都配置為完全非同步。在這種情況下，如果主庫失效且不可恢復，則任何尚未複製給從庫的寫入都會丟失。這意味著即使已經向客戶端確認成功，寫入也不能保證是 **持久（Durable）** 的。然而，一個完全非同步的配置也有優點：即使所有的從庫都落後了，主庫也可以繼續處理寫入。
 
@@ -71,7 +71,7 @@ math: true
 
 > ### 關於複製的研究
 >
-> 對於非同步複製系統而言，主庫故障時會丟失資料可能是一個嚴重的問題，因此研究人員仍在研究不丟資料但仍能提供良好效能和可用性的複製方法。例如，**鏈式複製（chain replication）**【8,9】是同步複製的一種變體，已經在一些系統（如 Microsoft Azure Storage【10,11】）中成功實現。
+> 對於非同步複製系統而言，主庫故障時會丟失資料可能是一個嚴重的問題，因此研究人員仍在研究不丟資料但仍能提供良好效能和可用性的複製方法。例如，**鏈式複製（chain replication）**[^ref_8] [^ref_9]是同步複製的一種變體，已經在一些系統（如 Microsoft Azure Storage[^ref_10] [^ref_11]）中成功實現。
 >
 > 複製的一致性與 **共識**（consensus，使幾個節點就某個值達成一致）之間有著密切的聯絡，[第九章](./ch9) 將詳細地探討這一領域的理論。本章主要討論實踐中的資料庫常用的簡單複製形式。
 >
@@ -84,7 +84,7 @@ math: true
 
 可以透過鎖定資料庫（使其不可用於寫入）來使磁碟上的檔案保持一致，但是這會違背高可用的目標。幸運的是，設定新從庫通常並不需要停機。從概念上講，其過程如下所示：
 
-1. 在某個時刻獲取主庫的一致性快照（如果可能，不必鎖定整個資料庫）。大多數資料庫都具有這個功能，因為它是備份必需的。對於某些場景，可能需要第三方工具，例如用於 MySQL 的 innobackupex【12】。
+1. 在某個時刻獲取主庫的一致性快照（如果可能，不必鎖定整個資料庫）。大多數資料庫都具有這個功能，因為它是備份必需的。對於某些場景，可能需要第三方工具，例如用於 MySQL 的 innobackupex[^ref_12]。
 2. 將快照複製到新的從庫節點。
 3. 從庫連線到主庫，並拉取快照之後發生的所有資料變更。這要求快照與主庫複製日誌中的位置精確關聯。該位置有不同的名稱，例如 PostgreSQL 將其稱為 **日誌序列號（log sequence number，LSN）**，MySQL 將其稱為 **二進位制日誌座標（binlog coordinates）**。
 4. 當從庫處理完快照之後積累的資料變更，我們就說它 **趕上（caught up）** 了主庫，現在它可以繼續及時處理主庫產生的資料變化了。
@@ -115,9 +115,9 @@ math: true
 
 * 如果使用非同步複製，則新主庫可能沒有收到老主庫宕機前最後的寫入操作。在選出新主庫後，如果老主庫重新加入叢集，又該如何處理這些老主庫尚未複製的寫入？在此期間，新主庫可能已經收到了與老主庫尚未複製的寫入相沖突的寫入。最常見的解決方案是簡單丟棄老主庫未複製的寫入，這很可能打破客戶對於資料永續性的期望。
 
-* 如果資料庫需要和其他外部儲存相協調，那麼丟棄寫入內容是極其危險的操作。例如在 GitHub 【13】的一場事故中，一個過時的 MySQL 從庫被提升為主庫。資料庫使用自增 ID 作為主鍵，因為新主庫的計數器落後於老主庫的計數器，所以新主庫重新分配了一些已經被老主庫分配掉的 ID 作為主鍵。這些主鍵也在 Redis 中使用，主鍵重用使得 MySQL 和 Redis 中的資料產生不一致，最後導致一些私有資料洩漏到錯誤的使用者手中。
+* 如果資料庫需要和其他外部儲存相協調，那麼丟棄寫入內容是極其危險的操作。例如在 GitHub [^ref_13]的一場事故中，一個過時的 MySQL 從庫被提升為主庫。資料庫使用自增 ID 作為主鍵，因為新主庫的計數器落後於老主庫的計數器，所以新主庫重新分配了一些已經被老主庫分配掉的 ID 作為主鍵。這些主鍵也在 Redis 中使用，主鍵重用使得 MySQL 和 Redis 中的資料產生不一致，最後導致一些私有資料洩漏到錯誤的使用者手中。
 
-* 發生某些故障時（見 [第八章](./ch8)）可能會出現兩個節點都以為自己是主庫的情況。這種情況稱為 **腦裂（split brain）**，非常危險：如果兩個主庫都可以接受寫操作，卻沒有衝突解決機制（請參閱 “[多主複製](#多主複製)”），那麼資料就可能丟失或損壞。一些系統採取了安全防範措施：當檢測到兩個主庫節點同時存在時會關閉其中一個節點 [^ii]，但設計粗糙的機制可能最後會導致兩個節點都被關閉【14】。
+* 發生某些故障時（見 [第八章](./ch8)）可能會出現兩個節點都以為自己是主庫的情況。這種情況稱為 **腦裂（split brain）**，非常危險：如果兩個主庫都可以接受寫操作，卻沒有衝突解決機制（請參閱 “[多主複製](#多主複製)”），那麼資料就可能丟失或損壞。一些系統採取了安全防範措施：當檢測到兩個主庫節點同時存在時會關閉其中一個節點 [^ii]，但設計粗糙的機制可能最後會導致兩個節點都被關閉[^ref_14]。
 
   [^ii]: 這種機制稱為 **屏障（fencing）**，或者更充滿感情的術語是：**爆彼之頭（Shoot The Other Node In The Head, STONITH）**。我們將在 “[領導者和鎖](./ch8#領導者和鎖)” 中對屏障進行詳細討論。
 
@@ -143,7 +143,7 @@ math: true
 
 的確有辦法繞開這些問題 —— 例如，當語句被記錄時，主庫可以用固定的返回值替換掉任何不確定的函式呼叫，以便所有從庫都能獲得相同的值。但是由於邊緣情況實在太多了，現在通常會選擇其他的複製方法。
 
-基於語句的複製在 5.1 版本前的 MySQL 中被使用到。因為它相當緊湊，現在有時候也還在用。但現在在預設情況下，如果語句中存在任何不確定性，MySQL 會切換到基於行的複製（稍後討論）。VoltDB 使用了基於語句的複製，但要求事務必須是確定性的，以此來保證安全【15】。
+基於語句的複製在 5.1 版本前的 MySQL 中被使用到。因為它相當緊湊，現在有時候也還在用。但現在在預設情況下，如果語句中存在任何不確定性，MySQL 會切換到基於行的複製（稍後討論）。VoltDB 使用了基於語句的複製，但要求事務必須是確定性的，以此來保證安全[^ref_15]。
 
 #### 傳輸預寫式日誌（WAL）
 
@@ -156,7 +156,7 @@ math: true
 
 透過使用這個日誌，從庫可以構建一個與主庫一模一樣的資料結構複製。
 
-這種複製方法在 PostgreSQL 和 Oracle 等一些產品中被使用到【16】。其主要缺點是日誌記錄的資料非常底層：WAL 包含哪些磁碟塊中的哪些位元組發生了更改。這使複製與儲存引擎緊密耦合。如果資料庫將其儲存格式從一個版本更改為另一個版本，通常不可能在主庫和從庫上執行不同版本的資料庫軟體。
+這種複製方法在 PostgreSQL 和 Oracle 等一些產品中被使用到[^ref_16]。其主要缺點是日誌記錄的資料非常底層：WAL 包含哪些磁碟塊中的哪些位元組發生了更改。這使複製與儲存引擎緊密耦合。如果資料庫將其儲存格式從一個版本更改為另一個版本，通常不可能在主庫和從庫上執行不同版本的資料庫軟體。
 
 看上去這可能只是一個小的實現細節，但卻可能對運維產生巨大的影響。如果複製協議允許從庫使用比主庫更新的軟體版本，則可以先升級從庫，然後執行故障切換，使升級後的節點之一成為新的主庫，從而允許資料庫軟體的零停機升級。如果複製協議不允許版本不匹配（傳輸 WAL 經常出現這種情況），則此類升級需要停機。
 
@@ -170,19 +170,19 @@ math: true
 * 對於刪除的行，日誌包含足夠的資訊來唯一標識被刪除的行，這通常是主鍵，但如果表上沒有主鍵，則需要記錄所有列的舊值。
 * 對於更新的行，日誌包含足夠的資訊來唯一標識被更新的行，以及所有列的新值（或至少所有已更改的列的新值）。
 
-修改多行的事務會生成多條這樣的日誌記錄，後面跟著一條指明事務已經提交的記錄。MySQL 的二進位制日誌（當配置為使用基於行的複製時）使用了這種方法【17】。
+修改多行的事務會生成多條這樣的日誌記錄，後面跟著一條指明事務已經提交的記錄。MySQL 的二進位制日誌（當配置為使用基於行的複製時）使用了這種方法[^ref_17]。
 
 由於邏輯日誌與儲存引擎的內部實現是解耦的，系統可以更容易地做到向後相容，從而使主庫和從庫能夠執行不同版本的資料庫軟體，或者甚至不同的儲存引擎。
 
-對於外部應用程式來說，邏輯日誌格式也更容易解析。如果要將資料庫的內容傳送到外部系統，例如複製到資料倉庫進行離線分析，或建立自定義索引和快取【18】，這一點會很有用。這種技術被稱為 **資料變更捕獲（change data capture）**，[第十一章](./ch11) 將重新講到它。
+對於外部應用程式來說，邏輯日誌格式也更容易解析。如果要將資料庫的內容傳送到外部系統，例如複製到資料倉庫進行離線分析，或建立自定義索引和快取[^ref_18]，這一點會很有用。這種技術被稱為 **資料變更捕獲（change data capture）**，[第十一章](./ch11) 將重新講到它。
 
 #### 基於觸發器的複製
 
 到目前為止描述的複製方法是由資料庫系統實現的，不涉及任何應用程式程式碼。在很多情況下，這就是你想要的。但在某些情況下需要更多的靈活性。例如，如果你只想複製資料的一個子集，或者想從一種資料庫複製到另一種資料庫，或者如果你需要衝突解決邏輯（請參閱 “[處理寫入衝突](#處理寫入衝突)”），則可能需要將複製操作上移到應用程式層。
 
-一些工具，如 Oracle Golden Gate【19】，可以透過讀取資料庫日誌，使得其他應用程式可以使用資料。另一種方法是使用許多關係資料庫自帶的功能：觸發器和儲存過程。
+一些工具，如 Oracle Golden Gate[^ref_19]，可以透過讀取資料庫日誌，使得其他應用程式可以使用資料。另一種方法是使用許多關係資料庫自帶的功能：觸發器和儲存過程。
 
-觸發器允許你將資料更改（寫入事務）發生時自動執行的自定義應用程式程式碼註冊在資料庫系統中。觸發器有機會將更改記錄到一個單獨的表中，使用外部程式讀取這個表，再加上一些必要的業務邏輯，就可以將資料變更復制到另一個系統去。例如，Databus for Oracle【20】和 Bucardo for Postgres【21】就是這樣工作的。
+觸發器允許你將資料更改（寫入事務）發生時自動執行的自定義應用程式程式碼註冊在資料庫系統中。觸發器有機會將更改記錄到一個單獨的表中，使用外部程式讀取這個表，再加上一些必要的業務邏輯，就可以將資料變更復制到另一個系統去。例如，Databus for Oracle[^ref_20]和 Bucardo for Postgres[^ref_21]就是這樣工作的。
 
 基於觸發器的複製通常比其他複製方法具有更高的開銷，並且比資料庫內建的複製更容易出錯，也有很多限制。然而由於其靈活性，它仍然是很有用的。
 
@@ -195,9 +195,9 @@ math: true
 
 在這種讀伸縮（read-scaling）的體系結構中，只需新增更多的從庫，就可以提高只讀請求的服務容量。但是，這種方法實際上只適用於非同步複製 —— 如果嘗試同步複製到所有從庫，則單個節點故障或網路中斷將導致整個系統都無法寫入。而且節點越多越有可能出現個別節點宕機的情況，所以完全同步的配置將是非常不可靠的。
 
-不幸的是，當應用程式從非同步從庫讀取時，如果從庫落後，它可能會看到過時的資訊。這會導致資料庫中出現明顯的不一致：同時對主庫和從庫執行相同的查詢，可能得到不同的結果，因為並非所有的寫入都反映在從庫中。這種不一致只是一個暫時的狀態 —— 如果停止寫入資料庫並等待一段時間，從庫最終會趕上並與主庫保持一致。出於這個原因，這種效應被稱為 **最終一致性（eventual consistency）**【22,23】。[^iii]
+不幸的是，當應用程式從非同步從庫讀取時，如果從庫落後，它可能會看到過時的資訊。這會導致資料庫中出現明顯的不一致：同時對主庫和從庫執行相同的查詢，可能得到不同的結果，因為並非所有的寫入都反映在從庫中。這種不一致只是一個暫時的狀態 —— 如果停止寫入資料庫並等待一段時間，從庫最終會趕上並與主庫保持一致。出於這個原因，這種效應被稱為 **最終一致性（eventual consistency）**[^ref_22] [^ref_23]。[^iii]
 
-[^iii]: 道格拉斯・特里（Douglas Terry）等人【24】創造了最終一致性這個術語，並經由 Werner Vogels【22】的推廣，成為了許多 NoSQL 專案的口號。然而，最終一致性並不只屬於 NoSQL 資料庫：關係型資料庫中的非同步複製從庫也有相同的特性。
+[^iii]: 道格拉斯・特里（Douglas Terry）等人[^ref_24]創造了最終一致性這個術語，並經由 Werner Vogels[^ref_22]的推廣，成為了許多 NoSQL 專案的口號。然而，最終一致性並不只屬於 NoSQL 資料庫：關係型資料庫中的非同步複製從庫也有相同的特性。
 
 最終一致性中的 “最終” 一詞有意進行了模糊化：總的來說，副本落後的程度是沒有限制的。在正常的操作中，**複製延遲（replication lag）**，即寫入主庫到反映至從庫之間的延遲，可能僅僅是幾分之一秒，在實踐中並不顯眼。但如果系統在接近極限的情況下執行，或網路中存在問題時，延遲可以輕而易舉地超過幾秒，甚至達到幾分鐘。
 
@@ -213,7 +213,7 @@ math: true
 
 **圖 5-3 使用者寫入後從舊副本中讀取資料。需要寫後讀 (read-after-write) 的一致性來防止這種異常**
 
-在這種情況下，我們需要 **寫後讀一致性（read-after-write consistency）**，也稱為 **讀己之寫一致性（read-your-writes consistency）**【24】。這是一個保證，如果使用者重新載入頁面，他們總會看到他們自己提交的任何更新。它不會對其他使用者的寫入做出承諾：其他使用者的更新可能稍等才會看到。它保證使用者自己的輸入已被正確儲存。
+在這種情況下，我們需要 **寫後讀一致性（read-after-write consistency）**，也稱為 **讀己之寫一致性（read-your-writes consistency）**[^ref_24]。這是一個保證，如果使用者重新載入頁面，他們總會看到他們自己提交的任何更新。它不會對其他使用者的寫入做出承諾：其他使用者的更新可能稍等才會看到。它保證使用者自己的輸入已被正確儲存。
 
 如何在基於領導者的複製系統中實現寫後讀一致性？有各種可能的技術，這裡說一些：
 
@@ -243,7 +243,7 @@ math: true
 
 **圖 5-4 使用者首先從新副本讀取，然後從舊副本讀取。時間看上去回退了。為了防止這種異常，我們需要單調的讀取。**
 
-**單調讀（monotonic reads）**【23】可以保證這種異常不會發生。這是一個比 **強一致性（strong consistency）** 更弱，但比 **最終一致性（eventual consistency）** 更強的保證。當讀取資料時，你可能會看到一箇舊值；單調讀僅意味著如果一個使用者順序地進行多次讀取，則他們不會看到時間回退，也就是說，如果已經讀取到較新的資料，後續的讀取不會得到更舊的資料。
+**單調讀（monotonic reads）**[^ref_23]可以保證這種異常不會發生。這是一個比 **強一致性（strong consistency）** 更弱，但比 **最終一致性（eventual consistency）** 更強的保證。當讀取資料時，你可能會看到一箇舊值；單調讀僅意味著如果一個使用者順序地進行多次讀取，則他們不會看到時間回退，也就是說，如果已經讀取到較新的資料，後續的讀取不會得到更舊的資料。
 
 實現單調讀的一種方式是確保每個使用者總是從同一個副本進行讀取（不同的使用者可以從不同的副本讀取）。例如，可以基於使用者 ID 的雜湊來選擇副本，而不是隨機選擇副本。但是，如果該副本出現故障，使用者的查詢將需要重新路由到另一個副本。
 
@@ -268,13 +268,13 @@ math: true
 *Mr. Poons*
 > Mrs. Cake，你能看到多遠的未來？
 
-對於觀察者來說，看起來好像 Cake 夫人在 Poons 先生提問前就回答了這個問題。這種超能力讓人印象深刻，但也會把人搞糊塗。【25】。
+對於觀察者來說，看起來好像 Cake 夫人在 Poons 先生提問前就回答了這個問題。這種超能力讓人印象深刻，但也會把人搞糊塗。[^ref_25]。
 
 ![](./v1/ddia_0505.png)
 
 **圖 5-5 如果某些分割槽的複製速度慢於其他分割槽，那麼觀察者可能會在看到問題之前先看到答案。**
 
-要防止這種異常，需要另一種型別的保證：**一致字首讀（consistent prefix reads）**【23】。這個保證的意思是說：如果一系列寫入按某個順序發生，那麼任何人讀取這些寫入時，也會看見它們以同樣的順序出現。
+要防止這種異常，需要另一種型別的保證：**一致字首讀（consistent prefix reads）**[^ref_23]。這個保證的意思是說：如果一系列寫入按某個順序發生，那麼任何人讀取這些寫入時，也會看見它們以同樣的順序出現。
 
 這是 **分割槽（partitioned）** 或 **分片（sharded）** 資料庫中的一個特殊問題，我們將在 [第六章](./ch6) 中討論分割槽資料庫。如果資料庫總是以相同的順序應用寫入，而讀取總是看到一致的字首，那麼這種異常不會發生。但是在許多分散式資料庫中，不同的分割槽獨立執行，因此不存在 **全域性的寫入順序**：當用戶從資料庫中讀取資料時，可能會看到資料庫的某些部分處於較舊的狀態，而某些則處於較新的狀態。
 
@@ -329,11 +329,11 @@ math: true
 
   資料中心之間的通訊通常穿過公共網際網路，這可能不如資料中心內的本地網路可靠。單主配置對資料中心之間的連線問題非常敏感，因為透過這個連線進行的寫操作是同步的。採用非同步複製功能的多主配置通常能更好地承受網路問題：臨時的網路中斷並不會妨礙正在處理的寫入。
 
-有些資料庫預設情況下支援多主配置，但使用外部工具實現也很常見，例如用於 MySQL 的 Tungsten Replicator 【26】，用於 PostgreSQL 的 BDR【27】以及用於 Oracle 的 GoldenGate 【19】。
+有些資料庫預設情況下支援多主配置，但使用外部工具實現也很常見，例如用於 MySQL 的 Tungsten Replicator [^ref_26]，用於 PostgreSQL 的 BDR[^ref_27]以及用於 Oracle 的 GoldenGate [^ref_19]。
 
 儘管多主複製有這些優勢，但也有一個很大的缺點：兩個不同的資料中心可能會同時修改相同的資料，寫衝突是必須解決的（如 [圖 5-6](./v1/ddia_0506.png) 中的 “衝突解決（conflict resolution）”）。本書將在 “[處理寫入衝突](#處理寫入衝突)” 中詳細討論這個問題。
 
-由於多主複製在許多資料庫中都屬於改裝的功能，所以常常存在微妙的配置缺陷，且經常與其他資料庫功能之間出現意外的反應。比如自增主鍵、觸發器、完整性約束等都可能會有麻煩。因此，多主複製往往被認為是危險的領域，應儘可能避免【28】。
+由於多主複製在許多資料庫中都屬於改裝的功能，所以常常存在微妙的配置缺陷，且經常與其他資料庫功能之間出現意外的反應。比如自增主鍵、觸發器、完整性約束等都可能會有麻煩。因此，多主複製往往被認為是危險的領域，應儘可能避免[^ref_28]。
 
 #### 需要離線操作的客戶端
 
@@ -345,21 +345,21 @@ math: true
 
 從架構的角度來看，這種設定實際上與資料中心之間的多主複製類似，每個裝置都是一個 “資料中心”，而它們之間的網路連線是極度不可靠的。從歷史上各類日曆同步功能的破爛實現可以看出，想把多主複製用好是多麼困難的一件事。
 
-有一些工具旨在使這種多主配置更容易。例如，CouchDB 就是為這種操作模式而設計的【29】。
+有一些工具旨在使這種多主配置更容易。例如，CouchDB 就是為這種操作模式而設計的[^ref_29]。
 
 #### 協同編輯
 
-即時協作編輯應用程式允許多個人同時編輯文件。例如，Etherpad 【30】和 Google Docs 【31】允許多人同時編輯文字文件或電子表格（該演算法在 “[自動衝突解決](#自動衝突解決)” 中簡要討論）。我們通常不會將協作式編輯視為資料庫複製問題，但它與前面提到的離線編輯用例有許多相似之處。當一個使用者編輯文件時，所做的更改將立即應用到其本地副本（Web 瀏覽器或客戶端應用程式中的文件狀態），並非同步複製到伺服器和編輯同一文件的任何其他使用者。
+即時協作編輯應用程式允許多個人同時編輯文件。例如，Etherpad [^ref_30]和 Google Docs [^ref_31]允許多人同時編輯文字文件或電子表格（該演算法在 “[自動衝突解決](#自動衝突解決)” 中簡要討論）。我們通常不會將協作式編輯視為資料庫複製問題，但它與前面提到的離線編輯用例有許多相似之處。當一個使用者編輯文件時，所做的更改將立即應用到其本地副本（Web 瀏覽器或客戶端應用程式中的文件狀態），並非同步複製到伺服器和編輯同一文件的任何其他使用者。
 
 如果要保證不會發生編輯衝突，則應用程式必須先取得文件的鎖定，然後使用者才能對其進行編輯。如果另一個使用者想要編輯同一個文件，他們首先必須等到第一個使用者提交修改並釋放鎖定。這種協作模式相當於主從複製模型下在主節點上執行事務操作。
 
-但是，為了加速協作，你可能希望將更改的單位設定得非常小（例如單次按鍵），並避免鎖定。這種方法允許多個使用者同時進行編輯，但同時也帶來了多主複製的所有挑戰，包括需要解決衝突【32】。
+但是，為了加速協作，你可能希望將更改的單位設定得非常小（例如單次按鍵），並避免鎖定。這種方法允許多個使用者同時進行編輯，但同時也帶來了多主複製的所有挑戰，包括需要解決衝突[^ref_32]。
 
 ### 處理寫入衝突
 
 多主複製的最大問題是可能發生寫衝突，這意味著需要解決衝突。
 
-例如，考慮一個由兩個使用者同時編輯的維基頁面，如 [圖 5-7](./v1/ddia_0507.png) 所示。使用者 1 將頁面的標題從 A 更改為 B，並且使用者 2 同時將標題從 A 更改為 C。每個使用者的更改已成功應用到其本地主庫。但當非同步複製時，會發現衝突【33】。單主資料庫中不會出現此問題。
+例如，考慮一個由兩個使用者同時編輯的維基頁面，如 [圖 5-7](./v1/ddia_0507.png) 所示。使用者 1 將頁面的標題從 A 更改為 B，並且使用者 2 同時將標題從 A 更改為 C。每個使用者的更改已成功應用到其本地主庫。但當非同步複製時，會發現衝突[^ref_33]。單主資料庫中不會出現此問題。
 
 ![](./v1/ddia_0507.png)
 
@@ -373,7 +373,7 @@ math: true
 
 #### 避免衝突
 
-處理衝突的最簡單的策略就是避免它們：如果應用程式可以確保特定記錄的所有寫入都透過同一個主庫，那麼衝突就不會發生。由於許多的多主複製實現在處理衝突時處理得相當不好，避免衝突是一個經常被推薦的方法【34】。
+處理衝突的最簡單的策略就是避免它們：如果應用程式可以確保特定記錄的所有寫入都透過同一個主庫，那麼衝突就不會發生。由於許多的多主複製實現在處理衝突時處理得相當不好，避免衝突是一個經常被推薦的方法[^ref_34]。
 
 例如，在一個使用者可以編輯自己資料的應用程式中，可以確保來自特定使用者的請求始終路由到同一資料中心，並使用該資料中心的主庫進行讀寫。不同的使用者可能有不同的 “主” 資料中心（可能根據使用者的地理位置選擇），但從任何一位使用者的角度來看，本質上就是單主配置了。
 
@@ -389,7 +389,7 @@ math: true
 
 實現衝突合併解決有多種途徑：
 
-* 給每個寫入一個唯一的 ID（例如時間戳、長隨機數、UUID 或者鍵和值的雜湊），挑選最高 ID 的寫入作為勝利者，並丟棄其他寫入。如果使用時間戳，這種技術被稱為 **最後寫入勝利（LWW, last write wins）**。雖然這種方法很流行，但是很容易造成資料丟失【35】。我們將在本章末尾的 [檢測併發寫入](#檢測併發寫入) 一節更詳細地討論 LWW。
+* 給每個寫入一個唯一的 ID（例如時間戳、長隨機數、UUID 或者鍵和值的雜湊），挑選最高 ID 的寫入作為勝利者，並丟棄其他寫入。如果使用時間戳，這種技術被稱為 **最後寫入勝利（LWW, last write wins）**。雖然這種方法很流行，但是很容易造成資料丟失[^ref_35]。我們將在本章末尾的 [檢測併發寫入](#檢測併發寫入) 一節更詳細地討論 LWW。
 * 為每個副本分配一個唯一的 ID，ID 編號更高的寫入具有更高的優先順序。這種方法也意味著資料丟失。
 * 以某種方式將這些值合併在一起 - 例如，按字母順序排序，然後連線它們（在 [圖 5-7](./v1/ddia_0507.png) 中，合併的標題可能類似於 “B/C”）。
 * 用一種可保留所有資訊的顯式資料結構來記錄衝突，並編寫解決衝突的應用程式程式碼（也許透過提示使用者的方式）。
@@ -405,18 +405,18 @@ math: true
 讀時執行
 : 當檢測到衝突時，所有衝突寫入被儲存。下一次讀取資料時，會將這些多個版本的資料返回給應用程式。應用程式可以提示使用者或自動解決衝突，並將結果寫回資料庫。例如 CouchDB 就以這種方式工作。
 
-請注意，衝突解決通常適用於單行記錄或單個文件的層面，而不是整個事務【36】。因此，如果你有一個事務會原子性地進行幾次不同的寫入（請參閱 [第七章](./ch7)），對於衝突解決而言，每個寫入仍需分開單獨考慮。
+請注意，衝突解決通常適用於單行記錄或單個文件的層面，而不是整個事務[^ref_36]。因此，如果你有一個事務會原子性地進行幾次不同的寫入（請參閱 [第七章](./ch7)），對於衝突解決而言，每個寫入仍需分開單獨考慮。
 
 
 > #### 自動衝突解決
 >
-> 衝突解決規則可能很容易變得越來越複雜，自定義程式碼可能也很容易出錯。亞馬遜是一個經常被引用的例子，由於衝突解決處理程式而產生了令人意外的效果：一段時間以來，購物車上的衝突解決邏輯將保留新增到購物車的物品，但不包括從購物車中移除的物品。因此，顧客有時會看到物品重新出現在他們的購物車中，即使他們之前已經被移走【37】。
+> 衝突解決規則可能很容易變得越來越複雜，自定義程式碼可能也很容易出錯。亞馬遜是一個經常被引用的例子，由於衝突解決處理程式而產生了令人意外的效果：一段時間以來，購物車上的衝突解決邏輯將保留新增到購物車的物品，但不包括從購物車中移除的物品。因此，顧客有時會看到物品重新出現在他們的購物車中，即使他們之前已經被移走[^ref_37]。
 >
 > 已經有一些有趣的研究來自動解決由於資料修改引起的衝突。有幾項研究值得一提：
 >
-> * **無衝突複製資料型別（Conflict-free replicated datatypes，CRDT）**【32,38】是可以由多個使用者同時編輯的集合、對映、有序列表、計數器等一系列資料結構，它們以合理的方式自動解決衝突。一些 CRDT 已經在 Riak 2.0 中實現【39,40】。
-> * **可合併的持久資料結構（Mergeable persistent data structures）**【41】顯式跟蹤歷史記錄，類似於 Git 版本控制系統，並使用三向合併功能（而 CRDT 使用雙向合併）。
-> * **操作轉換（operational transformation）**[42] 是 Etherpad 【30】和 Google Docs 【31】等協同編輯應用背後的衝突解決演算法。它是專為有序列表的併發編輯而設計的，例如構成文字文件的字元列表。
+> * **無衝突複製資料型別（Conflict-free replicated datatypes，CRDT）**[^ref_32] [^ref_38]是可以由多個使用者同時編輯的集合、對映、有序列表、計數器等一系列資料結構，它們以合理的方式自動解決衝突。一些 CRDT 已經在 Riak 2.0 中實現[^ref_39] [^ref_40]。
+> * **可合併的持久資料結構（Mergeable persistent data structures）**[^ref_41]顯式跟蹤歷史記錄，類似於 Git 版本控制系統，並使用三向合併功能（而 CRDT 使用雙向合併）。
+> * **操作轉換（operational transformation）**[42] 是 Etherpad [^ref_30]和 Google Docs [^ref_31]等協同編輯應用背後的衝突解決演算法。它是專為有序列表的併發編輯而設計的，例如構成文字文件的字元列表。
 >
 > 這些演算法在資料庫中的實現還很年輕，但很可能將來它們會被整合到更多的複製資料系統中。自動衝突解決方案可以使應用程式處理多主資料同步更為簡單。
 
@@ -438,11 +438,11 @@ math: true
 
 **圖 5-8 三種可以在多主複製中使用的拓撲示例。**
 
-最常見的拓撲是全部到全部（all-to-all，如 [圖 5-8 (c)](./v1/ddia_0508.png)），其中每個主庫都將其寫入傳送給其他所有的主庫。然而，一些更受限的拓撲也會被使用到：例如，預設情況下 MySQL 僅支援 **環形拓撲（circular topology）**【34】，其中每個節點都從一個節點接收寫入，並將這些寫入（加上自己的寫入）轉發給另一個節點。另一種流行的拓撲結構具有星形的形狀 [^v]：一個指定的根節點將寫入轉發給所有其他節點。星形拓撲可以推廣到樹。
+最常見的拓撲是全部到全部（all-to-all，如 [圖 5-8 (c)](./v1/ddia_0508.png)），其中每個主庫都將其寫入傳送給其他所有的主庫。然而，一些更受限的拓撲也會被使用到：例如，預設情況下 MySQL 僅支援 **環形拓撲（circular topology）**[^ref_34]，其中每個節點都從一個節點接收寫入，並將這些寫入（加上自己的寫入）轉發給另一個節點。另一種流行的拓撲結構具有星形的形狀 [^v]：一個指定的根節點將寫入轉發給所有其他節點。星形拓撲可以推廣到樹。
 
 [^v]: 不要與星型模式混淆（請參閱 “[星型和雪花型：分析的模式](./ch3#星型和雪花型：分析的模式)”），其中描述了資料模型的結構，而不是節點之間的通訊拓撲。
 
-在環形和星形拓撲中，寫入可能需要在到達所有副本之前透過多個節點。因此，節點需要轉發從其他節點收到的資料更改。為了防止無限複製迴圈，每個節點被賦予一個唯一的識別符號，並且在複製日誌中，每次寫入都會使用其經過的所有節點的識別符號進行標記【43】。當一個節點收到用自己的識別符號標記的資料更改時，該資料更改將被忽略，因為節點知道它已經被處理過。
+在環形和星形拓撲中，寫入可能需要在到達所有副本之前透過多個節點。因此，節點需要轉發從其他節點收到的資料更改。為了防止無限複製迴圈，每個節點被賦予一個唯一的識別符號，並且在複製日誌中，每次寫入都會使用其經過的所有節點的識別符號進行標記[^ref_43]。當一個節點收到用自己的識別符號標記的資料更改時，該資料更改將被忽略，因為節點知道它已經被處理過。
 
 環形和星形拓撲的問題是，如果只有一個節點發生故障，則可能會中斷其他節點之間的複製訊息流，導致它們無法通訊，除非節點被修復。拓撲結構可以重新配置為跳過發生故障的節點，但在大多數部署中，這種重新配置必須手動完成。更密集連線的拓撲結構（例如全部到全部）的容錯性更好，因為它允許訊息沿著不同的路徑傳播，可以避免單點故障。
 
@@ -456,7 +456,7 @@ math: true
 
 這是一個因果關係的問題，類似於我們在 “[一致字首讀](#一致字首讀)” 中看到的：更新取決於先前的插入，所以我們需要確保所有節點先處理插入，然後再處理更新。僅僅在每一次寫入時新增一個時間戳是不夠的，因為時鐘不可能被充分地同步，所以主庫 2 就無法正確地對這些事件進行排序（見 [第八章](./ch8)）。
 
-要正確排序這些事件，可以使用一種稱為 **版本向量（version vectors）** 的技術，本章稍後將討論這種技術（請參閱 “[檢測併發寫入](#檢測併發寫入)”）。然而，許多多主複製系統中的衝突檢測技術實現得並不好。例如，在撰寫本文時，PostgreSQL BDR 不提供寫入的因果排序【27】，而 Tungsten Replicator for MySQL 甚至都不做檢測衝突【34】。
+要正確排序這些事件，可以使用一種稱為 **版本向量（version vectors）** 的技術，本章稍後將討論這種技術（請參閱 “[檢測併發寫入](#檢測併發寫入)”）。然而，許多多主複製系統中的衝突檢測技術實現得並不好。例如，在撰寫本文時，PostgreSQL BDR 不提供寫入的因果排序[^ref_27]，而 Tungsten Replicator for MySQL 甚至都不做檢測衝突[^ref_34]。
 
 如果你正在使用基於多主複製的系統，那麼你應該多瞭解這些問題，仔細閱讀文件，並徹底測試你的資料庫，以確保它確實提供了你想要的保證。
 
@@ -465,7 +465,7 @@ math: true
 
 我們在本章到目前為止所討論的複製方法 —— 單主複製、多主複製 —— 都是這樣的想法：客戶端向一個主庫傳送寫請求，而資料庫系統負責將寫入複製到其他副本。主庫決定寫入的順序，而從庫按相同順序應用主庫的寫入。
 
-一些資料儲存系統採用不同的方法，放棄主庫的概念，並允許任何副本直接接受來自客戶端的寫入。最早的一些的複製資料系統是 **無主的（leaderless）**【1,44】，但是在關係資料庫主導的時代，這個想法幾乎已被忘卻。在亞馬遜將其用於其內部的 Dynamo 系統 [^vi] 之後，它再一次成為資料庫的一種時尚架構【37】。Riak，Cassandra 和 Voldemort 是受 Dynamo 啟發的無主複製模型的開源資料儲存，所以這類資料庫也被稱為 *Dynamo 風格*。
+一些資料儲存系統採用不同的方法，放棄主庫的概念，並允許任何副本直接接受來自客戶端的寫入。最早的一些的複製資料系統是 **無主的（leaderless）**[^ref_1] [^ref_44]，但是在關係資料庫主導的時代，這個想法幾乎已被忘卻。在亞馬遜將其用於其內部的 Dynamo 系統 [^vi] 之後，它再一次成為資料庫的一種時尚架構[^ref_37]。Riak，Cassandra 和 Voldemort 是受 Dynamo 啟發的無主複製模型的開源資料儲存，所以這類資料庫也被稱為 *Dynamo 風格*。
 
 [^vi]: Dynamo 不適用於 Amazon 以外的使用者。令人困惑的是，AWS 提供了一個名為 DynamoDB 的託管資料庫產品，它使用了完全不同的體系結構：它基於單主複製。
 
@@ -505,7 +505,7 @@ math: true
 
 如果我們知道，每個成功的寫操作意味著在三個副本中至少有兩個出現，這意味著至多有一個副本可能是陳舊的。因此，如果我們從至少兩個副本讀取，我們可以確定至少有一個是最新的。如果第三個副本停機或響應速度緩慢，則讀取仍可以繼續返回最新值。
 
-更一般地說，如果有 n 個副本，每個寫入必須由 w 個節點確認才能被認為是成功的，並且我們必須至少為每個讀取查詢 r 個節點。（在我們的例子中，$n = 3，w = 2，r = 2$）。只要 $w + r > n$，我們可以預期在讀取時能獲得最新的值，因為 r 個讀取中至少有一個節點是最新的。遵循這些 r 值和 w 值的讀寫稱為 **法定人數（quorum）**[^vii] 的讀和寫【44】。你可以認為，r 和 w 是有效讀寫所需的最低票數。
+更一般地說，如果有 n 個副本，每個寫入必須由 w 個節點確認才能被認為是成功的，並且我們必須至少為每個讀取查詢 r 個節點。（在我們的例子中，$n = 3，w = 2，r = 2$）。只要 $w + r > n$，我們可以預期在讀取時能獲得最新的值，因為 r 個讀取中至少有一個節點是最新的。遵循這些 r 值和 w 值的讀寫稱為 **法定人數（quorum）**[^vii] 的讀和寫[^ref_44]。你可以認為，r 和 w 是有效讀寫所需的最低票數。
 
 [^vii]: 有時候這種法定人數被稱為嚴格的法定人數，其相對 “寬鬆的法定人數” 而言（見 “[寬鬆的法定人數與提示移交](#寬鬆的法定人數與提示移交)”）
 
@@ -532,7 +532,7 @@ math: true
 
 如果你有 n 個副本，並且你選擇了滿足 $w + r > n$ 的 w 和 r，你通常可以期望每次讀取都能返回最近寫入的值。情況就是這樣，因為你寫入的節點集合和你讀取的節點集合必然有重疊。也就是說，你讀取的節點中必然至少有一個節點具有最新值（如 [圖 5-11](./v1/ddia_0511.png) 所示）。
 
-通常，r 和 w 被選為多數（超過 $n/2$ ）節點，因為這確保了 $w + r > n$，同時仍然容忍多達 $n/2$ 個節點故障。但是，法定人數不一定必須是大多數，重要的是讀寫使用的節點至少有一個節點的交集。其他法定人數的配置是可能的，這使得分散式演算法的設計有一定的靈活性【45】。
+通常，r 和 w 被選為多數（超過 $n/2$ ）節點，因為這確保了 $w + r > n$，同時仍然容忍多達 $n/2$ 個節點故障。但是，法定人數不一定必須是大多數，重要的是讀寫使用的節點至少有一個節點的交集。其他法定人數的配置是可能的，這使得分散式演算法的設計有一定的靈活性[^ref_45]。
 
 你也可以將 w 和 r 設定為較小的數字，以使 $w + r ≤ n$（即法定條件不滿足）。在這種情況下，讀取和寫入操作仍將被傳送到 n 個節點，但操作成功只需要少量的成功響應。
 
@@ -540,10 +540,10 @@ math: true
 
 但是，即使在 $w + r > n$ 的情況下，也可能存在返回陳舊值的邊緣情況。這取決於實現，但可能的情況包括：
 
-* 如果使用寬鬆的法定人數（見 “[寬鬆的法定人數與提示移交](#寬鬆的法定人數與提示移交)”），w 個寫入和 r 個讀取有可能落在完全不同的節點上，因此 r 節點和 w 之間不再保證有重疊節點【46】。
-* 如果兩個寫入同時發生，不清楚哪一個先發生。在這種情況下，唯一安全的解決方案是合併併發寫入（請參閱 “[處理寫入衝突](#處理寫入衝突)”）。如果根據時間戳（最後寫入勝利）挑選出一個勝者，則寫入可能由於時鐘偏差【35】而丟失。我們將在 “[檢測併發寫入](#檢測併發寫入)” 繼續討論此話題。
+* 如果使用寬鬆的法定人數（見 “[寬鬆的法定人數與提示移交](#寬鬆的法定人數與提示移交)”），w 個寫入和 r 個讀取有可能落在完全不同的節點上，因此 r 節點和 w 之間不再保證有重疊節點[^ref_46]。
+* 如果兩個寫入同時發生，不清楚哪一個先發生。在這種情況下，唯一安全的解決方案是合併併發寫入（請參閱 “[處理寫入衝突](#處理寫入衝突)”）。如果根據時間戳（最後寫入勝利）挑選出一個勝者，則寫入可能由於時鐘偏差[^ref_35]而丟失。我們將在 “[檢測併發寫入](#檢測併發寫入)” 繼續討論此話題。
 * 如果寫操作與讀操作同時發生，寫操作可能僅反映在某些副本上。在這種情況下，不確定讀取返回的是舊值還是新值。
-* 如果寫操作在某些副本上成功，而在其他節點上失敗（例如，因為某些節點上的磁碟已滿），在小於 w 個副本上寫入成功。所以整體判定寫入失敗，但整體寫入失敗並沒有在寫入成功的副本上回滾。這意味著一個寫入雖然報告失敗，後續的讀取仍然可能會讀取這次失敗寫入的值【47】。
+* 如果寫操作在某些副本上成功，而在其他節點上失敗（例如，因為某些節點上的磁碟已滿），在小於 w 個副本上寫入成功。所以整體判定寫入失敗，但整體寫入失敗並沒有在寫入成功的副本上回滾。這意味著一個寫入雖然報告失敗，後續的讀取仍然可能會讀取這次失敗寫入的值[^ref_47]。
 * 如果攜帶新值的節點發生故障，需要從其他帶有舊值的副本進行恢復，則儲存新值的副本數可能會低於 w，從而打破法定人數條件。
 * 即使一切工作正常，有時也會不幸地出現關於 **時序（timing）** 的邊緣情況，我們將在 “[線性一致性和法定人數](./ch9#線性一致性和法定人數)” 中看到這點。
 
@@ -559,7 +559,7 @@ math: true
 
 然而，在無主複製的系統中，沒有固定的寫入順序，這使得監控變得更加困難。而且，如果資料庫只使用讀修復（沒有反熵過程），那麼對於一個值可能會有多陳舊其實是沒有限制的 - 如果一個值很少被讀取，那麼由一個陳舊副本返回的值可能是古老的。
 
-已經有一些關於衡量無主複製資料庫中的複製陳舊度的研究，並根據引數 n、w 和 r 來預測陳舊讀取的預期百分比【48】。不幸的是，這還不是很常見的做法，但是將陳舊測量值包含在資料庫的標準度量集中是一件好事。雖然最終一致性是一種有意模糊的保證，但是從可操作性角度來說，能夠量化 “最終” 也是很重要的。
+已經有一些關於衡量無主複製資料庫中的複製陳舊度的研究，並根據引數 n、w 和 r 來預測陳舊讀取的預期百分比[^ref_48]。不幸的是，這還不是很常見的做法，但是將陳舊測量值包含在資料庫的標準度量集中是一件好事。雖然最終一致性是一種有意模糊的保證，但是從可操作性角度來說，能夠量化 “最終” 也是很重要的。
 
 ### 寬鬆的法定人數與提示移交
 
@@ -572,23 +572,23 @@ math: true
 * 對於所有無法達到 w 或 r 個節點法定人數的請求，是否返回錯誤是更好的？
 * 或者我們是否應該接受寫入，然後將它們寫入一些可達的節點，但不在這些值通常所存在的 n 個節點上？
 
-後者被認為是一個 **寬鬆的法定人數（sloppy quorum）**【37】：寫和讀仍然需要 w 和 r 個成功的響應，但這些響應可能來自不在指定的 n 個 “主” 節點中的其它節點。就好比說，如果你把自己鎖在房子外面了，你可能會去敲開鄰居的門，問是否可以暫時呆在他們的沙發上。
+後者被認為是一個 **寬鬆的法定人數（sloppy quorum）**[^ref_37]：寫和讀仍然需要 w 和 r 個成功的響應，但這些響應可能來自不在指定的 n 個 “主” 節點中的其它節點。就好比說，如果你把自己鎖在房子外面了，你可能會去敲開鄰居的門，問是否可以暫時呆在他們的沙發上。
 
 一旦網路中斷得到解決，一個節點代表另一個節點臨時接受的任何寫入都將被傳送到適當的 “主” 節點。這就是所謂的 **提示移交（hinted handoff）**（一旦你再次找到你的房子的鑰匙，你的鄰居可以禮貌地要求你離開沙發回家）。
 
-寬鬆的法定人數對寫入可用性的提高特別有用：只要有任何 w 個節點可用，資料庫就可以接受寫入。然而，這意味著即使當 $w + r > n$ 時，也不能確保讀取到某個鍵的最新值，因為最新的值可能已經臨時寫入了 n 之外的某些節點【47】。
+寬鬆的法定人數對寫入可用性的提高特別有用：只要有任何 w 個節點可用，資料庫就可以接受寫入。然而，這意味著即使當 $w + r > n$ 時，也不能確保讀取到某個鍵的最新值，因為最新的值可能已經臨時寫入了 n 之外的某些節點[^ref_47]。
 
 因此，在傳統意義上，寬鬆的法定人數實際上並不是法定人數。它只是一個永續性的保證，即資料已儲存在某處的 w 個節點。但不能保證 r 個節點的讀取能看到它，除非提示移交已經完成。
 
-在所有常見的 Dynamo 實現中，寬鬆的法定人數是可選的。在 Riak 中，它們預設是啟用的，而在 Cassandra 和 Voldemort 中它們預設是停用的【46,49,50】。
+在所有常見的 Dynamo 實現中，寬鬆的法定人數是可選的。在 Riak 中，它們預設是啟用的，而在 Cassandra 和 Voldemort 中它們預設是停用的[^ref_46] [^ref_49] [^ref_50]。
 
 #### 運維多個數據中心
 
 我們先前討論了跨資料中心複製，作為多主複製的用例（請參閱 “[多主複製](#多主複製)”）。其實無主複製也適用於多資料中心操作，既然它旨在容忍衝突的併發寫入、網路中斷和延遲尖峰。
 
-Cassandra 和 Voldemort 在正常的無主模型中實現了他們的多資料中心支援：副本的數量 n 包括所有資料中心的節點，你可以在配置中指定每個資料中心所擁有的副本的數量。無論資料中心如何，每個來自客戶端的寫入都會發送到所有副本，但客戶端通常只等待來自其本地資料中心內的法定節點的確認，從而不會受到跨資料中心鏈路延遲和中斷的影響。對其他資料中心的高延遲寫入通常被配置為非同步執行，儘管該配置仍有一定的靈活性【50,51】。
+Cassandra 和 Voldemort 在正常的無主模型中實現了他們的多資料中心支援：副本的數量 n 包括所有資料中心的節點，你可以在配置中指定每個資料中心所擁有的副本的數量。無論資料中心如何，每個來自客戶端的寫入都會發送到所有副本，但客戶端通常只等待來自其本地資料中心內的法定節點的確認，從而不會受到跨資料中心鏈路延遲和中斷的影響。對其他資料中心的高延遲寫入通常被配置為非同步執行，儘管該配置仍有一定的靈活性[^ref_50] [^ref_51]。
 
-Riak 將客戶端和資料庫節點之間的所有通訊保持在一個本地的資料中心，因此 n 描述了一個數據中心內的副本數量。資料庫叢集之間的跨資料中心複製在後臺非同步發生，其風格類似於多主複製【52】。
+Riak 將客戶端和資料庫節點之間的所有通訊保持在一個本地的資料中心，因此 n 描述了一個數據中心內的副本數量。資料庫叢集之間的跨資料中心複製在後臺非同步發生，其風格類似於多主複製[^ref_52]。
 
 ### 檢測併發寫入
 
@@ -616,13 +616,13 @@ Dynamo 風格的資料庫允許多個客戶端同時寫入相同的鍵（Key）�
 
 正如 **“最近”** 的引號所表明的，這個想法其實頗具誤導性。在 [圖 5-12](./v1/ddia_0512.png) 的例子中，當客戶端向資料庫節點發送寫入請求時，兩個客戶端都不知道另一個客戶端，因此不清楚哪一個先發送請求。事實上，說這兩種情況誰先發送請求是沒有意義的：既然我們說寫入是 **併發（concurrent）** 的，那麼它們的順序就是不確定的。
 
-即使寫入沒有自然的排序，我們也可以強制進行排序。例如，可以為每個寫入附加一個時間戳，然後挑選最大的時間戳作為 **“最近的”**，並丟棄具有較早時間戳的任何寫入。這種衝突解決演算法被稱為 **最後寫入勝利（LWW, last write wins）**，是 Cassandra 唯一支援的衝突解決方法【53】，也是 Riak 中的一個可選特徵【35】。
+即使寫入沒有自然的排序，我們也可以強制進行排序。例如，可以為每個寫入附加一個時間戳，然後挑選最大的時間戳作為 **“最近的”**，並丟棄具有較早時間戳的任何寫入。這種衝突解決演算法被稱為 **最後寫入勝利（LWW, last write wins）**，是 Cassandra 唯一支援的衝突解決方法[^ref_53]，也是 Riak 中的一個可選特徵[^ref_35]。
 
 LWW 實現了最終收斂的目標，但以 **永續性** 為代價：如果同一個鍵有多個併發寫入，即使它們反饋給客戶端的結果都是成功的（因為它們被寫入 w 個副本），也只有一個寫入將被保留，而其他寫入將被默默地丟棄。此外，LWW 甚至可能會丟棄不是併發的寫入，我們將在 “[有序事件的時間戳](./ch8#有序事件的時間戳)” 中進行討論。
 
 在類似快取的一些情況下，寫入丟失可能是可以接受的。但如果資料丟失不可接受，LWW 是解決衝突的一個很爛的選擇。
 
-在資料庫中使用 LWW 的唯一安全方法是確保一個鍵只寫入一次，然後視為不可變，從而避免對同一個鍵進行併發更新。例如，Cassandra 推薦使用的方法是使用 UUID 作為鍵，從而為每個寫操作提供一個唯一的鍵【53】。
+在資料庫中使用 LWW 的唯一安全方法是確保一個鍵只寫入一次，然後視為不可變，從而避免對同一個鍵進行併發更新。例如，Cassandra 推薦使用的方法是使用 UUID 作為鍵，從而為每個寫操作提供一個唯一的鍵[^ref_53]。
 
 #### “此前發生”的關係和併發
 
@@ -631,7 +631,7 @@ LWW 實現了最終收斂的目標，但以 **永續性** 為代價：如果同�
 * 在 [圖 5-9](fig5-9.png) 中，兩個寫入不是併發的：A 的插入發生在 B 的遞增之前，因為 B 遞增的值是 A 插入的值。換句話說，B 的操作建立在 A 的操作上，所以 B 的操作必須後發生。我們也可以說 B **因果依賴（causally dependent）** 於 A。
 * 另一方面，[圖 5-12](fig5-12.png) 中的兩個寫入是併發的：當每個客戶端啟動操作時，它不知道另一個客戶端也正在對同樣的鍵執行操作。因此，操作之間不存在因果關係。
 
-如果操作 B 瞭解操作 A，或者依賴於 A，或者以某種方式構建於操作 A 之上，則操作 A 在操作 B 之前發生（happens before）。一個操作是否在另一個操作之前發生是定義併發含義的關鍵。事實上，我們可以簡單地說，如果兩個操作中的任何一個都不在另一個之前發生（即，兩個操作都不知道對方），那麼這兩個操作是併發的【54】。
+如果操作 B 瞭解操作 A，或者依賴於 A，或者以某種方式構建於操作 A 之上，則操作 A 在操作 B 之前發生（happens before）。一個操作是否在另一個操作之前發生是定義併發含義的關鍵。事實上，我們可以簡單地說，如果兩個操作中的任何一個都不在另一個之前發生（即，兩個操作都不知道對方），那麼這兩個操作是併發的[^ref_54]。
 
 因此，只要有兩個操作 A 和 B，就有三種可能性：A 在 B 之前發生，或者 B 在 A 之前發生，或者 A 和 B 併發。我們需要的是一個演算法來告訴我們兩個操作是否是併發的。如果一個操作發生在另一個操作之前，則後面的操作應該覆蓋前面的操作，但是如果這些操作是併發的，則存在需要解決的衝突。
 
@@ -640,7 +640,7 @@ LWW 實現了最終收斂的目標，但以 **永續性** 為代價：如果同�
 >
 > 如果兩個操作 **“同時”** 發生，似乎應該稱為併發 —— 但事實上，它們在字面時間上重疊與否並不重要。由於分散式系統中的時鐘問題，現實中是很難判斷兩個事件是否是 **同時** 發生的，這個問題我們將在 [第八章](./ch8) 中詳細討論。
 >
-> 為了定義併發性，確切的時間並不重要：如果兩個操作都意識不到對方的存在，就稱這兩個操作 **併發**，而不管它們實際發生的物理時間。人們有時把這個原理和物理學中的狹義相對論聯絡起來【54】，該理論引入了資訊不能比光速更快的思想。因此，如果兩個事件發生的時間差小於光透過它們之間的距離所需要的時間，那麼這兩個事件不可能相互影響。
+> 為了定義併發性，確切的時間並不重要：如果兩個操作都意識不到對方的存在，就稱這兩個操作 **併發**，而不管它們實際發生的物理時間。人們有時把這個原理和物理學中的狹義相對論聯絡起來[^ref_54]，該理論引入了資訊不能比光速更快的思想。因此，如果兩個事件發生的時間差小於光透過它們之間的距離所需要的時間，那麼這兩個事件不可能相互影響。
 >
 > 在計算機系統中，即使光速原則上允許一個操作影響另一個操作，但兩個操作也可能是 **併發的**。例如，如果網路緩慢或中斷，兩個操作間可能會出現一段時間間隔，但仍然是併發的，因為網路問題阻止一個操作意識到另一個操作的存在。
 
@@ -684,9 +684,9 @@ LWW 實現了最終收斂的目標，但以 **永續性** 為代價：如果同�
 
 以購物車為例，一種合理的合併值的方法就是做並集。在 [圖 5-14](./v1/ddia_0514.png) 中，最後的兩個兄弟是 [牛奶，麵粉，雞蛋，培根] 和 [雞蛋，牛奶，火腿]。注意牛奶和雞蛋雖然同時出現在兩個併發值裡，但他們每個只被寫過一次。合併的值可以是 [牛奶，麵粉，雞蛋，培根，火腿]，不再有重複了。
 
-然而，如果你想讓人們也可以從他們的購物車中 **移除** 東西，而不是僅僅新增東西，那麼把併發值做並集可能不會產生正確的結果：如果你合併了兩個客戶端的購物車，並且只在其中一個客戶端裡面移除了一個專案，那麼被移除的專案將會重新出現在這兩個客戶端的交集結果中【37】。為了防止這個問題，要移除一個專案時不能簡單地直接從資料庫中刪除；相反，系統必須留下一個具有適當版本號的標記，以在兄弟合併時表明該專案已被移除。這種刪除標記被稱為 **墓碑（tombstone）**（我們上一次看到墓碑是在 “[雜湊索引”](./ch3#雜湊索引) 章節的日誌壓縮部分）。
+然而，如果你想讓人們也可以從他們的購物車中 **移除** 東西，而不是僅僅新增東西，那麼把併發值做並集可能不會產生正確的結果：如果你合併了兩個客戶端的購物車，並且只在其中一個客戶端裡面移除了一個專案，那麼被移除的專案將會重新出現在這兩個客戶端的交集結果中[^ref_37]。為了防止這個問題，要移除一個專案時不能簡單地直接從資料庫中刪除；相反，系統必須留下一個具有適當版本號的標記，以在兄弟合併時表明該專案已被移除。這種刪除標記被稱為 **墓碑（tombstone）**（我們上一次看到墓碑是在 “[雜湊索引”](./ch3#雜湊索引) 章節的日誌壓縮部分）。
 
-因為在應用程式程式碼中做兄弟合併是複雜且容易出錯的，所以有一些資料結構被設計出來用於自動執行這種合併，比如在 “[自動衝突解決](#自動衝突解決)” 中討論過的那些。舉例來說，Riak 的資料型別就支援使用稱為 CRDT 【38,39,55】的能以合理方式自動進行兄弟合併的資料結構家族，包括對保留刪除的支援。
+因為在應用程式程式碼中做兄弟合併是複雜且容易出錯的，所以有一些資料結構被設計出來用於自動執行這種合併，比如在 “[自動衝突解決](#自動衝突解決)” 中討論過的那些。舉例來說，Riak 的資料型別就支援使用稱為 CRDT [^ref_38] [^ref_39] [^ref_55]的能以合理方式自動進行兄弟合併的資料結構家族，包括對保留刪除的支援。
 
 #### 版本向量
 
@@ -694,7 +694,7 @@ LWW 實現了最終收斂的目標，但以 **永續性** 為代價：如果同�
 
 [圖 5-13](./v1/ddia_0513.png) 使用單個版本號來捕獲操作之間的依賴關係，但是當多個副本併發接受寫入時，這是不夠的。相反，除了對每個鍵，我們還需要對 **每個副本** 使用版本號。每個副本在處理寫入時增加自己的版本號，並且跟蹤從其他副本中看到的版本號。這個資訊指出了要覆蓋哪些併發值，以及要保留哪些併發值或兄弟值。
 
-所有副本的版本號集合稱為 **版本向量（version vector）**【56】。這個想法的一些變體正在被使用，但最有趣的可能是在 Riak 2.0 【58,59】中使用的 **虛線版本向量（dotted version vector）**【57】。我們不會深入細節，但是它的工作方式與我們在購物車示例中看到的非常相似。
+所有副本的版本號集合稱為 **版本向量（version vector）**[^ref_56]。這個想法的一些變體正在被使用，但最有趣的可能是在 Riak 2.0 [^ref_58] [^ref_59]中使用的 **虛線版本向量（dotted version vector）**[^ref_57]。我們不會深入細節，但是它的工作方式與我們在購物車示例中看到的非常相似。
 
 與 [圖 5-13](./v1/ddia_0513.png) 中的版本號一樣，當讀取值時，版本向量會從資料庫副本傳送到客戶端，並且隨後寫入值時需要將其傳送回資料庫。（Riak 將版本向量編碼為一個字串，並稱其為 **因果上下文**，即 causal context）。版本向量允許資料庫區分覆蓋寫入和併發寫入。
 
@@ -702,7 +702,7 @@ LWW 實現了最終收斂的目標，但以 **永續性** 為代價：如果同�
 
 > #### 版本向量和向量時鐘
 >
-> 版本向量有時也被稱為向量時鐘，即使它們不完全相同。其中的差別很微妙 —— 細節請參閱參考資料【57,60,61】。簡而言之，在比較副本的狀態時，版本向量才是正確的資料結構。
+> 版本向量有時也被稱為向量時鐘，即使它們不完全相同。其中的差別很微妙 —— 細節請參閱參考資料[^ref_57] [^ref_60] [^ref_61]。簡而言之，在比較副本的狀態時，版本向量才是正確的資料結構。
 
 
 ## 本章小結
@@ -757,64 +757,124 @@ LWW 實現了最終收斂的目標，但以 **永續性** 為代價：如果同�
 
 ## 參考文獻
 
-1. Bruce G. Lindsay, Patricia Griffiths Selinger, C. Galtieri, et al.: “[Notes on Distributed Databases](https://dominoweb.draco.res.ibm.com/reports/RJ2571.pdf),” IBM Research, Research Report RJ2571(33471), July 1979.
-2. “[Oracle Active Data Guard Real-Time Data Protection and Availability](http://www.oracle.com/technetwork/database/availability/active-data-guard-wp-12c-1896127.pdf),” Oracle White Paper, June 2013.
-3. “[AlwaysOn Availability Groups](http://msdn.microsoft.com/en-us/library/hh510230.aspx),” in *SQL Server Books Online*, Microsoft, 2012.
-4. Lin Qiao, Kapil Surlaker, Shirshanka Das, et al.: “[On Brewing Fresh Espresso: LinkedIn’s Distributed Data Serving Platform](http://www.slideshare.net/amywtang/espresso-20952131),” at *ACM International Conference on Management of Data* (SIGMOD), June 2013.
-5. Jun Rao: “[Intra-Cluster Replication for Apache Kafka](http://www.slideshare.net/junrao/kafka-replication-apachecon2013),” at *ApacheCon North America*, February 2013.
-6. “[Highly Available Queues](https://www.rabbitmq.com/ha.html),” in *RabbitMQ Server Documentation*, Pivotal Software, Inc., 2014.
-7. Yoshinori Matsunobu: “[Semi-Synchronous Replication at Facebook](http://yoshinorimatsunobu.blogspot.co.uk/2014/04/semi-synchronous-replication-at-facebook.html),” *yoshinorimatsunobu.blogspot.co.uk*, April 1, 2014.
-8. Robbert van Renesse and Fred B. Schneider: “[Chain Replication for Supporting High Throughput and Availability](http://static.usenix.org/legacy/events/osdi04/tech/full_papers/renesse/renesse.pdf),” at *6th USENIX Symposium on Operating System Design and Implementation* (OSDI), December 2004.
-9. Jeff Terrace and Michael J. Freedman: “[Object Storage on CRAQ: High-Throughput Chain Replication for Read-Mostly Workloads](https://www.usenix.org/legacy/event/usenix09/tech/full_papers/terrace/terrace.pdf),” at *USENIX Annual Technical Conference* (ATC), June 2009.
-10. Brad Calder, Ju Wang, Aaron Ogus, et al.: “[Windows Azure Storage: A Highly Available Cloud Storage Service with Strong Consistency](http://sigops.org/sosp/sosp11/current/2011-Cascais/printable/11-calder.pdf),” at *23rd ACM Symposium on Operating Systems Principles* (SOSP), October 2011.
-11. Andrew Wang: “[Windows Azure Storage](https://www.umbrant.com/2016/02/04/windows-azure-storage/),” *umbrant.com*, February 4, 2016.
-12. “[Percona Xtrabackup - Documentation](https://www.percona.com/doc/percona-xtrabackup/2.1/index.html),” Percona LLC, 2014.
-13. Jesse Newland: “[GitHub Availability This Week](https://github.com/blog/1261-github-availability-this-week),” *github.com*, September 14, 2012.
-14. Mark Imbriaco: “[Downtime Last Saturday](https://github.com/blog/1364-downtime-last-saturday),” *github.com*, December 26, 2012.
-15. John Hugg: “[‘All in’ with Determinism for Performance and Testing in Distributed Systems](https://www.youtube.com/watch?v=gJRj3vJL4wE),” at *Strange Loop*, September 2015.
-16. Amit Kapila: “[WAL Internals of PostgreSQL](http://www.pgcon.org/2012/schedule/attachments/258_212_Internals%20Of%20PostgreSQL%20Wal.pdf),” at *PostgreSQL Conference* (PGCon), May 2012.
-17. [*MySQL Documentation*](https://dev.mysql.com/doc/refman/en/binary-log.html). Oracle, 2025.
-18. Yogeshwer Sharma, Philippe Ajoux, Petchean Ang, et al.: “[Wormhole: Reliable Pub-Sub to Support Geo-Replicated Internet Services](https://www.usenix.org/system/files/conference/nsdi15/nsdi15-paper-sharma.pdf),” at *12th USENIX Symposium on Networked Systems Design and Implementation* (NSDI), May 2015.
-19. “[Oracle GoldenGate 12c: Real-Time Access to Real-Time Information](https://web.archive.org/web/20200110231516/http://www.oracle.com/us/products/middleware/data-integration/oracle-goldengate-realtime-access-2031152.pdf),” Oracle White Paper, October 2013.
-20. Shirshanka Das, Chavdar Botev, Kapil Surlaker, et al.: “[All Aboard the Databus!](http://www.socc2012.org/s18-das.pdf),” at *ACM Symposium on Cloud Computing* (SoCC), October 2012.
-21. Greg Sabino Mullane: “[Version 5 of Bucardo Database Replication System](https://www.endpointdev.com/blog/2014/06/bucardo-5-multimaster-postgres-released/),” *blog.endpoint.com*, June 23, 2014.
-22. Werner Vogels: “[Eventually Consistent](http://queue.acm.org/detail.cfm?id=1466448),” *ACM Queue*, volume 6, number 6, pages 14–19, October 2008. [doi:10.1145/1466443.1466448](http://dx.doi.org/10.1145/1466443.1466448)
-23. Douglas B. Terry: “[Replicated Data Consistency Explained Through Baseball](https://www.microsoft.com/en-us/research/publication/replicated-data-consistency-explained-through-baseball/),” Microsoft Research, Technical Report MSR-TR-2011-137, October 2011.
-24. Douglas B. Terry, Alan J. Demers, Karin Petersen, et al.: “[Session Guarantees for Weakly Consistent Replicated Data](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.71.2269&rep=rep1&type=pdf),” at *3rd International Conference on Parallel and Distributed Information Systems* (PDIS), September 1994. [doi:10.1109/PDIS.1994.331722](http://dx.doi.org/10.1109/PDIS.1994.331722)
-25. Terry Pratchett: *Reaper Man: A Discworld Novel*. Victor Gollancz, 1991. ISBN: 978-0-575-04979-6
-26. “[Tungsten Replicator](https://github.com/holys/tungsten-replicator),” *github.com*.
-27. “[BDR 0.10.0 Documentation](https://web.archive.org/web/20160728020040/http://bdr-project.org/docs/next/index.html),” The PostgreSQL Global Development Group, *bdr-project.org*, 2015.
-28. Robert Hodges: “[If You *Must* Deploy Multi-Master Replication, Read This First](http://scale-out-blog.blogspot.co.uk/2012/04/if-you-must-deploy-multi-master.html),” *scale-out-blog.blogspot.co.uk*, March 30, 2012.
-29. J. Chris Anderson, Jan Lehnardt, and Noah Slater: *CouchDB: The Definitive Guide*. O'Reilly Media, 2010. ISBN: 978-0-596-15589-6
-30. AppJet, Inc.: “[Etherpad and EasySync Technical Manual](https://github.com/ether/etherpad-lite/blob/e2ce9dc/doc/easysync/easysync-full-description.pdf),” *github.com*, March 26, 2011.
-31. John Day-Richter: “[What’s Different About the New Google Docs: Making Collaboration Fast](https://drive.googleblog.com/2010/09/whats-different-about-new-google-docs.html),” *drive.googleblog.com*, September 23, 2010.
-32. Martin Kleppmann and Alastair R. Beresford: “[A Conflict-Free Replicated JSON Datatype](http://arxiv.org/abs/1608.03960),” arXiv:1608.03960, August 13, 2016.
-33. Frazer Clement: “[Eventual Consistency – Detecting Conflicts](http://messagepassing.blogspot.co.uk/2011/10/eventual-consistency-detecting.html),” *messagepassing.blogspot.co.uk*, October 20, 2011.
-34. Robert Hodges: “[State of the Art for MySQL Multi-Master Replication](https://web.archive.org/web/20161010052017/https://www.percona.com/live/mysql-conference-2013/sites/default/files/slides/mysql-multi-master-state-of-art-2013-04-24_0.pdf),” at *Percona Live: MySQL Conference & Expo*, April 2013.
-35. John Daily: “[Clocks Are Bad, or, Welcome to the Wonderful World of Distributed Systems](https://riak.com/clocks-are-bad-or-welcome-to-distributed-systems/),” *riak.com*, November 12, 2013.
-36. Riley Berton: “[Is Bi-Directional Replication (BDR) in Postgres Transactional?](https://web.archive.org/web/20211204170610/http://sdf.org/~riley/blog/2016/01/04/is-bi-directional-replication-bdr-in-postgres-transactional/),” *sdf.org*, January 4, 2016.
-37. Giuseppe DeCandia, Deniz Hastorun, Madan Jampani, et al.: “[Dynamo: Amazon's Highly Available Key-Value Store](http://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf),” at *21st ACM Symposium on Operating Systems Principles* (SOSP), October 2007.
-38. Marc Shapiro, Nuno Preguiça, Carlos Baquero, and Marek Zawirski: “[A Comprehensive Study of Convergent and Commutative Replicated Data Types](http://hal.inria.fr/inria-00555588/),” INRIA Research Report no. 7506, January 2011.
-39. Sam Elliott: “[CRDTs: An UPDATE (or Maybe Just a PUT)](https://speakerdeck.com/lenary/crdts-an-update-or-just-a-put),” at *RICON West*, October 2013.
-40. Russell Brown: “[A Bluffers Guide to CRDTs in Riak](https://gist.github.com/russelldb/f92f44bdfb619e089a4d),” *gist.github.com*, October 28, 2013.
-41. Benjamin Farinier, Thomas Gazagnaire, and Anil Madhavapeddy: “[Mergeable Persistent Data Structures](http://gazagnaire.org/pub/FGM15.pdf),” at *26es Journées Francophones des Langages Applicatifs* (JFLA), January 2015.
-42. Chengzheng Sun and Clarence Ellis: “[Operational Transformation in Real-Time Group Editors: Issues, Algorithms, and Achievements](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.53.933&rep=rep1&type=pdf),” at *ACM Conference on Computer Supported Cooperative Work* (CSCW), November 1998.
-43. Lars Hofhansl: “[HBASE-7709: Infinite Loop Possible in Master/Master Replication](https://issues.apache.org/jira/browse/HBASE-7709),” *issues.apache.org*, January 29, 2013.
-44. David K. Gifford: “[Weighted Voting for Replicated Data](https://www.cs.cmu.edu/~15-749/READINGS/required/availability/gifford79.pdf),” at *7th ACM Symposium on Operating Systems Principles* (SOSP), December 1979. [doi:10.1145/800215.806583](http://dx.doi.org/10.1145/800215.806583)
-45. Heidi Howard, Dahlia Malkhi, and Alexander Spiegelman: “[Flexible Paxos: Quorum Intersection Revisited](https://arxiv.org/abs/1608.06696),” *arXiv:1608.06696*, August 24, 2016.
-46. Joseph Blomstedt: “[Re: Absolute Consistency](https://web.archive.org/web/20190919171316/http://lists.basho.com:80/pipermail/riak-users_lists.basho.com/2012-January/007157.html),” email to *riak-users* mailing list, *lists.basho.com*, January 11, 2012.
-47. Joseph Blomstedt: “[Bringing Consistency to Riak](https://vimeo.com/51973001),” at *RICON West*, October 2012.
-48. Peter Bailis, Shivaram Venkataraman, Michael J. Franklin, et al.: “[Quantifying Eventual Consistency with PBS](http://www.bailis.org/papers/pbs-cacm2014.pdf),” *Communications of the ACM*, volume 57, number 8, pages 93–102, August 2014. [doi:10.1145/2632792](http://dx.doi.org/10.1145/2632792)
-49. Jonathan Ellis: “[Modern Hinted Handoff](http://www.datastax.com/dev/blog/modern-hinted-handoff),” *datastax.com*, December 11, 2012.
-50. “[Project Voldemort Wiki](https://github.com/voldemort/voldemort/wiki),” *github.com*, 2013.
-51. “[Apache Cassandra Documentation](https://cassandra.apache.org/doc/latest/),” Apache Software Foundation, *cassandra.apache.org*.
-52. “[Riak Enterprise: Multi-Datacenter Replication](https://web.archive.org/web/20150513041837/http://basho.com/assets/MultiDatacenter_Replication.pdf).” Technical whitepaper, Basho Technologies, Inc., September 2014.
-53. Jonathan Ellis: “[Why Cassandra Doesn't Need Vector Clocks](http://www.datastax.com/dev/blog/why-cassandra-doesnt-need-vector-clocks),” *datastax.com*, September 2, 2013.
-54. Leslie Lamport: “[Time, Clocks, and the Ordering of Events in a Distributed System](https://www.microsoft.com/en-us/research/publication/time-clocks-ordering-events-distributed-system/),” *Communications of the ACM*, volume 21, number 7, pages 558–565, July 1978. [doi:10.1145/359545.359563](http://dx.doi.org/10.1145/359545.359563)
-55. Joel Jacobson: “[Riak 2.0: Data Types](https://web.archive.org/web/20160327135816/http://blog.joeljacobson.com/riak-2-0-data-types/),” *blog.joeljacobson.com*, March 23, 2014.
-56. D. Stott Parker Jr., Gerald J. Popek, Gerard Rudisin, et al.: “[Detection of Mutual Inconsistency in Distributed Systems](https://web.archive.org/web/20170808212704/https://zoo.cs.yale.edu/classes/cs426/2013/bib/parker83detection.pdf),” *IEEE Transactions on Software Engineering*, volume 9, number 3, pages 240–247, May 1983. [doi:10.1109/TSE.1983.236733](http://dx.doi.org/10.1109/TSE.1983.236733)
-57. Nuno Preguiça, Carlos Baquero, Paulo Sérgio Almeida, et al.: “[Dotted Version Vectors: Logical Clocks for Optimistic Replication](http://arxiv.org/pdf/1011.5808v1.pdf),” arXiv:1011.5808, November 26, 2010.
-58. Sean Cribbs: “[A Brief History of Time in Riak](https://speakerdeck.com/seancribbs/a-brief-history-of-time-in-riak),” at *RICON*, October 2014.
-59. Russell Brown: “[Vector Clocks Revisited Part 2: Dotted Version Vectors](https://riak.com/posts/technical/vector-clocks-revisited-part-2-dotted-version-vectors/),” *basho.com*, November 10, 2015.
-60. Carlos Baquero: “[Version Vectors Are Not Vector Clocks](https://haslab.wordpress.com/2011/07/08/version-vectors-are-not-vector-clocks/),” *haslab.wordpress.com*, July 8, 2011.
-61. Reinhard Schwarz and Friedemann Mattern: “[Detecting Causal Relationships in Distributed Computations: In Search of the Holy Grail](http://dcg.ethz.ch/lectures/hs08/seminar/papers/mattern4.pdf),” *Distributed Computing*, volume 7, number 3, pages 149–174, March 1994. [doi:10.1007/BF02277859](http://dx.doi.org/10.1007/BF02277859)
+[^ref_1]: Bruce G. Lindsay, Patricia Griffiths Selinger, C. Galtieri, et al.: “[Notes on Distributed Databases](https://dominoweb.draco.res.ibm.com/reports/RJ2571.pdf),” IBM Research, Research Report RJ2571(33471), July 1979.
+
+[^ref_2]: “[Oracle Active Data Guard Real-Time Data Protection and Availability](http://www.oracle.com/technetwork/database/availability/active-data-guard-wp-12c-1896127.pdf),” Oracle White Paper, June 2013.
+
+[^ref_3]: “[AlwaysOn Availability Groups](http://msdn.microsoft.com/en-us/library/hh510230.aspx),” in *SQL Server Books Online*, Microsoft, 2012.
+
+[^ref_4]: Lin Qiao, Kapil Surlaker, Shirshanka Das, et al.: “[On Brewing Fresh Espresso: LinkedIn’s Distributed Data Serving Platform](http://www.slideshare.net/amywtang/espresso-20952131),” at *ACM International Conference on Management of Data* (SIGMOD), June 2013.
+
+[^ref_5]: Jun Rao: “[Intra-Cluster Replication for Apache Kafka](http://www.slideshare.net/junrao/kafka-replication-apachecon2013),” at *ApacheCon North America*, February 2013.
+
+[^ref_6]: “[Highly Available Queues](https://www.rabbitmq.com/ha.html),” in *RabbitMQ Server Documentation*, Pivotal Software, Inc., 2014.
+
+[^ref_7]: Yoshinori Matsunobu: “[Semi-Synchronous Replication at Facebook](http://yoshinorimatsunobu.blogspot.co.uk/2014/04/semi-synchronous-replication-at-facebook.html),” *yoshinorimatsunobu.blogspot.co.uk*, April 1, 2014.
+
+[^ref_8]: Robbert van Renesse and Fred B. Schneider: “[Chain Replication for Supporting High Throughput and Availability](http://static.usenix.org/legacy/events/osdi04/tech/full_papers/renesse/renesse.pdf),” at *6th USENIX Symposium on Operating System Design and Implementation* (OSDI), December 2004.
+
+[^ref_9]: Jeff Terrace and Michael J. Freedman: “[Object Storage on CRAQ: High-Throughput Chain Replication for Read-Mostly Workloads](https://www.usenix.org/legacy/event/usenix09/tech/full_papers/terrace/terrace.pdf),” at *USENIX Annual Technical Conference* (ATC), June 2009.
+
+[^ref_10]: Brad Calder, Ju Wang, Aaron Ogus, et al.: “[Windows Azure Storage: A Highly Available Cloud Storage Service with Strong Consistency](http://sigops.org/sosp/sosp11/current/2011-Cascais/printable/11-calder.pdf),” at *23rd ACM Symposium on Operating Systems Principles* (SOSP), October 2011.
+
+[^ref_11]: Andrew Wang: “[Windows Azure Storage](https://www.umbrant.com/2016/02/04/windows-azure-storage/),” *umbrant.com*, February 4, 2016.
+
+[^ref_12]: “[Percona Xtrabackup - Documentation](https://www.percona.com/doc/percona-xtrabackup/2.1/index.html),” Percona LLC, 2014.
+
+[^ref_13]: Jesse Newland: “[GitHub Availability This Week](https://github.com/blog/1261-github-availability-this-week),” *github.com*, September 14, 2012.
+
+[^ref_14]: Mark Imbriaco: “[Downtime Last Saturday](https://github.com/blog/1364-downtime-last-saturday),” *github.com*, December 26, 2012.
+
+[^ref_15]: John Hugg: “[‘All in’ with Determinism for Performance and Testing in Distributed Systems](https://www.youtube.com/watch?v=gJRj3vJL4wE),” at *Strange Loop*, September 2015.
+
+[^ref_16]: Amit Kapila: “[WAL Internals of PostgreSQL](http://www.pgcon.org/2012/schedule/attachments/258_212_Internals%20Of%20PostgreSQL%20Wal.pdf),” at *PostgreSQL Conference* (PGCon), May 2012.
+
+[^ref_17]: [*MySQL Documentation*](https://dev.mysql.com/doc/refman/en/binary-log.html). Oracle, 2025.
+
+[^ref_18]: Yogeshwer Sharma, Philippe Ajoux, Petchean Ang, et al.: “[Wormhole: Reliable Pub-Sub to Support Geo-Replicated Internet Services](https://www.usenix.org/system/files/conference/nsdi15/nsdi15-paper-sharma.pdf),” at *12th USENIX Symposium on Networked Systems Design and Implementation* (NSDI), May 2015.
+
+[^ref_19]: “[Oracle GoldenGate 12c: Real-Time Access to Real-Time Information](https://web.archive.org/web/20200110231516/http://www.oracle.com/us/products/middleware/data-integration/oracle-goldengate-realtime-access-2031152.pdf),” Oracle White Paper, October 2013.
+
+[^ref_20]: Shirshanka Das, Chavdar Botev, Kapil Surlaker, et al.: “[All Aboard the Databus!](http://www.socc2012.org/s18-das.pdf),” at *ACM Symposium on Cloud Computing* (SoCC), October 2012.
+
+[^ref_21]: Greg Sabino Mullane: “[Version 5 of Bucardo Database Replication System](https://www.endpointdev.com/blog/2014/06/bucardo-5-multimaster-postgres-released/),” *blog.endpoint.com*, June 23, 2014.
+
+[^ref_22]: Werner Vogels: “[Eventually Consistent](http://queue.acm.org/detail.cfm?id=1466448),” *ACM Queue*, volume 6, number 6, pages 14–19, October 2008. [doi:10.1145/1466443.1466448](http://dx.doi.org/10.1145/1466443.1466448)
+
+[^ref_23]: Douglas B. Terry: “[Replicated Data Consistency Explained Through Baseball](https://www.microsoft.com/en-us/research/publication/replicated-data-consistency-explained-through-baseball/),” Microsoft Research, Technical Report MSR-TR-2011-137, October 2011.
+
+[^ref_24]: Douglas B. Terry, Alan J. Demers, Karin Petersen, et al.: “[Session Guarantees for Weakly Consistent Replicated Data](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.71.2269&rep=rep1&type=pdf),” at *3rd International Conference on Parallel and Distributed Information Systems* (PDIS), September 1994. [doi:10.1109/PDIS.1994.331722](http://dx.doi.org/10.1109/PDIS.1994.331722)
+
+[^ref_25]: Terry Pratchett: *Reaper Man: A Discworld Novel*. Victor Gollancz, 1991. ISBN: 978-0-575-04979-6
+
+[^ref_26]: “[Tungsten Replicator](https://github.com/holys/tungsten-replicator),” *github.com*.
+
+[^ref_27]: “[BDR 0.10.0 Documentation](https://web.archive.org/web/20160728020040/http://bdr-project.org/docs/next/index.html),” The PostgreSQL Global Development Group, *bdr-project.org*, 2015.
+
+[^ref_28]: Robert Hodges: “[If You *Must* Deploy Multi-Master Replication, Read This First](http://scale-out-blog.blogspot.co.uk/2012/04/if-you-must-deploy-multi-master.html),” *scale-out-blog.blogspot.co.uk*, March 30, 2012.
+
+[^ref_29]: J. Chris Anderson, Jan Lehnardt, and Noah Slater: *CouchDB: The Definitive Guide*. O'Reilly Media, 2010. ISBN: 978-0-596-15589-6
+
+[^ref_30]: AppJet, Inc.: “[Etherpad and EasySync Technical Manual](https://github.com/ether/etherpad-lite/blob/e2ce9dc/doc/easysync/easysync-full-description.pdf),” *github.com*, March 26, 2011.
+
+[^ref_31]: John Day-Richter: “[What’s Different About the New Google Docs: Making Collaboration Fast](https://drive.googleblog.com/2010/09/whats-different-about-new-google-docs.html),” *drive.googleblog.com*, September 23, 2010.
+
+[^ref_32]: Martin Kleppmann and Alastair R. Beresford: “[A Conflict-Free Replicated JSON Datatype](http://arxiv.org/abs/1608.03960),” arXiv:1608.03960, August 13, 2016.
+
+[^ref_33]: Frazer Clement: “[Eventual Consistency – Detecting Conflicts](http://messagepassing.blogspot.co.uk/2011/10/eventual-consistency-detecting.html),” *messagepassing.blogspot.co.uk*, October 20, 2011.
+
+[^ref_34]: Robert Hodges: “[State of the Art for MySQL Multi-Master Replication](https://web.archive.org/web/20161010052017/https://www.percona.com/live/mysql-conference-2013/sites/default/files/slides/mysql-multi-master-state-of-art-2013-04-24_0.pdf),” at *Percona Live: MySQL Conference & Expo*, April 2013.
+
+[^ref_35]: John Daily: “[Clocks Are Bad, or, Welcome to the Wonderful World of Distributed Systems](https://riak.com/clocks-are-bad-or-welcome-to-distributed-systems/),” *riak.com*, November 12, 2013.
+
+[^ref_36]: Riley Berton: “[Is Bi-Directional Replication (BDR) in Postgres Transactional?](https://web.archive.org/web/20211204170610/http://sdf.org/~riley/blog/2016/01/04/is-bi-directional-replication-bdr-in-postgres-transactional/),” *sdf.org*, January 4, 2016.
+
+[^ref_37]: Giuseppe DeCandia, Deniz Hastorun, Madan Jampani, et al.: “[Dynamo: Amazon's Highly Available Key-Value Store](http://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf),” at *21st ACM Symposium on Operating Systems Principles* (SOSP), October 2007.
+
+[^ref_38]: Marc Shapiro, Nuno Preguiça, Carlos Baquero, and Marek Zawirski: “[A Comprehensive Study of Convergent and Commutative Replicated Data Types](http://hal.inria.fr/inria-00555588/),” INRIA Research Report no. 7506, January 2011.
+
+[^ref_39]: Sam Elliott: “[CRDTs: An UPDATE (or Maybe Just a PUT)](https://speakerdeck.com/lenary/crdts-an-update-or-just-a-put),” at *RICON West*, October 2013.
+
+[^ref_40]: Russell Brown: “[A Bluffers Guide to CRDTs in Riak](https://gist.github.com/russelldb/f92f44bdfb619e089a4d),” *gist.github.com*, October 28, 2013.
+
+[^ref_41]: Benjamin Farinier, Thomas Gazagnaire, and Anil Madhavapeddy: “[Mergeable Persistent Data Structures](http://gazagnaire.org/pub/FGM15.pdf),” at *26es Journées Francophones des Langages Applicatifs* (JFLA), January 2015.
+
+[^ref_42]: Chengzheng Sun and Clarence Ellis: “[Operational Transformation in Real-Time Group Editors: Issues, Algorithms, and Achievements](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.53.933&rep=rep1&type=pdf),” at *ACM Conference on Computer Supported Cooperative Work* (CSCW), November 1998.
+
+[^ref_43]: Lars Hofhansl: “[HBASE-7709: Infinite Loop Possible in Master/Master Replication](https://issues.apache.org/jira/browse/HBASE-7709),” *issues.apache.org*, January 29, 2013.
+
+[^ref_44]: David K. Gifford: “[Weighted Voting for Replicated Data](https://www.cs.cmu.edu/~15-749/READINGS/required/availability/gifford79.pdf),” at *7th ACM Symposium on Operating Systems Principles* (SOSP), December 1979. [doi:10.1145/800215.806583](http://dx.doi.org/10.1145/800215.806583)
+
+[^ref_45]: Heidi Howard, Dahlia Malkhi, and Alexander Spiegelman: “[Flexible Paxos: Quorum Intersection Revisited](https://arxiv.org/abs/1608.06696),” *arXiv:1608.06696*, August 24, 2016.
+
+[^ref_46]: Joseph Blomstedt: “[Re: Absolute Consistency](https://web.archive.org/web/20190919171316/http://lists.basho.com:80/pipermail/riak-users_lists.basho.com/2012-January/007157.html),” email to *riak-users* mailing list, *lists.basho.com*, January 11, 2012.
+
+[^ref_47]: Joseph Blomstedt: “[Bringing Consistency to Riak](https://vimeo.com/51973001),” at *RICON West*, October 2012.
+
+[^ref_48]: Peter Bailis, Shivaram Venkataraman, Michael J. Franklin, et al.: “[Quantifying Eventual Consistency with PBS](http://www.bailis.org/papers/pbs-cacm2014.pdf),” *Communications of the ACM*, volume 57, number 8, pages 93–102, August 2014. [doi:10.1145/2632792](http://dx.doi.org/10.1145/2632792)
+
+[^ref_49]: Jonathan Ellis: “[Modern Hinted Handoff](http://www.datastax.com/dev/blog/modern-hinted-handoff),” *datastax.com*, December 11, 2012.
+
+[^ref_50]: “[Project Voldemort Wiki](https://github.com/voldemort/voldemort/wiki),” *github.com*, 2013.
+
+[^ref_51]: “[Apache Cassandra Documentation](https://cassandra.apache.org/doc/latest/),” Apache Software Foundation, *cassandra.apache.org*.
+
+[^ref_52]: “[Riak Enterprise: Multi-Datacenter Replication](https://web.archive.org/web/20150513041837/http://basho.com/assets/MultiDatacenter_Replication.pdf).” Technical whitepaper, Basho Technologies, Inc., September 2014.
+
+[^ref_53]: Jonathan Ellis: “[Why Cassandra Doesn't Need Vector Clocks](http://www.datastax.com/dev/blog/why-cassandra-doesnt-need-vector-clocks),” *datastax.com*, September 2, 2013.
+
+[^ref_54]: Leslie Lamport: “[Time, Clocks, and the Ordering of Events in a Distributed System](https://www.microsoft.com/en-us/research/publication/time-clocks-ordering-events-distributed-system/),” *Communications of the ACM*, volume 21, number 7, pages 558–565, July 1978. [doi:10.1145/359545.359563](http://dx.doi.org/10.1145/359545.359563)
+
+[^ref_55]: Joel Jacobson: “[Riak 2.0: Data Types](https://web.archive.org/web/20160327135816/http://blog.joeljacobson.com/riak-2-0-data-types/),” *blog.joeljacobson.com*, March 23, 2014.
+
+[^ref_56]: D. Stott Parker Jr., Gerald J. Popek, Gerard Rudisin, et al.: “[Detection of Mutual Inconsistency in Distributed Systems](https://web.archive.org/web/20170808212704/https://zoo.cs.yale.edu/classes/cs426/2013/bib/parker83detection.pdf),” *IEEE Transactions on Software Engineering*, volume 9, number 3, pages 240–247, May 1983. [doi:10.1109/TSE.1983.236733](http://dx.doi.org/10.1109/TSE.1983.236733)
+
+[^ref_57]: Nuno Preguiça, Carlos Baquero, Paulo Sérgio Almeida, et al.: “[Dotted Version Vectors: Logical Clocks for Optimistic Replication](http://arxiv.org/pdf/1011.5808v1.pdf),” arXiv:1011.5808, November 26, 2010.
+
+[^ref_58]: Sean Cribbs: “[A Brief History of Time in Riak](https://speakerdeck.com/seancribbs/a-brief-history-of-time-in-riak),” at *RICON*, October 2014.
+
+[^ref_59]: Russell Brown: “[Vector Clocks Revisited Part 2: Dotted Version Vectors](https://riak.com/posts/technical/vector-clocks-revisited-part-2-dotted-version-vectors/),” *basho.com*, November 10, 2015.
+
+[^ref_60]: Carlos Baquero: “[Version Vectors Are Not Vector Clocks](https://haslab.wordpress.com/2011/07/08/version-vectors-are-not-vector-clocks/),” *haslab.wordpress.com*, July 8, 2011.
+
+[^ref_61]: Reinhard Schwarz and Friedemann Mattern: “[Detecting Causal Relationships in Distributed Computations: In Search of the Holy Grail](http://dcg.ethz.ch/lectures/hs08/seminar/papers/mattern4.pdf),” *Distributed Computing*, volume 7, number 3, pages 149–174, March 1994. [doi:10.1007/BF02277859](http://dx.doi.org/10.1007/BF02277859)

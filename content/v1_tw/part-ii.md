@@ -25,25 +25,25 @@ breadcrumbs: false
 
 如果你需要的只是伸縮至更高的 **載荷（load）**，最簡單的方法就是購買更強大的機器（有時稱為 **垂直伸縮**，即 vertical scaling，或 **向上伸縮**，即 scale up）。許多處理器，記憶體和磁碟可以在同一個作業系統下相互連線，快速的相互連線允許任意處理器訪問記憶體或磁碟的任意部分。在這種 **共享記憶體架構（shared-memory architecture）** 中，所有的元件都可以看作一臺單獨的機器 [^i]。
 
-[^i]: 在大型機中，儘管任意處理器都可以訪問記憶體的任意部分，但總有一些記憶體區域與一些處理器更接近（稱為 **非均勻記憶體訪問（nonuniform memory access, NUMA）**【1】）。為了有效利用這種架構特性，需要對處理進行細分，以便每個處理器主要訪問臨近的記憶體，這意味著即使表面上看起來只有一臺機器在執行，**分割槽（partitioning）** 仍然是必要的。
+[^i]: 在大型機中，儘管任意處理器都可以訪問記憶體的任意部分，但總有一些記憶體區域與一些處理器更接近（稱為 **非均勻記憶體訪問（nonuniform memory access, NUMA）**[^ref_1]）。為了有效利用這種架構特性，需要對處理進行細分，以便每個處理器主要訪問臨近的記憶體，這意味著即使表面上看起來只有一臺機器在執行，**分割槽（partitioning）** 仍然是必要的。
 
 共享記憶體方法的問題在於，成本增長速度快於線性增長：一臺有著雙倍處理器數量，雙倍記憶體大小，雙倍磁碟容量的機器，通常成本會遠遠超過原來的兩倍。而且可能因為存在瓶頸，並不足以處理雙倍的載荷。
 
 共享記憶體架構可以提供有限的容錯能力，高階機器可以使用熱插拔的元件（不關機更換磁碟，記憶體模組，甚至處理器）—— 但它必然囿於單個地理位置的桎梏。
 
-另一種方法是 **共享磁碟架構（shared-disk architecture）**，它使用多臺具有獨立處理器和記憶體的機器，但將資料儲存在機器之間共享的磁碟陣列上，這些磁碟透過快速網路連線 [^ii]。這種架構用於某些資料倉庫，但競爭和鎖定的開銷限制了共享磁碟方法的可伸縮性【2】。
+另一種方法是 **共享磁碟架構（shared-disk architecture）**，它使用多臺具有獨立處理器和記憶體的機器，但將資料儲存在機器之間共享的磁碟陣列上，這些磁碟透過快速網路連線 [^ii]。這種架構用於某些資料倉庫，但競爭和鎖定的開銷限制了共享磁碟方法的可伸縮性[^ref_2]。
 
 [^ii]: 網路附屬儲存（Network Attached Storage, NAS），或 **儲存區網路（Storage Area Network, SAN）**
 
 ### 無共享架構
 
-相比之下，**無共享架構**【3】（shared-nothing architecture，有時被稱為 **水平伸縮**，即 horizontal scaling，或 **向外伸縮**，即 scaling out）已經相當普及。在這種架構中，執行資料庫軟體的每臺機器 / 虛擬機器都稱為 **節點（node）**。每個節點只使用各自的處理器，記憶體和磁碟。節點之間的任何協調，都是在軟體層面使用傳統網路實現的。
+相比之下，**無共享架構**[^ref_3]（shared-nothing architecture，有時被稱為 **水平伸縮**，即 horizontal scaling，或 **向外伸縮**，即 scaling out）已經相當普及。在這種架構中，執行資料庫軟體的每臺機器 / 虛擬機器都稱為 **節點（node）**。每個節點只使用各自的處理器，記憶體和磁碟。節點之間的任何協調，都是在軟體層面使用傳統網路實現的。
 
 無共享系統不需要使用特殊的硬體，所以你可以用任意機器 —— 比如價效比最好的機器。你也許可以跨多個地理區域分佈資料從而減少使用者延遲，或者在損失一整個資料中心的情況下倖免於難。隨著雲端虛擬機器部署的出現，即使是小公司，現在無需 Google 級別的運維，也可以實現異地分散式架構。
 
 在這一部分裡，我們將重點放在無共享架構上。它不見得是所有場景的最佳選擇，但它是最需要你謹慎從事的架構。如果你的資料分佈在多個節點上，你需要意識到這樣一個分散式系統中約束和權衡 —— 資料庫並不能魔術般地把這些東西隱藏起來。
 
-雖然分散式無共享架構有許多優點，但它通常也會給應用帶來額外的複雜度，有時也會限制你可用資料模型的表達力。在某些情況下，一個簡單的單執行緒程式可以比一個擁有超過 100 個 CPU 核的叢集表現得更好【4】。另一方面，無共享系統可以非常強大。接下來的幾章，將詳細討論分散式資料會帶來的問題。
+雖然分散式無共享架構有許多優點，但它通常也會給應用帶來額外的複雜度，有時也會限制你可用資料模型的表達力。在某些情況下，一個簡單的單執行緒程式可以比一個擁有超過 100 個 CPU 核的叢集表現得更好[^ref_4]。另一方面，無共享系統可以非常強大。接下來的幾章，將詳細討論分散式資料會帶來的問題。
 
 ### 複製 vs 分割槽
 
@@ -100,7 +100,10 @@ breadcrumbs: false
 
 ## 參考文獻
 
-1. Ulrich Drepper: “[What Every Programmer Should Know About Memory](https://people.freebsd.org/~lstewart/articles/cpumemory.pdf),” akka‐dia.org, November 21, 2007.
-2. Ben Stopford: “[Shared Nothing vs. Shared Disk Architectures: An Independent View](http://www.benstopford.com/2009/11/24/understanding-the-shared-nothing-architecture/),” benstopford.com, November 24, 2009.
-3. Michael Stonebraker: “[The Case for Shared Nothing](http://db.cs.berkeley.edu/papers/hpts85-nothing.pdf),” IEEE Database EngineeringBulletin, volume 9, number 1, pages 4–9, March 1986.
-4. Frank McSherry, Michael Isard, and Derek G. Murray: “[Scalability! But at What COST?](http://www.frankmcsherry.org/assets/COST.pdf),” at 15th USENIX Workshop on Hot Topics in Operating Systems (HotOS),May 2015.
+[^ref_1]: Ulrich Drepper: “[What Every Programmer Should Know About Memory](https://people.freebsd.org/~lstewart/articles/cpumemory.pdf),” akka‐dia.org, November 21, 2007.
+
+[^ref_2]: Ben Stopford: “[Shared Nothing vs. Shared Disk Architectures: An Independent View](http://www.benstopford.com/2009/11/24/understanding-the-shared-nothing-architecture/),” benstopford.com, November 24, 2009.
+
+[^ref_3]: Michael Stonebraker: “[The Case for Shared Nothing](http://db.cs.berkeley.edu/papers/hpts85-nothing.pdf),” IEEE Database EngineeringBulletin, volume 9, number 1, pages 4–9, March 1986.
+
+[^ref_4]: Frank McSherry, Michael Isard, and Derek G. Murray: “[Scalability! But at What COST?](http://www.frankmcsherry.org/assets/COST.pdf),” at 15th USENIX Workshop on Hot Topics in Operating Systems (HotOS),May 2015.
