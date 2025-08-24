@@ -5,7 +5,7 @@ weight: 104
 breadcrumbs: false
 ---
 
-![](/map/ch04.png)
+![](./map/ch04.png)
 
 > 唯變所適
 >
@@ -567,4 +567,4 @@ Actor 模型是單個程序中併發的程式設計模型。邏輯被封裝在 a
 1. Philip A. Bernstein, Sergey Bykov, Alan Geller, et al.: “[Orleans: Distributed Virtual Actors for Programmability and Scalability](https://www.microsoft.com/en-us/research/publication/orleans-distributed-virtual-actors-for-programmability-and-scalability/),” Microsoft Research Technical Report MSR-TR-2014-41, March 2014.
 1. “[Microsoft Project Orleans Documentation](http://dotnet.github.io/orleans/),” Microsoft Research, *dotnet.github.io*, 2015.
 1. David Mercer, Sean Hinde, Yinso Chen, and Richard A O'Keefe: “[beginner: Updating Data Structures](http://erlang.org/pipermail/erlang-questions/2007-October/030318.html),” email thread on *erlang-questions* mailing list, *erlang.com*, October 29, 2007.
-1. Fred Hebert: “[Postscript: Maps](http://learnyousomeerlang.com/maps),” *learnyousomeerlang.com*, April 9, 2014.
+1. Fred Hebert: “[Postscript: Maps](http://learnyousomeerlang.com./maps),” *learnyousomeerlang.com*, April 9, 2014.

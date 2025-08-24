@@ -6,7 +6,7 @@ breadcrumbs: false
 ---
 
 
-![](/map/ch03.png)
+![](./map/ch03.png)
 
 > 建立秩序，省卻搜尋
 >
@@ -637,7 +637,7 @@ WHERE product_sk = 31 AND store_sk = 3
 1. Tomas Vondra: “[On the Impact of Full-Page Writes](https://www.enterprisedb.com/blog/impact-full-page-writes),” *blog.2ndquadrant.com*, November 23, 2016.
 1. Mark Callaghan: “[The Advantages of an LSM vs a B-Tree](http://smalldatum.blogspot.co.uk/2016/01/summary-of-advantages-of-lsm-vs-b-tree.html),” *smalldatum.blogspot.co.uk*, January 19, 2016.
 1. Mark Callaghan: “[Choosing Between Efficiency and Performance with RocksDB](https://codemesh.io/codemesh2016/mark-callaghan),” at *Code Mesh*, November 4, 2016.
-1. Michi Mutsuzaki: “[MySQL vs. LevelDB](https://github.com/m1ch1/mapkeeper/wiki/MySQL-vs.-LevelDB),” *github.com*, August 2011.
+1. Michi Mutsuzaki: “[MySQL vs. LevelDB](https://github.com/m1ch1./mapkeeper/wiki/MySQL-vs.-LevelDB),” *github.com*, August 2011.
 1. Benjamin Coverston, Jonathan Ellis, et al.: “[CASSANDRA-1608: Redesigned Compaction](https://issues.apache.org/jira/browse/CASSANDRA-1608), *issues.apache.org*, July 2011.
 1. Igor Canadi, Siying Dong, and Mark Callaghan: “[RocksDB Tuning Guide](https://github.com/facebook/rocksdb/wiki/RocksDB-Tuning-Guide),” *github.com*, 2016.
 1. [*MySQL 5.7 Reference Manual*](http://dev.mysql.com/doc/refman/5.7/en/index.html). Oracle, 2014.

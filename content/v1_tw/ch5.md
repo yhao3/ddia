@@ -6,7 +6,7 @@ breadcrumbs: false
 math: true
 ---
 
-![](/map/ch05.png)
+![](./map/ch05.png)
 
 > 與可能出錯的東西比，“不可能”出錯的東西最顯著的特點就是：一旦真的出錯，通常就徹底玩完了。
 >

@@ -7,7 +7,7 @@ breadcrumbs: false
 ---
 
 
-![](/map/ch08.png)
+![](./map/ch08.png)
 
 > 邂逅相遇
 >

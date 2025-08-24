@@ -7,7 +7,7 @@ breadcrumbs: false
 ---
 
 
-![](/map/ch09.png)
+![](./map/ch09.png)
 
 > 好死還是賴活著？
 > —— Jay Kreps, 關於 Kafka 與 Jepsen 的若干筆記 (2013)

@@ -7,7 +7,7 @@ breadcrumbs: false
 ---
 
 
-![](/map/ch02.png)
+![](./map/ch02.png)
 
 > 語言的邊界就是思想的邊界。
 >
