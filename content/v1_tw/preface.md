@@ -67,7 +67,7 @@ breadcrumbs: false
 
 1. 在 [第一部分](./part-i) 中，我們會討論設計資料密集型應用所賴的基本思想。我們從 [第一章](./ch1) 開始，討論我們實際要達到的目標：可靠性、可伸縮性和可維護性；我們該如何思考這些概念；以及如何實現它們。在 [第二章](./ch2) 中，我們比較了幾種不同的資料模型和查詢語言，看看它們如何適用於不同的場景。在 [第三章](./ch3) 中將討論儲存引擎：資料庫如何在磁碟上擺放資料，以便能高效地再次找到它。[第四章](./ch4) 轉向資料編碼（序列化），以及隨時間演化的模式。
 
-2. 在 [第二部分](./part-ii) 中，我們從討論儲存在一臺機器上的資料轉向討論分佈在多臺機器上的資料。這對於可伸縮性通常是必需的，但帶來了各種獨特的挑戰。我們首先討論複製（[第五章](./ch5)）、分割槽 / 分片（[第六章](./ch6)）和事務（[第七章](./ch7)）。然後我們將探索關於分散式系統問題的更多細節（[第八章](./ch8)），以及在分散式系統中實現一致性與共識意味著什麼（[第九章](./ch9)）。
+2. 在 [第二部分](./part-ii) 中，我們從討論儲存在一臺機器上的資料轉向討論分佈在多臺機器上的資料。這對於可伸縮性通常是必需的，但帶來了各種獨特的挑戰。我們首先討論複製（[第五章](./ch5)）、分割槽 / 分片（[第六章](./ch6)）和交易（[第七章](./ch7)）。然後我們將探索關於分散式系統問題的更多細節（[第八章](./ch8)），以及在分散式系統中實現一致性與共識意味著什麼（[第九章](./ch9)）。
 
 3. 在 [第三部分](./part-iii) 中，我們討論那些從其他資料集衍生出一些資料集的系統。衍生資料經常出現在異構系統中：當沒有單個數據庫可以把所有事情都做的很好時，應用需要整合幾種不同的資料庫、快取、索引等。在 [第十章](./ch10) 中我們將從一種衍生資料的批處理方法開始，然後在此基礎上建立在 [第十一章](./ch11) 中討論的流處理。最後，在 [第十二章](./ch12) 中，我們將所有內容彙總，討論在將來構建可靠、可伸縮和可維護的應用程式的方法。
 
@@ -94,7 +94,7 @@ For more information, please visit http://oreilly.com/safari.
 
 更多人透過審閱草稿並提供反饋意見在本書的創作過程中做出了無價的貢獻。我要特別感謝 Raul Agepati, Tyler Akidau, Mattias Andersson, Sasha Baranov, Veena Basavaraj, David Beyer, Jim Brikman, Paul Carey, Raul Castro Fernandez, Joseph Chow, Derek Elkins, Sam Elliott, Alexander Gallego, Mark Grover, Stu Halloway, Heidi Howard, Nicola Kleppmann, Stefan Kruppa, Bjorn Madsen, Sander Mak, Stefan Podkowinski, Phil Potter, Hamid Ramazani, Sam Stokes, 以及 Ben Summers。當然對於本書中的任何遺留錯誤或難以接受的見解，我都承擔全部責任。
 
-為了幫助這本書落地，並且耐心地處理我緩慢的寫作和不尋常的要求，我要對編輯 Marie Beaugureau，Mike Loukides，Ann Spencer 和 O'Reilly 的所有團隊表示感謝。我要感謝 Rachel Head 幫我找到了合適的術語。我要感謝 Alastair Beresford，Susan Goodhue，Neha Narkhede 和 Kevin Scott，在其他工作事務之外給了我充分地創作時間和自由。
+為了幫助這本書落地，並且耐心地處理我緩慢的寫作和不尋常的要求，我要對編輯 Marie Beaugureau，Mike Loukides，Ann Spencer 和 O'Reilly 的所有團隊表示感謝。我要感謝 Rachel Head 幫我找到了合適的術語。我要感謝 Alastair Beresford，Susan Goodhue，Neha Narkhede 和 Kevin Scott，在其他工作交易之外給了我充分地創作時間和自由。
 
 特別感謝 Shabbir Diwan 和 Edie Freedman，他們非常用心地為各章配了地圖。他們提出了不落俗套的靈感，創作了這些地圖，美麗而引人入勝，真是太棒了。
 

@@ -19,7 +19,7 @@ breadcrumbs: false
 - [致謝](/tw/preface#致謝)
 
 ## [1. 資料系統架構中的權衡](/tw/ch1)
-- [分析型與事務型系統](/tw/ch1#sec_introduction_analytics)
+- [分析型與交易型系統](/tw/ch1#sec_introduction_analytics)
 - [雲服務與自託管](/tw/ch1#sec_introduction_cloud)
 - [分散式與單節點系統](/tw/ch1#sec_introduction_distributed)
 - [資料系統、法律與社會](/tw/ch1#sec_introduction_compliance)
@@ -65,11 +65,11 @@ breadcrumbs: false
 - [分片與二級索引](/tw/ch7#sec_sharding_secondary_indexes)
 - [總結](/tw/ch7#summary)
 
-## [8. 事務](/tw/ch8)
-- [事務到底是什麼？](/tw/ch8#sec_transactions_overview)
+## [8. 交易](/tw/ch8)
+- [交易到底是什麼？](/tw/ch8#sec_transactions_overview)
 - [弱隔離級別](/tw/ch8#sec_transactions_isolation_levels)
 - [可序列化](/tw/ch8#sec_transactions_serializability)
-- [分散式事務](/tw/ch8#sec_transactions_distributed)
+- [分散式交易](/tw/ch8#sec_transactions_distributed)
 - [總結](/tw/ch8#summary)
 - [參考](/tw/ch8#參考)
 

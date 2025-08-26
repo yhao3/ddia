@@ -75,7 +75,7 @@ breadcrumbs: false
 {{< figure src="/v1/ddia_part-ii_01.png" id="fig_replication_partitioning" caption="圖 II-1 一個數據庫切分為兩個分割槽，每個分割槽都有兩個副本" class="w-full my-4" >}}
 
 
-理解了這些概念，就可以開始討論在分散式系統中需要做出的困難抉擇。[第八章](/tw/ch8) 將討論 **事務（Transaction）**，這對於瞭解資料系統中可能出現的各種問題，以及我們可以做些什麼很有幫助。
+理解了這些概念，就可以開始討論在分散式系統中需要做出的困難抉擇。[第八章](/tw/ch8) 將討論 **交易（Transaction）**，這對於瞭解資料系統中可能出現的各種問題，以及我們可以做些什麼很有幫助。
 [第九章](/tw/ch9) 和 [第十章](/tw/ch10) 將討論分散式系統的根本侷限性。
 
 在本書的 [第三部分](/tw/part-iii) 中，將討論如何將多個（可能是分散式的）資料儲存整合為一個更大的系統，以滿足複雜的應用需求。但首先，我們來聊聊分散式的資料。
@@ -95,11 +95,11 @@ breadcrumbs: false
 - [分片與二級索引](/tw/ch7#sec_sharding_secondary_indexes)
 - [總結](/tw/ch7#summary)
 
-## [8. 事務](/tw/ch8)
-- [事務到底是什麼？](/tw/ch8#sec_transactions_overview)
+## [8. 交易](/tw/ch8)
+- [交易到底是什麼？](/tw/ch8#sec_transactions_overview)
 - [弱隔離級別](/tw/ch8#sec_transactions_isolation_levels)
 - [可序列化](/tw/ch8#sec_transactions_serializability)
-- [分散式事務](/tw/ch8#sec_transactions_distributed)
+- [分散式交易](/tw/ch8#sec_transactions_distributed)
 - [總結](/tw/ch8#summary)
 - [參考](/tw/ch8#參考)
 
