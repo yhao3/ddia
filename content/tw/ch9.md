@@ -679,7 +679,7 @@ DST 提供了超越可重放性的幾個優勢。Antithesis 等工具試圖透�
 
 * 事件溯源的一個關鍵優勢（見 ["事件溯源和 CQRS"](/tw/ch3#sec_datamodels_events)）是你可以確定性地重放事件日誌以重建派生的物化檢視。
 * 工作流引擎（見 ["持久執行和工作流"](/tw/ch5#sec_encoding_dataflow_workflows)）依賴於工作流定義是確定性的，以提供持久執行語義。
-* *狀態機複製*，我們將在 ["使用共享日誌"](/tw/ch10#sec_consistency_smr) 中討論，透過在每個副本上獨立執行相同的確定性交易序列來複制資料。我們已經看到了這個想法的兩個變體：基於語句的複製（見 ["複製日誌的實現"](/tw/ch6#sec_replication_implementation)）和使用儲存過程的序列交易執行（見 ["儲存過程的利弊"](/tw/ch8#sec_transactions_stored_proc_tradeoffs)）。
+* *狀態機複製*，我們將在 ["使用共享日誌"](/tw/ch10#sec_consistency_smr) 中討論，透過在每個副本上獨立執行相同的確定性交易序列來複制資料。我們已經看到了這個想法的兩個變體：基於語句的複製（見 ["複製日誌的實現"](/tw/ch6#sec_replication_implementation)）和使用預存程序的序列交易執行（見 ["預存程序的利弊"](/tw/ch8#sec_transactions_stored_proc_tradeoffs)）。
 
 然而，使程式碼完全確定性需要小心。即使你已經刪除了所有併發性並用確定性模擬替換了 I/O、網路通訊、時鐘和隨機數生成器，非確定性元素可能仍然存在。例如，在某些程式語言中，迭代雜湊表元素的順序可能是非確定性的。是否遇到資源限制（記憶體分配失敗、堆疊溢位）也是非確定性的。
 
