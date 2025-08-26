@@ -516,8 +516,8 @@ WHERE product_sk = 31 AND store_sk = 3
 
 對於不同種類的資料，也有各種不同的壓縮方案，但我們不會詳細討論它們，請參閱[^ref_58]的概述。
 
-> #### 列式儲存和列族
->
+#### 列式儲存和列族
+
 > Cassandra 和 HBase 有一個列族（column families）的概念，他們從 Bigtable 繼承[^ref_9]。然而，把它們稱為列式（column-oriented）是非常具有誤導性的：在每個列族中，它們將一行中的所有列與行鍵一起儲存，並且不使用列壓縮。因此，Bigtable 模型仍然主要是面向行的。
 >
 
