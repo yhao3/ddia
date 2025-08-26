@@ -40,26 +40,28 @@ def convert_file(src_filepath, dst_filepath, src_folder, dst_folder, cfg='s2twp.
     with open(src_filepath, "r", encoding='utf-8') as src, open(dst_filepath, "w+", encoding='utf-8') as dst:
         dst.write("\n".join(
             process_urls(
-                converter.convert(line.rstrip())
-                    .replace('一箇', '一個')
-                    .replace('髮送', '傳送')
-                    .replace('髮布', '釋出')
-                    .replace('髮生', '發生')
-                    .replace('髮出', '發出')
-                    .replace('嚐試', '嘗試')
-                    .replace('線上性一致', '在線性一致')    # 优先按"在线"解析了？
-                    .replace('復雜', '複雜')
-                    .replace('討論瞭', '討論了')
-                    .replace('瞭解釋', '了解釋')
-                    .replace('瞭如', '了如')                # 引入了如, 實現了如, 了如何, 了如果, 了如此
-                    .replace('了如指掌', '瞭如指掌')        # 针对上一行的例外情况
-                    .replace('明瞭', '明了')                # 闡明了, 聲明了, 指明了
-                    .replace('倒黴', '倒楣')
-                    .replace('區域性性', '區域性')
-                    .replace('下麵條件', '下面條件')        # 优先按"面条"解析了？
-                    .replace('當日志', '當日誌')            # 优先按"当日"解析了？
-                    .replace('真即時間', '真實時間')        # 优先按"实时"解析了？
-                    .replace('面向物件', '物件導向'),
+                re.sub(r'(\d+) 箇', r'\1 個',              # 数字 + 箇 -> 数字 + 個
+                    converter.convert(line.rstrip())
+                        .replace('一箇', '一個')
+                        .replace('髮送', '傳送')
+                        .replace('髮布', '釋出')
+                        .replace('髮生', '發生')
+                        .replace('髮出', '發出')
+                        .replace('嚐試', '嘗試')
+                        .replace('線上性一致', '在線性一致')    # 优先按"在线"解析了？
+                        .replace('復雜', '複雜')
+                        .replace('討論瞭', '討論了')
+                        .replace('瞭解釋', '了解釋')
+                        .replace('瞭如', '了如')                # 引入了如, 實現了如, 了如何, 了如果, 了如此
+                        .replace('了如指掌', '瞭如指掌')        # 针对上一行的例外情况
+                        .replace('明瞭', '明了')                # 闡明了, 聲明了, 指明了
+                        .replace('倒黴', '倒楣')
+                        .replace('區域性性', '區域性')
+                        .replace('下麵條件', '下面條件')        # 优先按"面条"解析了？
+                        .replace('當日志', '當日誌')            # 优先按"当日"解析了？
+                        .replace('真即時間', '真實時間')        # 优先按"实时"解析了？
+                        .replace('面向物件', '物件導向')
+                ),
                 src_folder, dst_folder
             )
             for line in src))
