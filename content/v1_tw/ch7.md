@@ -422,7 +422,7 @@ UPDATE figures SET position = 'c4' WHERE id = 1234;
 COMMIT;
 ```
 
-- `FOR UPDATE` 子句告訴資料庫應該對該查詢返回的所有行加鎖。
+- `FOR UPDATE` 子句告訴資料庫應該對該查詢返回的「所有行（row）」加鎖。
 
 這是有效的，但要做對，你需要仔細考慮應用邏輯。忘記在程式碼某處加鎖很容易引入競爭條件。
 
