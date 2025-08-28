@@ -68,8 +68,8 @@ breadcrumbs: false
 
 ## [第三部分：衍生資料](./part-iii)
 
-### [第十章：批處理](./ch10)
-* [使用Unix工具的批處理](./ch10#使用Unix工具的批處理)
+### [第十章：批次處理](./ch10)
+* [使用Unix工具的批次處理](./ch10#使用Unix工具的批次處理)
 * [MapReduce和分散式檔案系統](./ch10#MapReduce和分散式檔案系統)
 * [MapReduce之後](./ch10#MapReduce之後)
 * [本章小結](./ch10#本章小結)

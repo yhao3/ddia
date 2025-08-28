@@ -86,8 +86,8 @@ breadcrumbs: false
 - [共識](/tw/ch10#sec_consistency_consensus)
 - [總結](/tw/ch10#summary)
 
-## [第十一章：批處理](/tw/ch11)
-- [使用Unix工具的批處理](/tw/ch11#使用unix工具的批處理)
+## [第十一章：批次處理](/tw/ch11)
+- [使用Unix工具的批次處理](/tw/ch11#使用unix工具的批次處理)
 - [MapReduce和分散式檔案系統](/tw/ch11#mapreduce和分散式檔案系統)
 - [MapReduce之後](/tw/ch11#mapreduce之後)
 - [本章小結](/tw/ch11#本章小結)
