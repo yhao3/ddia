@@ -31,7 +31,7 @@ breadcrumbs: false
 - [描述效能](/tw/ch2#sec_introduction_percentiles)
 - [可靠性與容錯](/tw/ch2#sec_introduction_reliability)
 - [可伸縮性](/tw/ch2#sec_introduction_scalability)
-- [可運維性](/tw/ch2#sec_introduction_maintainability)
+- [可維運性](/tw/ch2#sec_introduction_maintainability)
 - [總結](/tw/ch2#summary)
 
 ## [3. 資料模型與查詢語言](/tw/ch3)
