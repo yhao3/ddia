@@ -61,6 +61,24 @@ def convert_file(src_filepath, dst_filepath, src_folder, dst_folder, cfg='s2twp.
                         .replace('當日志', '當日誌')            # 优先按"当日"解析了？
                         .replace('真即時間', '真實時間')        # 优先按"实时"解析了？
                         .replace('面向物件', '物件導向')
+                        .replace('並集', '聯集')
+                        .replace('提交併', '提交並')
+                        .replace('已提交併', '已提交並')
+                        .replace('併合並', '並合併')
+                        .replace('合並過程', '合併過程')
+                        .replace('合並衝突', '合併衝突')
+                        .replace('合並段', '合併段')
+                        .replace('段合並', '段合併')
+                        .replace('壓縮與合並', '壓縮與合併')
+                        .replace('壓縮和合並', '壓縮和合併')
+                        .replace('構建和合並', '構建和合併')
+                        .replace('分叉與合並', '分叉與合併')
+                        .replace('分支與合並', '分支與合併')
+                        .replace('分割和合並', '分割和合併')
+                        .replace('解決和合並', '解決和合併')
+                        .replace('排序和合並', '排序和合併')
+                        .replace('取聯集合並', '取聯集合併')
+                        .replace('合並其更改', '合併其更改')
                 ),
                 src_folder, dst_folder
             )
