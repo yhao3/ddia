@@ -88,7 +88,7 @@ For more information, please visit http://oreilly.com/safari.
 
 ## 致謝
 
-本書融合了學術研究和工業實踐的經驗，融合並系統化了大量其他人的想法與知識。在計算領域，我們往往會被各種新鮮花樣所吸引，但我認為前人完成的工作中，有太多值得我們學習的地方了。本書有 800 多處引用：文章、部落格、講座、文件等，對我來說這些都是寶貴的學習資源。我非常感謝這些材料的作者分享他們的知識。
+本書融合了學術研究和工業實踐的經驗，融合併系統化了大量其他人的想法與知識。在計算領域，我們往往會被各種新鮮花樣所吸引，但我認為前人完成的工作中，有太多值得我們學習的地方了。本書有 800 多處引用：文章、部落格、講座、文件等，對我來說這些都是寶貴的學習資源。我非常感謝這些材料的作者分享他們的知識。
 
 我也從與人交流中學到了很多東西，很多人花費了寶貴的時間與我討論想法並耐心解釋。特別感謝 Joe Adler, Ross Anderson, Peter Bailis, Márton Balassi, Alastair Beresford, Mark Callaghan, Mat Clayton, Patrick Collison, Sean Cribbs, Shirshanka Das, Niklas Ekström, Stephan Ewen, Alan Fekete, Gyula Fóra, Camille Fournier, Andres Freund, John Garbutt, Seth Gilbert, Tom Haggett, Pat Hel‐ land, Joe Hellerstein, Jakob Homan, Heidi Howard, John Hugg, Julian Hyde, Conrad Irwin, Evan Jones, Flavio Junqueira, Jessica Kerr, Kyle Kingsbury, Jay Kreps, Carl Lerche, Nicolas Liochon, Steve Loughran, Lee Mallabone, Nathan Marz, Caitie McCaffrey, Josie McLellan, Christopher Meiklejohn, Ian Meyers, Neha Narkhede, Neha Narula, Cathy O’Neil, Onora O’Neill, Ludovic Orban, Zoran Perkov, Julia Powles, Chris Riccomini, Henry Robinson, David Rosenthal, Jennifer Rullmann, Matthew Sackman, Martin Scholl, Amit Sela, Gwen Shapira, Greg Spurrier, Sam Stokes, Ben Stopford, Tom Stuart, Diana Vasile, Rahul Vohra, Pete Warden, 以及 Brett Wooldridge.
 
