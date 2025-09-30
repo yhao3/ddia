@@ -79,6 +79,7 @@ def convert_file(src_filepath, dst_filepath, src_folder, dst_folder, cfg='s2twp.
                         .replace('排序和合並', '排序和合併')
                         .replace('取聯集合並', '取聯集合併')
                         .replace('合並其更改', '合併其更改')
+                        .replace('儲存過程', '預存程序')
                 ),
                 src_folder, dst_folder
             )
