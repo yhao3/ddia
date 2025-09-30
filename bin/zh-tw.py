@@ -50,6 +50,7 @@ def convert_file(src_filepath, dst_filepath, src_folder, dst_folder, cfg='s2twp.
                         .replace('嚐試', '嘗試')
                         .replace('線上性一致', '在線性一致')    # 优先按"在线"解析了？
                         .replace('復雜', '複雜')
+                        .replace('復制', '複製')
                         .replace('討論瞭', '討論了')
                         .replace('瞭解釋', '了解釋')
                         .replace('瞭如', '了如')                # 引入了如, 實現了如, 了如何, 了如果, 了如此
